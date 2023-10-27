@@ -7,9 +7,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -18,6 +20,7 @@ import com.toasterofbread.toastercomposetools.utils.common.contrastAgainst
 import com.toasterofbread.toastercomposetools.utils.common.getContrasted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.catppuccin.Palette as Catppuccin
 
 const val VIBRANT_ACCENT_CONTRAST: Float = 0.2f
@@ -25,8 +28,8 @@ const val VIBRANT_ACCENT_CONTRAST: Float = 0.2f
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 abstract class Theme(
     system_theme_name: String,
-    private val coroutine_scope: CoroutineScope
 ): ThemeData {
+    private lateinit var coroutine_scope: CoroutineScope
     val preview_active: Boolean get() = preview_theme_data != null
     override val name: String get() = getCurrentTheme().name
 
@@ -40,10 +43,12 @@ abstract class Theme(
     val on_background_provider: () -> Color = { on_background_state.value }
     val accent_provider: () -> Color = { accent_state.value }
 
-    private var current_theme_idx: Int by mutableStateOf(0)
-    fun setCurrentThemeIdx(idx: Int) {
+    private var current_theme_idx: Int = 0
+    fun setCurrentThemeIdx(idx: Int, update_colours: Boolean = true) {
         current_theme_idx = idx
-        updateColourValues()
+        if (update_colours) {
+            updateColourValues()
+        }
     }
 
     abstract fun saveThemes(themes: List<ThemeData>)
@@ -74,12 +79,12 @@ abstract class Theme(
     }
 
     private val default_themes = getDefaultThemes()
-    private var loaded_themes: List<ThemeData>? by mutableStateOf(null)
+    private var loaded_themes: List<ThemeData>? = null
 
     private var preview_theme_data: ThemeData? by mutableStateOf(null)
     private val system_theme = ColourSchemeThemeData(system_theme_name)
 
-    private var thumbnail_colour: Color? by mutableStateOf(null)
+    private var thumbnail_colour: Color? = null
 
     private val background_state: Animatable<Color, AnimationVector4D> by lazy { Animatable(getLoadedThemes().first().background) }
     private val on_background_state: Animatable<Color, AnimationVector4D> by lazy { Animatable(getLoadedThemes().first().on_background) }
@@ -122,6 +127,8 @@ abstract class Theme(
 
     @Composable
     fun Update() {
+        coroutine_scope = rememberCoroutineScope()
+
         val dark_theme = isSystemInDarkTheme()
         system_theme.colour_scheme = remember(dark_theme) {
             if (dark_theme) getDarkColorScheme() else getLightColorScheme()
@@ -169,6 +176,7 @@ abstract class Theme(
 
     fun reloadThemes() {
         loaded_themes = loadThemes()
+        updateColourValues()
     }
 
     fun getDefaultThemes(): List<ThemeData> {
@@ -242,11 +250,11 @@ class ColourSchemeThemeData(
     var colour_scheme: ColorScheme? by mutableStateOf(null)
 
     override val background: Color
-        get() = colour_scheme!!.background
+        get() = colour_scheme?.background ?: Color.Unspecified
     override val on_background: Color
-        get() = colour_scheme!!.onBackground
+        get() = colour_scheme?.onBackground ?: Color.Unspecified
     override val accent: Color
-        get() = colour_scheme!!.primary
+        get() = colour_scheme?.primary ?: Color.Unspecified
 
     override fun toStaticThemeData(name: String): StaticThemeData =
         StaticThemeData(
