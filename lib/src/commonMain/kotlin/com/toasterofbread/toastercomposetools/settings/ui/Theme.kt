@@ -16,12 +16,16 @@ import androidx.compose.ui.graphics.toArgb
 import com.toasterofbread.toastercomposetools.utils.common.compare
 import com.toasterofbread.toastercomposetools.utils.common.contrastAgainst
 import com.toasterofbread.toastercomposetools.utils.common.getContrasted
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import com.catppuccin.Palette as Catppuccin
 
 const val VIBRANT_ACCENT_CONTRAST: Float = 0.2f
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 abstract class Theme(
-    system_theme_name: String
+    system_theme_name: String,
+    private val coroutine_scope: CoroutineScope
 ): ThemeData {
     val preview_active: Boolean get() = preview_theme_data != null
     override val name: String get() = getCurrentTheme().name
@@ -36,7 +40,11 @@ abstract class Theme(
     val on_background_provider: () -> Color = { on_background_state.value }
     val accent_provider: () -> Color = { accent_state.value }
 
-    var current_theme_idx: Int by mutableStateOf(0)
+    private var current_theme_idx: Int by mutableStateOf(0)
+    fun setCurrentThemeIdx(idx: Int) {
+        current_theme_idx = idx
+        updateColourValues()
+    }
 
     abstract fun saveThemes(themes: List<ThemeData>)
     abstract fun loadThemes(): List<ThemeData>
@@ -46,10 +54,10 @@ abstract class Theme(
     abstract fun getLightColorScheme(): ColorScheme
 
     fun makeVibrant(colour: Color, against: Color = background): Color {
-        if (colour.compare(background) > 0.8f) {
+//        if (colour.compare(background) > 0.8f) {
             return colour.contrastAgainst(against, VIBRANT_ACCENT_CONTRAST)
-        }
-        return colour
+//        }
+//        return colour
     }
 
     fun getCurrentTheme(): ThemeData {
@@ -97,35 +105,46 @@ abstract class Theme(
     }
     fun getThemeCount(): Int = getLoadedThemes().size
 
+    private fun updateColourValues() {
+        with(coroutine_scope) {
+            val data = getCurrentTheme()
+            launch {
+                background_state.animateTo(data.background)
+            }
+            launch {
+                on_background_state.animateTo(data.on_background)
+            }
+            launch {
+                accent_state.animateTo(selectAccentColour(data, thumbnail_colour))
+            }
+        }
+    }
+
     @Composable
     fun Update() {
         val dark_theme = isSystemInDarkTheme()
         system_theme.colour_scheme = remember(dark_theme) {
             if (dark_theme) getDarkColorScheme() else getLightColorScheme()
         }
-
-        val data = getCurrentTheme()
-        val background_colour = data.background
-        val on_background_colour = data.on_background
-        val accent_colour = selectAccentColour(data, thumbnail_colour)
-
-        LaunchedEffect(background_colour) {
-            background_state.animateTo(background_colour)
-        }
-        LaunchedEffect(on_background_colour) {
-            on_background_state.animateTo(on_background_colour)
-        }
-        LaunchedEffect(accent_colour) {
-            accent_state.animateTo(accent_colour)
-        }
     }
 
     fun setPreviewThemeData(preview_data: ThemeData?) {
         preview_theme_data = preview_data
+        updateColourValues()
     }
 
-    fun currentThumbnnailColourChanged(new_colour: Color?) {
+    fun currentThumbnnailColourChanged(new_colour: Color?, snap: Boolean = false) {
         thumbnail_colour = new_colour
+
+        coroutine_scope.launch {
+            val accent = selectAccentColour(getCurrentTheme(), thumbnail_colour)
+            if (snap) {
+                accent_state.snapTo(accent)
+            }
+            else {
+                accent_state.animateTo(accent)
+            }
+        }
     }
 
     fun updateTheme(index: Int, theme: ThemeData) {
