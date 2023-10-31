@@ -28,10 +28,14 @@ import java.nio.file.FileSystem
 import java.nio.file.FileSystemNotFoundException
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.security.CodeSource
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import kotlin.io.path.Path
 import kotlin.io.path.name
 
+
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
-private var instantiated: Boolean = false
 
 actual open class PlatformContext(private val app_name: String, private val resource_class: Class<*>) {
     actual fun getFilesDir(): File {
@@ -107,25 +111,50 @@ actual open class PlatformContext(private val app_name: String, private val reso
     private fun getResourceDir(): File = File("/assets")
 
     actual fun openResourceFile(path: String): InputStream {
-        val resource_path = getResourceDir().resolve(path).path
-        return resource_class.getResourceAsStream(resource_path)!!
+        val resource_path: String = getResourceDir().resolve(path).path
+
+        val stream: InputStream? = resource_class.getResourceAsStream(resource_path)
+        checkNotNull(stream) { "Could not open resource at $resource_path" }
+
+        return stream
     }
 
     @Suppress("NewApi")
     actual fun listResourceFiles(path: String): List<String>? {
-        val resource_path: String = getResourceDir().resolve(path).path
+        val paths: MutableList<String> = mutableListOf()
 
-        val resource = resource_class.getResource(resource_path)!!
+        val src: CodeSource = resource_class.protectionDomain.codeSource
+        val zip = ZipInputStream(src.location.openStream())
+        val resource_path = getResourceDir().resolve(path).path.trim('/') + '/'
 
-        val file_system: FileSystem =
-            try {
-                FileSystems.getFileSystem(resource.toURI())
+        var ze: ZipEntry?
+        while (zip.nextEntry.also { ze = it } != null) {
+            val entry = ze!!.name.trimEnd('/')
+
+            if (!entry.startsWith(resource_path)) {
+                continue
             }
-            catch (_: FileSystemNotFoundException) {
-                FileSystems.newFileSystem(resource.toURI(), emptyMap<String, Any>())
+
+            if (entry.length == resource_path.length) {
+                continue
             }
 
-        return Files.list(file_system.getPath(resource_path)).toList().map { it.name }
+            var has_slash: Boolean = false
+            for (i in resource_path.length until entry.length) {
+                if (entry[i] == '/') {
+                    has_slash = true
+                    break
+                }
+            }
+
+            if (has_slash) {
+                continue
+            }
+
+            paths.add(entry.removePrefix(resource_path))
+        }
+
+        return paths
     }
 
     actual fun loadFontFromFile(path: String): Font {
@@ -172,64 +201,66 @@ actual open class PlatformContext(private val app_name: String, private val reso
     }
 }
 
-actual class PlatformFile {
+actual class PlatformFile(private val file: File) {
     actual val uri: String
-        get() = TODO("Not yet implemented")
+        get() = file.toURI().path
     actual val name: String
-        get() = TODO("Not yet implemented")
+        get() = file.name
     actual val path: String
-        get() = TODO("Not yet implemented")
+        get() = file.path
     actual val absolute_path: String
-        get() = TODO("Not yet implemented")
+        get() = file.absolutePath
     actual val exists: Boolean
-        get() = TODO("Not yet implemented")
+        get() = file.exists()
     actual val is_directory: Boolean
-        get() = TODO("Not yet implemented")
+        get() = file.isDirectory
     actual val is_file: Boolean
-        get() = TODO("Not yet implemented")
+        get() = file.isFile
 
     actual fun getRelativePath(relative_to: PlatformFile): String {
-        TODO("Not yet implemented")
+        return file.relativeTo(relative_to.file).path
     }
 
     actual fun inputStream(): InputStream {
-        TODO("Not yet implemented")
+        return file.inputStream()
     }
 
     actual fun outputStream(append: Boolean): OutputStream {
-        TODO("Not yet implemented")
+        return FileOutputStream(file, append)
     }
 
     actual fun listFiles(): List<PlatformFile>? {
-        TODO("Not yet implemented")
+        return file.listFiles()?.map { PlatformFile(it) }
     }
 
     actual fun resolve(relative_path: String): PlatformFile {
-        TODO("Not yet implemented")
+        return PlatformFile(file.resolve(relative_path))
     }
 
     actual fun getSibling(sibling_name: String): PlatformFile {
-        TODO("Not yet implemented")
+        return PlatformFile(file.resolveSibling(sibling_name))
     }
 
     actual fun delete(): Boolean {
-        TODO("Not yet implemented")
+        return file.delete()
     }
 
     actual fun createFile(): Boolean {
-        TODO("Not yet implemented")
+        return file.createNewFile()
     }
 
     actual fun mkdirs(): Boolean {
-        TODO("Not yet implemented")
+        return file.mkdirs()
     }
 
     actual fun renameTo(new_name: String): PlatformFile {
-        TODO("Not yet implemented")
+        val dest = getSibling(new_name)
+        file.renameTo(dest.file)
+        return dest
     }
 
     actual fun moveDirContentTo(destination: PlatformFile): Result<PlatformFile> {
-        TODO("Not yet implemented")
+        TODO()
     }
 
     actual companion object {
@@ -237,11 +268,11 @@ actual class PlatformFile {
             file: File,
             context: PlatformContext,
         ): PlatformFile {
-            TODO("Not yet implemented")
+            return PlatformFile(file)
         }
     }
 
     actual fun matches(other: PlatformFile): Boolean {
-        TODO("Not yet implemented")
+        return file == other.file
     }
 }

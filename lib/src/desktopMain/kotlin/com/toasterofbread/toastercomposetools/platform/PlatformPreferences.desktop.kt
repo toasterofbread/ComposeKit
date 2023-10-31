@@ -68,7 +68,7 @@ actual class PlatformPreferences private constructor(private val file: File) {
         data.getOrDefault(key, defValues) as Set<String>
 
     actual fun getInt(key: String, defValue: Int?): Int? =
-        data.getOrDefault(key, defValue) as Int?
+        (data.getOrDefault(key, defValue) as Number?)?.toInt()
 
     actual fun getLong(key: String, defValue: Long?): Long? =
         data.getOrDefault(key, defValue) as Long?
