@@ -1,6 +1,5 @@
 package com.toasterofbread.toastercomposetools.platform
 
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -22,18 +21,10 @@ expect open class PlatformContext {
 
     fun isAppInForeground(): Boolean
 
-    @Composable
-    fun getStatusBarHeightDp(): Dp
     fun setStatusBarColour(colour: Color)
 
-    fun getNavigationBarHeight(): Int
     fun setNavigationBarColour(colour: Color?)
     fun isDisplayingAboveNavigationBar(): Boolean
-
-    @Composable
-    fun getImeInsets(): WindowInsets?
-    @Composable
-    fun getSystemInsets(): WindowInsets?
 
     fun getLightColorScheme(): ColorScheme
     fun getDarkColorScheme(): ColorScheme
@@ -99,9 +90,4 @@ expect class PlatformFile {
 
 fun PlatformContext.vibrateShort() {
     vibrate(0.01)
-}
-
-@Composable
-fun PlatformContext.getNavigationBarHeightDp(): Dp = with(LocalDensity.current) {
-    getNavigationBarHeight().toDp()
 }

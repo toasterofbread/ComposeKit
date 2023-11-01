@@ -62,9 +62,6 @@ actual open class PlatformContext(private val app_name: String, private val reso
         TODO("Not yet implemented")
     }
 
-    @Composable
-    actual fun getStatusBarHeightDp(): Dp = 0.dp
-
     actual fun setStatusBarColour(colour: Color) {}
 
     actual fun getLightColorScheme(): ColorScheme = lightColorScheme()
@@ -184,17 +181,9 @@ actual open class PlatformContext(private val app_name: String, private val reso
         TODO("Not yet implemented")
     }
 
-    actual fun getNavigationBarHeight(): Int = 0
-
     actual fun setNavigationBarColour(colour: Color?) {}
 
     actual fun isDisplayingAboveNavigationBar(): Boolean = false
-
-    @Composable
-    actual fun getImeInsets(): WindowInsets? = null
-
-    @Composable
-    actual fun getSystemInsets(): WindowInsets? = null
 
     actual fun deleteFile(name: String): Boolean {
         TODO("Not yet implemented")

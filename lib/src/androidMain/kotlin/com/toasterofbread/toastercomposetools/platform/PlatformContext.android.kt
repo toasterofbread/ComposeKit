@@ -413,31 +413,6 @@ actual open class PlatformContext(
 
     actual fun isAppInForeground(): Boolean = ctx.isAppInForeground()
 
-    @SuppressLint("InternalInsetResource", "DiscouragedApi")
-    @Composable
-    actual fun getStatusBarHeightDp(): Dp {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return with(LocalDensity.current) {
-                WindowInsets.statusBars.getTop(this).toDp()
-            }
-        }
-
-        var height: Dp? by remember { mutableStateOf(null) }
-        if (height != null) {
-            return height!!
-        }
-
-        val resource_id: Int = ctx.resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (resource_id > 0) {
-            with(LocalDensity.current) {
-                height = ctx.resources.getDimensionPixelSize(resource_id).toDp()
-                return height!!
-            }
-        }
-
-        throw RuntimeException("Could not get status bar height")
-    }
-
     actual fun setStatusBarColour(colour: Color) {
         val window = ctx.findWindow() ?: return
         val dark_icons: Boolean = !colour.isDark()
@@ -460,13 +435,6 @@ actual open class PlatformContext(
         }
 
         window.statusBarColor = colour.toArgb()
-    }
-
-    @SuppressLint("InternalInsetResource", "DiscouragedApi")
-    actual fun getNavigationBarHeight(): Int {
-        val resources = ctx.resources
-        val resource_id = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        return if (resource_id > 0) resources.getDimensionPixelSize(resource_id) else 0
     }
 
     actual fun setNavigationBarColour(colour: Color?) {
@@ -500,25 +468,6 @@ actual open class PlatformContext(
 
         return false
     }
-
-    @Composable
-    actual fun getImeInsets(): WindowInsets? {
-        val insets = WindowInsets.ime
-
-        val bottom: Int = insets.getBottom(LocalDensity.current)
-        if (bottom > 0) {
-            val navbar_height: Int = getNavigationBarHeight()
-            return WindowInsets(
-                bottom = bottom.coerceAtMost(
-                    (bottom - navbar_height).coerceAtLeast(0)
-                )
-            )
-        }
-
-        return insets
-    }
-    @Composable
-    actual fun getSystemInsets(): WindowInsets? = WindowInsets.systemGestures
 
     actual fun getLightColorScheme(): ColorScheme =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) dynamicLightColorScheme(ctx)
