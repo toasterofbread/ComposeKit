@@ -129,9 +129,10 @@ abstract class Theme(
     fun Update() {
         coroutine_scope = rememberCoroutineScope()
 
-        val dark_theme = isSystemInDarkTheme()
-        system_theme.colour_scheme = remember(dark_theme) {
-            if (dark_theme) getDarkColorScheme() else getLightColorScheme()
+        val dark_theme: Boolean = isSystemInDarkTheme()
+        LaunchedEffect(dark_theme) {
+            system_theme.colour_scheme = if (dark_theme) getDarkColorScheme() else getLightColorScheme()
+            updateColourValues()
         }
     }
 
