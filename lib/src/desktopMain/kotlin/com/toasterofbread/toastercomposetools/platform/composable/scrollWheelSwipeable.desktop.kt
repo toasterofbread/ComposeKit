@@ -13,7 +13,9 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 actual fun Modifier.scrollWheelSwipeable(
     state: SwipeableState<Int>,
     anchors: Map<Float, Int>,
@@ -25,24 +27,26 @@ actual fun Modifier.scrollWheelSwipeable(
     return@composed mouseWheelInput { direction ->
         val target = state.targetValue + (if (reverse_direction) -direction else direction)
         if (anchors.values.contains(target)) {
-            state.animateTo(target)
+            try {
+                state.animateTo(target)
+            } catch (_: Throwable) {}
         }
         return@mouseWheelInput true
     }.swipeable(state = state, anchors = anchors, thresholds = thresholds, orientation = orientation, reverseDirection = reverse_direction, interactionSource = interaction_source)
 }
 
-private inline val PointerEvent.isConsumed: Boolean get() = changes.any { c: PointerInputChange -> c.isConsumed }
-private inline fun PointerEvent.consume() = changes.forEach { c: PointerInputChange -> c.consume() }
+internal inline val PointerEvent.isConsumed: Boolean get() = changes.any { c: PointerInputChange -> c.isConsumed }
+internal inline fun PointerEvent.consume() = changes.forEach { c: PointerInputChange -> c.consume() }
 
-private suspend fun AwaitPointerEventScope.awaitScrollEvent(): PointerEvent {
+internal suspend fun AwaitPointerEventScope.awaitScrollEvent(): PointerEvent {
     var event: PointerEvent
     do {
         event = awaitPointerEvent()
-    } while ((event.type as PointerEventType) != PointerEventType.Scroll)
+    } while (event.type != PointerEventType.Scroll)
     return event
 }
 
-private fun Modifier.mouseWheelInput(
+internal fun Modifier.mouseWheelInput(
     onMouseWheel: suspend (direction: Int) -> Boolean
 ) = pointerInput(Unit) {
     coroutineScope {
@@ -52,9 +56,11 @@ private fun Modifier.mouseWheelInput(
             }
             if (!event.isConsumed) {
                 val change: PointerInputChange = event.changes.first()
-                val consumed = onMouseWheel(change.scrollDelta.y.toInt())
-                if (consumed) {
-                    event.consume()
+                launch {
+                    val consumed = onMouseWheel(change.scrollDelta.y.toInt())
+                    if (consumed) {
+                        event.consume()
+                    }
                 }
             }
         }

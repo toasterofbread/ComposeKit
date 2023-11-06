@@ -7,27 +7,24 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.toasterofbread.toastercomposetools.utils.common.compare
+import com.catppuccin.Flavour
 import com.toasterofbread.toastercomposetools.utils.common.contrastAgainst
 import com.toasterofbread.toastercomposetools.utils.common.getContrasted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.catppuccin.Palette as Catppuccin
 
 const val VIBRANT_ACCENT_CONTRAST: Float = 0.2f
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 abstract class Theme(
-    system_theme_name: String,
+    system_theme_default_name: String,
 ): ThemeData {
     private lateinit var coroutine_scope: CoroutineScope
     val preview_active: Boolean get() = preview_theme_data != null
@@ -71,19 +68,37 @@ abstract class Theme(
         }
 
         if (current_theme_idx == 0) {
-            return system_theme
+            return getCurrentSystemTheme()
         }
         else {
             return getLoadedThemes()[current_theme_idx - 1]
         }
     }
 
-    private val default_themes = getDefaultThemes()
+    private fun getCurrentSystemTheme(): ThemeData {
+        val gtk_theme: String? = System.getenv("GTK_THEME")
+
+        if (gtk_theme?.startsWith("Catppuccin-") == true) {
+            val split: List<String> = gtk_theme.substring(11).split("-", limit = 4)
+            if (split.size >= 3) {
+                val flavour: String = split[0].lowercase()
+                val accent: String = split[2].lowercase()
+
+                val theme: ThemeData? = getCatppuccinTheme(flavour, accent)
+                if (theme != null) {
+                    return theme.toStaticThemeData(default_system_theme.name + ": " + theme.name)
+                }
+            }
+        }
+
+        return default_system_theme
+    }
+
+    private val default_themes: List<ThemeData> = getDefaultThemes()
+    private val default_system_theme: ColourSchemeThemeData = ColourSchemeThemeData(system_theme_default_name)
     private var loaded_themes: List<ThemeData>? = null
 
     private var preview_theme_data: ThemeData? by mutableStateOf(null)
-    private val system_theme = ColourSchemeThemeData(system_theme_name)
-
     private var thumbnail_colour: Color? = null
 
     private val background_state: Animatable<Color, AnimationVector4D> by lazy { Animatable(getLoadedThemes().first().background) }
@@ -106,7 +121,7 @@ abstract class Theme(
         )
 
     fun getThemes(): List<ThemeData> {
-        return listOf(system_theme) + getLoadedThemes()
+        return listOf(getCurrentSystemTheme()) + getLoadedThemes()
     }
     fun getThemeCount(): Int = getLoadedThemes().size
 
@@ -131,7 +146,7 @@ abstract class Theme(
 
         val dark_theme: Boolean = isSystemInDarkTheme()
         LaunchedEffect(dark_theme) {
-            system_theme.colour_scheme = if (dark_theme) getDarkColorScheme() else getLightColorScheme()
+            default_system_theme.colour_scheme = if (dark_theme) getDarkColorScheme() else getLightColorScheme()
             updateColourValues()
         }
     }
@@ -180,33 +195,45 @@ abstract class Theme(
         updateColourValues()
     }
 
-    fun getDefaultThemes(): List<ThemeData> {
-        val palette = Catppuccin.MOCHA
-
-        return listOf(
-            Pair(Color(palette.mauve.rgb), "mauve"),
-            Pair(Color(palette.lavender.rgb), "lavender"),
-            Pair(Color(palette.red.rgb), "red"),
-            Pair(Color(palette.yellow.rgb), "yellow"),
-            Pair(Color(palette.green.rgb), "green"),
-            Pair(Color(palette.teal.rgb), "teal"),
-            Pair(Color(palette.pink.rgb), "pink"),
-            Pair(Color(palette.sapphire.rgb), "sapphire"),
-            Pair(Color(palette.rosewater.rgb), "rosewater"),
-            Pair(Color(palette.peach.rgb), "peach"),
-            Pair(Color(palette.sky.rgb), "sky"),
-            Pair(Color(palette.maroon.rgb), "maroon"),
-            Pair(Color(palette.blue.rgb), "blue"),
-            Pair(Color(palette.flamingo.rgb), "flamingo")
-        ).map { accent ->
-            StaticThemeData(
-                "Catppuccin ${palette.name.replaceFirstChar { it.uppercaseChar() }} (${accent.second})",
-                Color(palette.crust.rgb),
-                Color(palette.text.rgb),
-                accent.first
-            )
+    private fun getCatppuccinTheme(target_flavour: String, target_accent: String): ThemeData? {
+        for (flavour in Catppuccin.toList()) {
+            if (flavour.name == target_flavour) {
+                for (accent in flavour.toList()) {
+                    if (accent.key == target_accent) {
+                        return StaticThemeData(
+                            "Catppuccin ${flavour.name.replaceFirstChar { it.uppercaseChar() }} (${accent.key})",
+                            Color(flavour.crust.rgb),
+                            Color(flavour.text.rgb),
+                            Color(accent.value.rgb)
+                        )
+                    }
+                }
+                break
+            }
         }
+
+        return null
     }
+
+    fun getDefaultThemes(): List<ThemeData> =
+        listOf(
+            "mauve",
+            "lavender",
+            "red",
+            "yellow",
+            "green",
+            "teal",
+            "pink",
+            "sapphire",
+            "rosewater",
+            "peach",
+            "sky",
+            "maroon",
+            "blue",
+            "flamingo"
+        ).mapNotNull { accent ->
+            getCatppuccinTheme("mocha", accent)
+        }
 }
 
 interface ThemeData {
