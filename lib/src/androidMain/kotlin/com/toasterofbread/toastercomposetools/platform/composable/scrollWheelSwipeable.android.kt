@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterialApi::class)
 
-package com.toasterofbread.toastercomposetools.platform.composable
+package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource

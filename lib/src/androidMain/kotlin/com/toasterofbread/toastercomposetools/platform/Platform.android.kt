@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform
+package com.toasterofbread.composekit.platform
 
 actual fun getPlatform(): Platform =
     Platform.ANDROID

@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform
+package com.toasterofbread.composekit.platform
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -9,7 +9,7 @@ actual class PlatformPreferences private constructor(private val prefs: SharedPr
         private var instance: PlatformPreferences? = null
 
         fun getInstance(context: Context): PlatformPreferences {
-            return getInstance(context.getSharedPreferences("com.toasterofbread.toastercomposetools.PREFERENCES", Context.MODE_PRIVATE))
+            return getInstance(context.getSharedPreferences("com.toasterofbread.composekit.PREFERENCES", Context.MODE_PRIVATE))
         }
         private fun getInstance(prefs: SharedPreferences): PlatformPreferences {
             if (instance == null) {

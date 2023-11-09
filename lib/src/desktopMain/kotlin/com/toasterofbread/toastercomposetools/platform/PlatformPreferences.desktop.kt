@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform
+package com.toasterofbread.composekit.platform
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

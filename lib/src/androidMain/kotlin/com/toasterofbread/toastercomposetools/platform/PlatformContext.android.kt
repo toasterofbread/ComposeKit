@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform
+package com.toasterofbread.composekit.platform
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -26,10 +26,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.unit.Dp
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -46,7 +46,7 @@ import com.anggrayudi.storage.file.getAbsolutePath
 import com.anggrayudi.storage.file.makeFolder
 import com.anggrayudi.storage.file.moveFolderTo
 import com.anggrayudi.storage.media.MediaFile
-import com.toasterofbread.toastercomposetools.utils.common.isDark
+import com.toasterofbread.composekit.utils.common.isDark
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
 import java.io.FileInputStream
@@ -413,9 +413,20 @@ actual open class PlatformContext(
 
     actual fun isAppInForeground(): Boolean = ctx.isAppInForeground()
 
-    actual fun setStatusBarColour(colour: Color) {
+    actual fun setStatusBarColour(colour: Color?) {
         val window = ctx.findWindow() ?: return
-        val dark_icons: Boolean = !colour.isDark()
+
+        val dark_icons: Boolean
+        val bar_colour: Color
+
+        if (colour == null || colour.isUnspecified || colour == Color.Transparent) {
+            dark_icons = false
+            bar_colour = Color.Black
+        }
+        else {
+            dark_icons = !colour.isDark()
+            bar_colour = colour
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.setSystemBarsAppearance(
@@ -434,7 +445,7 @@ actual open class PlatformContext(
             }
         }
 
-        window.statusBarColor = colour.toArgb()
+        window.statusBarColor = bar_colour.toArgb()
     }
 
     actual fun setNavigationBarColour(colour: Color?) {

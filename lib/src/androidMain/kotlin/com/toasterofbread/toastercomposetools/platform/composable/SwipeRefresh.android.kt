@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform.composable
+package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

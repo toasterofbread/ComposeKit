@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform.composable
+package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.ui.Modifier

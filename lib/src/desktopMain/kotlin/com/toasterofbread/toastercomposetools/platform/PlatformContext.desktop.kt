@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform
+package com.toasterofbread.composekit.platform
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
@@ -52,7 +52,7 @@ actual open class PlatformContext(private val app_name: String, private val reso
         TODO("Not yet implemented")
     }
 
-    actual fun setStatusBarColour(colour: Color) {}
+    actual fun setStatusBarColour(colour: Color?) {}
 
     actual fun getLightColorScheme(): ColorScheme = lightColorScheme()
 

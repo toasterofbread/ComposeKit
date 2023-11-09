@@ -1,4 +1,4 @@
-package com.toasterofbread.toastercomposetools.platform.composable
+package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
