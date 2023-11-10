@@ -38,20 +38,15 @@ fun Color.offsetRGB(offset: Float, clip: Boolean = true): Color {
         }
     }
 
-    return Color(
-        (red + f_offset).coerceIn(0f..1f),
-        (green + f_offset).coerceIn(0f..1f),
-        (blue + f_offset).coerceIn(0f..1f),
-        alpha
+    return copy(
+        red = (red + f_offset).coerceIn(0f..1f),
+        green = (green + f_offset).coerceIn(0f..1f),
+        blue = (blue + f_offset).coerceIn(0f..1f),
     )
 }
 
 fun Color.amplify(by: Float, opposite: Float = by): Color {
-    val offset = offsetRGB(if (isDark()) -by else by)
-    if (compare(offset) < 0.9f) {
-        return offset
-    }
-    return offsetRGB(if (isDark()) opposite else -opposite)
+    return offsetRGB(if (isDark()) -by else by, false)
 }
 
 fun Color.amplifyPercent(by_percent: Float, opposite_percent: Float = by_percent, allow_reverse: Boolean = true): Color {

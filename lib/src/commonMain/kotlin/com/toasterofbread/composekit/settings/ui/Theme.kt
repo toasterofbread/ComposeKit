@@ -13,8 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.catppuccin.Flavour
-import com.toasterofbread.composekit.utils.common.contrastAgainst
+import com.toasterofbread.composekit.utils.common.amplify
 import com.toasterofbread.composekit.utils.common.getContrasted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -56,8 +55,9 @@ abstract class Theme(
     abstract fun getLightColorScheme(): ColorScheme
 
     fun makeVibrant(colour: Color, against: Color = background): Color {
+        return colour.amplify(VIBRANT_ACCENT_CONTRAST)
 //        if (colour.compare(background) > 0.8f) {
-            return colour.contrastAgainst(against, VIBRANT_ACCENT_CONTRAST)
+//            return colour.contrastAgainst(against, VIBRANT_ACCENT_CONTRAST)
 //        }
 //        return colour
     }
@@ -125,6 +125,8 @@ abstract class Theme(
     }
     fun getThemeCount(): Int = getLoadedThemes().size
 
+    open fun onAccentColourChanged(colour: Color) {}
+
     private fun updateColourValues() {
         with(coroutine_scope) {
             val data = getCurrentTheme()
@@ -147,6 +149,7 @@ abstract class Theme(
         val dark_theme: Boolean = isSystemInDarkTheme()
         LaunchedEffect(dark_theme) {
             default_system_theme.colour_scheme = if (dark_theme) getDarkColorScheme() else getLightColorScheme()
+            onAccentColourChanged(selectAccentColour(getCurrentTheme(), thumbnail_colour))
             updateColourValues()
         }
     }
@@ -161,6 +164,8 @@ abstract class Theme(
 
         coroutine_scope.launch {
             val accent = selectAccentColour(getCurrentTheme(), thumbnail_colour)
+            onAccentColourChanged(accent)
+
             if (snap) {
                 accent_state.snapTo(accent)
             }
