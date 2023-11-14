@@ -65,7 +65,7 @@ actual class PlatformPreferences private constructor(private val file: File) {
 
     @Suppress("UNCHECKED_CAST")
     actual fun getStringSet(key: String, defValues: Set<String>?): Set<String>? =
-        data.getOrDefault(key, defValues) as Set<String>
+        (data.getOrDefault(key, defValues) as Iterable<String>).toSet()
 
     actual fun getInt(key: String, defValue: Int?): Int? =
         (data.getOrDefault(key, defValue) as Number?)?.toInt()
@@ -74,7 +74,7 @@ actual class PlatformPreferences private constructor(private val file: File) {
         data.getOrDefault(key, defValue) as Long?
 
     actual fun getFloat(key: String, defValue: Float?): Float? =
-        data.getOrDefault(key, defValue) as Float?
+        (data.getOrDefault(key, defValue) as Number?)?.toFloat()
 
     actual fun getBoolean(key: String, defValue: Boolean?): Boolean? =
         data.getOrDefault(key, defValue) as Boolean?
