@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.toasterofbread.composekit.utils.common.amplify
+import com.toasterofbread.composekit.utils.common.contrastAgainst
 import com.toasterofbread.composekit.utils.common.getContrasted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -55,9 +56,9 @@ abstract class Theme(
     abstract fun getLightColorScheme(): ColorScheme
 
     fun makeVibrant(colour: Color, against: Color = background): Color {
-        return colour.amplify(VIBRANT_ACCENT_CONTRAST)
+//        return colour.amplify(VIBRANT_ACCENT_CONTRAST)
 //        if (colour.compare(background) > 0.8f) {
-//            return colour.contrastAgainst(against, VIBRANT_ACCENT_CONTRAST)
+            return colour.contrastAgainst(against, VIBRANT_ACCENT_CONTRAST)
 //        }
 //        return colour
     }
