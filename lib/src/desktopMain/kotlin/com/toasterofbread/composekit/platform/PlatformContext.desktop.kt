@@ -24,7 +24,6 @@ import java.security.CodeSource
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
 
 actual open class PlatformContext(private val app_name: String, private val resource_class: Class<*>) {
@@ -35,7 +34,7 @@ actual open class PlatformContext(private val app_name: String, private val reso
             OS.MacOS -> TODO()
             else -> throw NotImplementedError(hostOs.name)
         }
-        return getHomeDir().resolve(subdir).resolve(app_name)
+        return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
     }
 
     actual fun getCacheDir(): File {
@@ -45,7 +44,7 @@ actual open class PlatformContext(private val app_name: String, private val reso
             OS.MacOS -> TODO()
             else -> throw NotImplementedError(hostOs.name)
         }
-        return getHomeDir().resolve(subdir).resolve(app_name)
+        return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
     }
 
     actual fun isAppInForeground(): Boolean {
