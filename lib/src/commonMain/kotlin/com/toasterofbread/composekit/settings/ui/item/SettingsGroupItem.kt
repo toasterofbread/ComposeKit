@@ -8,11 +8,7 @@ import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 
-class SettingsGroupItem(var title: String?): SettingsItem() {
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {}
-    override fun releaseValueStates(prefs: PlatformPreferences) {}
-    override fun resetValues() {}
-
+class SettingsGroupItem(var title: String?): EmptySettingsItem() {
     @Composable
     override fun Item(
         settings_interface: SettingsInterface,

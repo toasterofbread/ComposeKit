@@ -39,6 +39,14 @@ class SettingsToggleItem(
         state.release(prefs)
     }
 
+    override fun setEnableAutosave(value: Boolean) {
+        state.setEnableAutosave(value)
+    }
+
+    override fun save() {
+        state.save()
+    }
+
     override fun resetValues() {
         state.reset()
     }

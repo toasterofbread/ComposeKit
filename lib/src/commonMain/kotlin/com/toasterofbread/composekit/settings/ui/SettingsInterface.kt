@@ -27,11 +27,11 @@ class SettingsInterface(
     private val root_page: Int,
     val prefs: PlatformPreferences,
     val default_provider: (String) -> Any,
-    val footer_modifier: Modifier,
     val triggerVibration: () -> Unit,
     private val getPage: (Int, Any?) -> SettingsPage,
     private val onPageChanged: ((page: Int?) -> Unit)? = null,
-    private val onCloseRequested: (() -> Unit)? = null
+    private val onCloseRequested: (() -> Unit)? = null,
+    val footer_modifier: Modifier = Modifier
 ) {
     val theme: Theme get() = themeProvider()
     var current_page: SettingsPage by mutableStateOf(getUserPage(root_page, null))

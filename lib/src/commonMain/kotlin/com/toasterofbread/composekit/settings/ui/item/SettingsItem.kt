@@ -32,6 +32,8 @@ abstract class SettingsItem {
     protected abstract fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any)
     protected abstract fun releaseValueStates(prefs: PlatformPreferences)
 
+    abstract fun setEnableAutosave(value: Boolean)
+    abstract fun save()
     abstract fun resetValues()
 
     @Composable
@@ -75,9 +77,13 @@ interface BasicSettingsValueState<T: Any> {
     fun init(prefs: PlatformPreferences, defaultProvider: (String) -> Any): BasicSettingsValueState<T>
     fun release(prefs: PlatformPreferences)
 
+    fun setEnableAutosave(value: Boolean)
     fun reset()
     fun save()
     fun getDefault(defaultProvider: (String) -> Any): T
+
+    @Composable
+    fun onChanged(key: Any?, action: (T) -> Unit)
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -89,11 +95,13 @@ class SettingsValueState<T: Any>(
 ): BasicSettingsValueState<T>, State<T> {
     var autosave: Boolean = true
 
-    private lateinit var prefs: PlatformPreferences
     private lateinit var defaultProvider: (String) -> Any
-    private var listener: PlatformPreferences.Listener? = null
-    private var _value: T? by mutableStateOf(null)
+    private lateinit var prefs: PlatformPreferences
+    private var pref_listener: PlatformPreferences.Listener? = null
 
+    private val change_listeners: MutableList<(T) -> Unit> = mutableListOf()
+
+    private var _value: T? by mutableStateOf(null)
     override val value: T get() = _value!!
 
     override fun get(): T = _value!!
@@ -108,7 +116,23 @@ class SettingsValueState<T: Any>(
         if (autosave) {
             save()
         }
+
         onChanged?.invoke(value)
+        for (listener in change_listeners) {
+            listener(_value!!)
+        }
+    }
+
+    @Composable
+    override fun onChanged(key: Any?, action: (T) -> Unit) {
+        DisposableEffect(key) {
+            val listener: (T) -> Unit = action
+            change_listeners.add(listener)
+
+            onDispose {
+                change_listeners.remove(listener)
+            }
+        }
     }
 
     private fun updateValue() {
@@ -134,7 +158,7 @@ class SettingsValueState<T: Any>(
 
         updateValue()
 
-        listener =
+        pref_listener =
             object : PlatformPreferences.Listener {
                 override fun onChanged(prefs: PlatformPreferences, key: String) {
                     if (key == this@SettingsValueState.key) {
@@ -150,15 +174,23 @@ class SettingsValueState<T: Any>(
     }
 
     override fun release(prefs: PlatformPreferences) {
-        listener?.also {
+        pref_listener?.also {
             prefs.removeListener(it)
         }
+    }
+
+    override fun setEnableAutosave(value: Boolean) {
+        autosave = value
     }
 
     override fun reset() {
         _value = getValueConverter(defaultProvider(key) as T)!!
         save()
+
         onChanged?.invoke(_value!!)
+        for (listener in change_listeners) {
+            listener(_value!!)
+        }
     }
 
     override fun save() {
@@ -177,4 +209,12 @@ class SettingsValueState<T: Any>(
     }
 
     override fun getDefault(defaultProvider: (String) -> Any): T = defaultProvider(key) as T
+}
+
+abstract class EmptySettingsItem(): SettingsItem() {
+    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {}
+    override fun releaseValueStates(prefs: PlatformPreferences) {}
+    override fun setEnableAutosave(value: Boolean) {}
+    override fun save() {}
+    override fun resetValues() {}
 }

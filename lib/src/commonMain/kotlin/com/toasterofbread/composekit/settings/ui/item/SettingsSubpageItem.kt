@@ -16,11 +16,7 @@ class SettingsSubpageItem(
     val subtitle: String?,
     val target_page: Int,
     val target_page_param: Any?
-): SettingsItem() {
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {}
-    override fun releaseValueStates(prefs: PlatformPreferences) {}
-    override fun resetValues() {}
-
+): EmptySettingsItem() {
     @Composable
     override fun Item(
         settings_interface: SettingsInterface,

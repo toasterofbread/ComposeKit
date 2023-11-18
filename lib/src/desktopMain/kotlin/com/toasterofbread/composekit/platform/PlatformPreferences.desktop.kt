@@ -8,9 +8,9 @@ actual class PlatformPreferences private constructor(private val file: File) {
     companion object {
         private var instance: PlatformPreferences? = null
 
-        fun getInstance(file: File): PlatformPreferences {
+        fun getInstance(getFile: () -> File): PlatformPreferences {
             if (instance == null) {
-                instance = PlatformPreferences(file)
+                instance = PlatformPreferences(getFile())
             }
             return instance!!
         }
