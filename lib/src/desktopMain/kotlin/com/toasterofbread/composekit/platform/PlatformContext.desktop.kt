@@ -110,14 +110,23 @@ actual open class PlatformContext(private val app_name: String, private val reso
         val paths: MutableList<String> = mutableListOf()
 
         val src: CodeSource = resource_class.protectionDomain.codeSource
-        val zip = ZipInputStream(src.location.openStream())
-        val resource_path = getResourceDir().resolve(path).path.trim('/') + '/'
+        val zip: ZipInputStream = ZipInputStream(src.location.openStream())
+
+        val resource_dir: File = getResourceDir()
+        val resource_path: String = resource_dir.resolve(path).path.trim('/') + '/'
+
+        val searching_root: Boolean = resource_dir == File(resource_path)
 
         var ze: ZipEntry?
         while (zip.nextEntry.also { ze = it } != null) {
             val entry = ze!!.name.trimEnd('/')
 
-            if (!entry.startsWith(resource_path)) {
+            if (searching_root) {
+                if (entry == "META-INF" || entry == "com" || entry.contains('$') || entry.endsWith(".class")) {
+                    continue
+                }
+            }
+            else if (!entry.startsWith(resource_path)) {
                 continue
             }
 
