@@ -43,19 +43,24 @@ class SettingsToggleItem(
         state.setEnableAutosave(value)
     }
 
-    override fun save() {
-        state.save()
+    override fun PlatformPreferences.Editor.saveItem() {
+        with (state) {
+            save()
+        }
     }
 
     override fun resetValues() {
         state.reset()
     }
 
+    override fun getKeys(): List<String> = state.getKeys()
+
     @Composable
     override fun Item(
         settings_interface: SettingsInterface,
         openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit
+        openCustomPage: (SettingsPage) -> Unit,
+        modifier: Modifier
     ) {
         val theme = settings_interface.theme
 

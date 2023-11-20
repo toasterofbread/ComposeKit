@@ -72,19 +72,28 @@ class SettingsFileItem(
         state.setEnableAutosave(value)
     }
 
-    override fun save() {
-        state.save()
+    override fun PlatformPreferences.Editor.saveItem() {
+        with (state) {
+            save()
+        }
     }
 
     override fun resetValues() {
         state.reset()
     }
 
+    override fun getKeys(): List<String> = state.getKeys()
+
     private var current_dialog: Dialog? by mutableStateOf(null)
     private val coroutine_scope = CoroutineScope(Job())
 
     @Composable
-    override fun Item(settings_interface: SettingsInterface, openPage: (Int, Any?) -> Unit, openCustomPage: (SettingsPage) -> Unit) {
+    override fun Item(
+        settings_interface: SettingsInterface,
+        openPage: (Int, Any?) -> Unit,
+        openCustomPage: (SettingsPage) -> Unit,
+        modifier: Modifier
+    ) {
         var action_in_progress: Boolean by remember { mutableStateOf(false) }
         LaunchedEffect(current_dialog) {
             action_in_progress = false

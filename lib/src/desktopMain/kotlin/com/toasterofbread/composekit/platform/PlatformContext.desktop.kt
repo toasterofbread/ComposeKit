@@ -171,7 +171,15 @@ actual open class PlatformContext(private val app_name: String, private val reso
         screen_size = Window.getWindows().first().size
     }
 
-    actual fun promptForUserDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
+    actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
+        TODO()
+    }
+
+    actual fun promptUserForFile(mime_types: Set<String>, persist: Boolean, callback: (uri: String?) -> Unit) {
+        TODO()
+    }
+
+    actual fun promptUserForJsonCreation(filename_suggestion: String?, persist: Boolean, callback: (uri: String?) -> Unit) {
         TODO()
     }
 

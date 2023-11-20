@@ -7,7 +7,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 
@@ -17,11 +16,14 @@ class SettingsSubpageItem(
     val target_page: Int,
     val target_page_param: Any?
 ): EmptySettingsItem() {
+    override fun getKeys(): List<String> = emptyList()
+
     @Composable
     override fun Item(
         settings_interface: SettingsInterface,
         openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit
+        openCustomPage: (SettingsPage) -> Unit,
+        modifier: Modifier
     ) {
         val theme = settings_interface.theme
 

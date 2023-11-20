@@ -13,7 +13,9 @@ expect open class PlatformContext {
     fun getFilesDir(): File
     fun getCacheDir(): File
 
-    fun promptForUserDirectory(persist: Boolean = false, callback: (uri: String?) -> Unit)
+    fun promptUserForDirectory(persist: Boolean = false, callback: (uri: String?) -> Unit)
+    fun promptUserForFile(mime_types: Set<String>, persist: Boolean = false, callback: (uri: String?) -> Unit)
+    fun promptUserForJsonCreation(filename_suggestion: String?, persist: Boolean = false, callback: (uri: String?) -> Unit)
     fun getUserDirectoryFile(uri: String): PlatformFile
 
     fun isAppInForeground(): Boolean

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
+import com.toasterofbread.composekit.settings.ui.Theme
 import com.toasterofbread.composekit.utils.composable.SubtleLoadingIndicator
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 import com.toasterofbread.composekit.utils.modifier.background
@@ -73,20 +74,35 @@ class SettingsLargeToggleItem(
         state.setEnableAutosave(value)
     }
 
-    override fun save() {
-        state.save()
+    override fun PlatformPreferences.Editor.saveItem() {
+        with (state) {
+            save()
+        }
+        for (item in extra_items) {
+            with(item) {
+                saveItem()
+            }
+        }
     }
 
-    override fun resetValues() {}
+    override fun resetValues() {
+        state.reset()
+        for (item in extra_items) {
+            item.resetValues()
+        }
+    }
+
+    override fun getKeys(): List<String> = state.getKeys() + extra_items.flatMap { it.getKeys() }
 
     @Composable
     override fun Item(
         settings_interface: SettingsInterface,
         openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit
+        openCustomPage: (SettingsPage) -> Unit,
+        modifier: Modifier
     ) {
-        val theme = settings_interface.theme
-        val shape = RoundedCornerShape(25.dp)
+        val theme: Theme = settings_interface.theme
+        val shape: RoundedCornerShape = RoundedCornerShape(25.dp)
         var loading: Boolean by remember { mutableStateOf(false) }
 
         val showing_extra_state: MutableState<Boolean> = remember { mutableStateOf(false) }
@@ -113,7 +129,7 @@ class SettingsLargeToggleItem(
             Crossfade(state_value) { enabled ->
                 CompositionLocalProvider(LocalContentColor provides if (!enabled) theme.on_background else theme.on_accent) {
                     Column(
-                        Modifier
+                        modifier
                             .background(
                                 if (!enabled) theme.background else theme.vibrant_accent,
                                 shape
@@ -179,7 +195,7 @@ class SettingsLargeToggleItem(
                             ) {
                                 CompositionLocalProvider(LocalContentColor provides theme.on_background) {
                                     for (item in extra_items) {
-                                        item.Item(settings_interface, openPage, openCustomPage)
+                                        item.Item(settings_interface, openPage, openCustomPage, Modifier)
                                     }
                                 }
                             }

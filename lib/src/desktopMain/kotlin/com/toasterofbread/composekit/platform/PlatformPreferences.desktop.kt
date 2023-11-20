@@ -1,152 +1,72 @@
 package com.toasterofbread.composekit.platform
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.io.File
 
-actual class PlatformPreferences private constructor(private val file: File) {
+actual class PlatformPreferencesImpl private constructor(file: File): PlatformPreferencesJson(PlatformFile(file)), PlatformPreferences {
     companion object {
         private var instance: PlatformPreferences? = null
 
         fun getInstance(getFile: () -> File): PlatformPreferences {
             if (instance == null) {
-                instance = PlatformPreferences(getFile())
+                instance = PlatformPreferencesImpl(getFile())
             }
             return instance!!
         }
     }
 
-    private var data: MutableMap<String, Any> = mutableMapOf()
-    private var listeners: MutableList<Listener> = mutableListOf()
-
-    init {
-        loadData()
-    }
-
-    private fun onKeyChanged(key: String) {
-        for (listener in listeners) {
-            listener.onChanged(this, key)
-        }
-    }
-    
-    private fun loadData() {
-        if (!file.exists()) {
-            data.clear()
-            return
-        }
-
-        val stream = file.inputStream()
-
-        val type = object : TypeToken<Map<String, Any>>() {}.type
-        data = Gson().fromJson(stream.reader(), type)!!
-
-        stream.close()
-    }
-    private fun saveData() {
-        file.createNewFile()
-        
-        val stream = file.outputStream().writer()
-        stream.write(Gson().toJson(data))
-        stream.flush()
-        stream.close()
-    }
-
-    actual fun addListener(listener: Listener): Listener {
-        listeners.add(listener)
-        return listener
-    }
-
-    actual fun removeListener(listener: Listener) {
-        listeners.remove(listener)
-    }
-
-    actual fun getString(key: String, defValue: String?): String? =
-        data.getOrDefault(key, defValue) as String?
-
-    @Suppress("UNCHECKED_CAST")
-    actual fun getStringSet(key: String, defValues: Set<String>?): Set<String>? =
-        (data.getOrDefault(key, defValues) as Iterable<String>).toSet()
-
-    actual fun getInt(key: String, defValue: Int?): Int? =
-        (data.getOrDefault(key, defValue) as Number?)?.toInt()
-
-    actual fun getLong(key: String, defValue: Long?): Long? =
-        data.getOrDefault(key, defValue) as Long?
-
-    actual fun getFloat(key: String, defValue: Float?): Float? =
-        (data.getOrDefault(key, defValue) as Number?)?.toFloat()
-
-    actual fun getBoolean(key: String, defValue: Boolean?): Boolean? =
-        data.getOrDefault(key, defValue) as Boolean?
-
-    actual operator fun contains(key: String): Boolean =
-        data.containsKey(key)
-
-    actual fun edit(action: Editor.() -> Unit) {
-        val changed: MutableSet<String> = mutableSetOf()
-        val editor = Editor(data, changed)
-        action(editor)
-        saveData()
-
-        for (key in changed) {
-            onKeyChanged(key)
-        }
-    }
-
-    actual open class Editor(private val data: MutableMap<String, Any>, private val changed: MutableSet<String>) {
-
-        actual fun putString(key: String, value: String): Editor {
+    actual open class EditorImpl(private val data: MutableMap<String, Any>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
+        actual override fun putString(key: String, value: String): PlatformPreferences.Editor {
             data[key] = value
             changed.add(key)
             return this
         }
 
-        actual fun putStringSet(
+        actual override fun putStringSet(
             key: String,
             values: Set<String>,
-        ): Editor {
+        ): PlatformPreferences.Editor {
             data[key] = values
             changed.add(key)
             return this
         }
 
-        actual fun putInt(key: String, value: Int): Editor {
+        actual override fun putInt(key: String, value: Int): PlatformPreferences.Editor {
             data[key] = value
             changed.add(key)
             return this
         }
 
-        actual fun putLong(key: String, value: Long): Editor {
+        actual override fun putLong(key: String, value: Long): PlatformPreferences.Editor {
             data[key] = value
             changed.add(key)
             return this
         }
 
-        actual fun putFloat(key: String, value: Float): Editor {
+        actual override fun putFloat(key: String, value: Float): PlatformPreferences.Editor {
             data[key] = value
             changed.add(key)
             return this
         }
 
-        actual fun putBoolean(key: String, value: Boolean): Editor {
+        actual override fun putBoolean(key: String, value: Boolean): PlatformPreferences.Editor {
             data[key] = value
             changed.add(key)
             return this
         }
 
-        actual fun remove(key: String): Editor {
+        actual override fun remove(key: String): PlatformPreferences.Editor {
             data.remove(key)
             return this
         }
 
-        actual fun clear(): Editor {
+        actual override fun clear(): PlatformPreferences.Editor {
             changed.addAll(data.keys)
             data.clear()
             return this
         }
     }
+}
 
-    actual interface Listener {
-        actual fun onChanged(prefs: PlatformPreferences, key: String)
-    }
+actual interface PlatformPreferencesListener {
+    actual fun onChanged(prefs: PlatformPreferences, key: String)
 }

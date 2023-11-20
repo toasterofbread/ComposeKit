@@ -138,7 +138,7 @@ class SettingsPageWithItems(
                         Spacer(Modifier.height(30.dp))
                     }
 
-                    item.Item(settings_interface, openPage, openCustomPage)
+                    item.Item(settings_interface, openPage, openCustomPage, Modifier)
                 }
             }
         }

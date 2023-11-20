@@ -102,8 +102,10 @@ class SettingsSliderItem(
         state.setEnableAutosave(value)
     }
 
-    override fun save() {
-        state.save()
+    override fun PlatformPreferences.Editor.saveItem() {
+        with (state) {
+            save()
+        }
     }
 
     override fun resetValues() {
@@ -111,11 +113,14 @@ class SettingsSliderItem(
         value_state = state.get().toFloat()
     }
 
+    override fun getKeys(): List<String> = state.getKeys()
+
     @Composable
     override fun Item(
         settings_interface: SettingsInterface,
         openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit
+        openCustomPage: (SettingsPage) -> Unit,
+        modifier: Modifier
     ) {
         val theme = settings_interface.theme
         var show_edit_dialog by remember { mutableStateOf(false) }
@@ -202,7 +207,11 @@ class SettingsSliderItem(
                     value = getValue(),
                     onValueChange = { setValue(it) },
                     onValueChangeFinished = {
-                        state.save()
+                        settings_interface.prefs.edit {
+                            with (state) {
+                                save()
+                            }
+                        }
                     },
                     thumbSizeInDp = DpSize(12.dp, 12.dp),
                     track = { a, b, c, d, e ->

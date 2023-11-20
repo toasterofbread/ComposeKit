@@ -96,6 +96,16 @@ fun <T> MutableList<T>.addUnique(item: T): Boolean {
 	return false
 }
 
+fun <T> MutableList<T>.toggleItemPresence(item: T) {
+	val index: Int = indexOf(item)
+	if (index == -1) {
+		add(item)
+	}
+	else {
+		removeAt(index)
+	}
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 fun <T> SwipeableState<T>.init(anchors: Map<Float, T>) {
 	ensureInit(anchors)

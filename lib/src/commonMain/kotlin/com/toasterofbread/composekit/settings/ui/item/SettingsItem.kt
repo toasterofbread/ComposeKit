@@ -11,6 +11,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.*
 import com.toasterofbread.composekit.platform.PlatformPreferences
+import com.toasterofbread.composekit.platform.PlatformPreferencesListener
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.settings.ui.Theme
@@ -29,18 +30,21 @@ abstract class SettingsItem {
         initialised = true
     }
 
-    protected abstract fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any)
+    abstract fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any)
     protected abstract fun releaseValueStates(prefs: PlatformPreferences)
 
     abstract fun setEnableAutosave(value: Boolean)
-    abstract fun save()
+    abstract fun PlatformPreferences.Editor.saveItem()
     abstract fun resetValues()
+
+    abstract fun getKeys(): List<String>
 
     @Composable
     abstract fun Item(
         settings_interface: SettingsInterface,
         openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit
+        openCustomPage: (SettingsPage) -> Unit,
+        modifier: Modifier
     )
     
     companion object {
@@ -79,11 +83,13 @@ interface BasicSettingsValueState<T: Any> {
 
     fun setEnableAutosave(value: Boolean)
     fun reset()
-    fun save()
+    fun PlatformPreferences.Editor.save()
     fun getDefault(defaultProvider: (String) -> Any): T
 
     @Composable
     fun onChanged(key: Any?, action: (T) -> Unit)
+
+    fun getKeys(): List<String>
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -97,7 +103,7 @@ class SettingsValueState<T: Any>(
 
     private lateinit var defaultProvider: (String) -> Any
     private lateinit var prefs: PlatformPreferences
-    private var pref_listener: PlatformPreferences.Listener? = null
+    private var pref_listener: PlatformPreferencesListener? = null
 
     private val change_listeners: MutableList<(T) -> Unit> = mutableListOf()
 
@@ -114,7 +120,9 @@ class SettingsValueState<T: Any>(
 
         _value = value
         if (autosave) {
-            save()
+            prefs.edit {
+                save()
+            }
         }
 
         onChanged?.invoke(value)
@@ -149,17 +157,17 @@ class SettingsValueState<T: Any>(
     }
 
     override fun init(prefs: PlatformPreferences, defaultProvider: (String) -> Any): SettingsValueState<T> {
+        this.prefs = prefs
+        this.defaultProvider = defaultProvider
+
         if (_value != null) {
             return this
         }
 
-        this.prefs = prefs
-        this.defaultProvider = defaultProvider
-
         updateValue()
 
         pref_listener =
-            object : PlatformPreferences.Listener {
+            object : PlatformPreferencesListener {
                 override fun onChanged(prefs: PlatformPreferences, key: String) {
                     if (key == this@SettingsValueState.key) {
                         updateValue()
@@ -185,7 +193,9 @@ class SettingsValueState<T: Any>(
 
     override fun reset() {
         _value = getValueConverter(defaultProvider(key) as T)!!
-        save()
+        prefs.edit {
+            save()
+        }
 
         onChanged?.invoke(_value!!)
         for (listener in change_listeners) {
@@ -193,28 +203,28 @@ class SettingsValueState<T: Any>(
         }
     }
 
-    override fun save() {
-        prefs.edit {
-            val value = setValueConverter(get())
-            when (value) {
-                is Boolean -> putBoolean(key, value)
-                is Float -> putFloat(key, value)
-                is Int -> putInt(key, value)
-                is Long -> putLong(key, value)
-                is String -> putString(key, value)
-                is Set<*> -> putStringSet(key, value as Set<String>)
-                else -> throw ClassCastException(value::class.toString())
-            }
+    override fun PlatformPreferences.Editor.save() {
+        val value: Any = this@SettingsValueState.setValueConverter(get())
+        when (value) {
+            is Boolean -> putBoolean(key, value)
+            is Float -> putFloat(key, value)
+            is Int -> putInt(key, value)
+            is Long -> putLong(key, value)
+            is String -> putString(key, value)
+            is Set<*> -> putStringSet(key, value as Set<String>)
+            else -> throw ClassCastException(value::class.toString())
         }
     }
 
     override fun getDefault(defaultProvider: (String) -> Any): T = defaultProvider(key) as T
+
+    override fun getKeys(): List<String> = listOf(key)
 }
 
 abstract class EmptySettingsItem(): SettingsItem() {
     override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {}
     override fun releaseValueStates(prefs: PlatformPreferences) {}
     override fun setEnableAutosave(value: Boolean) {}
-    override fun save() {}
+    override fun PlatformPreferences.Editor.saveItem() {}
     override fun resetValues() {}
 }

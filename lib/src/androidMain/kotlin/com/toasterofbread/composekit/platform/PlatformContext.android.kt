@@ -20,6 +20,7 @@ import android.view.Window
 import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -59,9 +60,11 @@ private const val ERROR_NOTIFICATION_CHANNEL_ID = "download_error_channel"
 
 class ApplicationContext(private val activity: ComponentActivity) {
     private val permission_callbacks: MutableList<(Boolean) -> Unit> = mutableListOf()
+    private val document_tree_callbacks: MutableList<(Uri?) -> Unit> = mutableListOf()
     private val document_callbacks: MutableList<(Uri?) -> Unit> = mutableListOf()
+    private val create_json_callbacks: MutableList<(Uri?) -> Unit> = mutableListOf()
 
-    private val permission_launcher =
+    private val permission_launcher: ActivityResultLauncher<String> =
         activity.registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
@@ -73,15 +76,39 @@ class ApplicationContext(private val activity: ComponentActivity) {
             }
         }
 
-    private val document_launcher =
+    private val document_tree_launcher: ActivityResultLauncher<Uri?> =
         activity.registerForActivityResult(
             ActivityResultContracts.OpenDocumentTree()
+        ) { uri ->
+            synchronized(document_tree_callbacks) {
+                for (callback in document_tree_callbacks) {
+                    callback(uri)
+                }
+                document_tree_callbacks.clear()
+            }
+        }
+
+    private val document_launcher: ActivityResultLauncher<Array<String>?> =
+        activity.registerForActivityResult(
+            ActivityResultContracts.OpenDocument()
         ) { uri ->
             synchronized(document_callbacks) {
                 for (callback in document_callbacks) {
                     callback(uri)
                 }
                 document_callbacks.clear()
+            }
+        }
+
+    private val create_json_launcher: ActivityResultLauncher<String?> =
+        activity.registerForActivityResult(
+            ActivityResultContracts.CreateDocument("application/json")
+        ) { uri ->
+            synchronized(create_json_callbacks) {
+                for (callback in create_json_callbacks) {
+                    callback(uri)
+                }
+                create_json_callbacks.clear()
             }
         }
 
@@ -95,18 +122,50 @@ class ApplicationContext(private val activity: ComponentActivity) {
         }
     }
 
+    fun takePersistentUriPermission(uri: Uri) {
+        val content_resolver: ContentResolver = activity.applicationContext.contentResolver
+        val flags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        content_resolver.takePersistableUriPermission(uri, flags)
+    }
+
     fun requestDocumentTree(persist: Boolean = false, callback: (uri: Uri?) -> Unit) {
+        synchronized(document_tree_callbacks) {
+            document_tree_callbacks.add { uri ->
+                if (persist && uri != null) {
+                    takePersistentUriPermission(uri)
+                }
+                callback(uri)
+            }
+            if (document_tree_callbacks.size == 1) {
+                document_tree_launcher.launch(null)
+            }
+        }
+    }
+
+    fun requestDocument(mime_types: Array<String>, persist: Boolean = false, callback: (uri: Uri?) -> Unit) {
         synchronized(document_callbacks) {
             document_callbacks.add { uri ->
                 if (persist && uri != null) {
-                    val content_resolver: ContentResolver = activity.applicationContext.contentResolver
-                    val flags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    content_resolver.takePersistableUriPermission(uri, flags)
+                    takePersistentUriPermission(uri)
                 }
                 callback(uri)
             }
             if (document_callbacks.size == 1) {
-                document_launcher.launch(null)
+                document_launcher.launch(mime_types)
+            }
+        }
+    }
+
+    fun createJson(suggested_name: String?, persist: Boolean = false, callback: (uri: Uri?) -> Unit) {
+        synchronized(create_json_callbacks) {
+            create_json_callbacks.add { uri ->
+                if (persist && uri != null) {
+                    takePersistentUriPermission(uri)
+                }
+                callback(uri)
+            }
+            if (create_json_callbacks.size == 1) {
+                create_json_launcher.launch(suggested_name)
             }
         }
     }
@@ -397,10 +456,23 @@ actual open class PlatformContext(
     actual fun getFilesDir(): File = ctx.filesDir
     actual fun getCacheDir(): File = ctx.cacheDir
 
-    actual fun promptForUserDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
+    actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
         check(application_context != null)
-
         application_context.requestDocumentTree(persist) { uri ->
+            callback(uri?.toString())
+        }
+    }
+
+    actual fun promptUserForFile(mime_types: Set<String>, persist: Boolean, callback: (uri: String?) -> Unit) {
+        check(application_context != null)
+        application_context.requestDocument(mime_types.toTypedArray(), persist) { uri ->
+            callback(uri?.toString())
+        }
+    }
+
+    actual fun promptUserForJsonCreation(filename_suggestion: String?, persist: Boolean, callback: (uri: String?) -> Unit) {
+        check(application_context != null)
+        application_context.createJson(filename_suggestion, persist) { uri ->
             callback(uri?.toString())
         }
     }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,16 +36,25 @@ class SettingsTextFieldItem(
         state.setEnableAutosave(value)
     }
 
-    override fun save() {
-        state.save()
+    override fun PlatformPreferences.Editor.saveItem() {
+        with (state) {
+            save()
+        }
     }
 
     override fun resetValues() {
         state.reset()
     }
 
+    override fun getKeys(): List<String> = state.getKeys()
+
     @Composable
-    override fun Item(settings_interface: SettingsInterface, openPage: (Int, Any?) -> Unit, openCustomPage: (SettingsPage) -> Unit) {
+    override fun Item(
+        settings_interface: SettingsInterface,
+        openPage: (Int, Any?) -> Unit,
+        openCustomPage: (SettingsPage) -> Unit,
+        modifier: Modifier
+    ) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             ItemTitleText(title, settings_interface.theme)
             ItemText(subtitle, settings_interface.theme)
