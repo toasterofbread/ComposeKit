@@ -1,14 +1,15 @@
 package com.toasterofbread.composekit.platform
 
-fun PlatformPreferences.Editor.putAny(key: String, value: Any): PlatformPreferences.Editor {
-    return when (value) {
-        is String -> putString(key, value)
-        is Iterable<*> -> putStringSet(key, value.toSet() as Set<String>)
-        is Int -> putInt(key, value)
-        is Long -> putLong(key, value)
-        is Float -> putFloat(key, value)
-        is Boolean -> putBoolean(key, value)
-        else -> throw NotImplementedError(value::class.toString())
+fun PlatformPreferences.Editor.putAny(key: String, value: Any?, default: Any): PlatformPreferences.Editor {
+    val set_value: Any = value ?: default
+    return when (default) {
+        is String -> putString(key, set_value as String)
+        is Iterable<*> -> putStringSet(key, (set_value as Iterable<String>).toSet())
+        is Int -> putInt(key, (set_value as Number).toInt())
+        is Long -> putLong(key, (set_value as Number).toLong())
+        is Float, is Double -> putFloat(key, (set_value as Number).toFloat())
+        is Boolean -> putBoolean(key, set_value as Boolean)
+        else -> throw NotImplementedError("Key: $key, value: $set_value (${set_value::class})")
     }
 }
 

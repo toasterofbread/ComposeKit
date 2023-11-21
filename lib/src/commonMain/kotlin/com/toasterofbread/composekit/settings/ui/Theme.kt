@@ -110,6 +110,7 @@ abstract class Theme(
         if (loaded_themes == null) {
             loaded_themes = loadThemes().ifEmpty { default_themes }
         }
+        assert(!loaded_themes.isNullOrEmpty())
         return loaded_themes!!
     }
 
@@ -197,7 +198,7 @@ abstract class Theme(
     }
 
     fun reloadThemes() {
-        loaded_themes = loadThemes()
+        loaded_themes = loadThemes().ifEmpty { default_themes }
         updateColourValues()
     }
 
