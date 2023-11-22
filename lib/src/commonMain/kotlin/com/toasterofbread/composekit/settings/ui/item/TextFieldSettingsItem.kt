@@ -17,7 +17,7 @@ import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.utils.composable.ResizableOutlinedTextField
 
 // TODO Styling
-class SettingsTextFieldItem(
+class TextFieldSettingsItem(
     val state: BasicSettingsValueState<String>,
     val title: String?,
     val subtitle: String?,

@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.toasterofbread.composekit.settings.ui.item.SettingsGroupItem
+import com.toasterofbread.composekit.settings.ui.item.GroupSettingsItem
 import com.toasterofbread.composekit.settings.ui.item.SettingsItem
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 import kotlinx.coroutines.launch
@@ -134,7 +134,7 @@ class SettingsPageWithItems(
                     val item = items[i]
                     item.initialise(settings_interface.prefs, settings_interface.default_provider)
 
-                    if (i != 0 && item is SettingsGroupItem) {
+                    if (i != 0 && item is GroupSettingsItem) {
                         Spacer(Modifier.height(30.dp))
                     }
 

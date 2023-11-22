@@ -6,7 +6,7 @@ import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.utils.composable.LinkifyText
 
-class SettingsItemInfoText(val text: String): EmptySettingsItem() {
+class InfoTextSettingsItem(val text: String): EmptySettingsItem() {
     override fun getKeys(): List<String> = emptyList()
 
     @Composable

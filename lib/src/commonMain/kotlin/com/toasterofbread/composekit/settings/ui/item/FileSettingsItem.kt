@@ -42,7 +42,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
-class SettingsFileItem(
+class FileSettingsItem(
     val state: BasicSettingsValueState<String>,
     val title: String,
     val subtitle: String?,

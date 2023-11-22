@@ -30,7 +30,7 @@ import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 
-class SettingsMultipleChoiceItem(
+class MultipleChoiceSettingsItem(
     val state: BasicSettingsValueState<Int>,
     val title: String?,
     val subtitle: String?,

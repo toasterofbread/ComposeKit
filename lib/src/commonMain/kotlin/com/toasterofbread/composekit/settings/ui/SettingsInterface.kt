@@ -45,18 +45,19 @@ class SettingsInterface(
         }
     }
 
-    fun goBack() {
+    fun goBack(): Boolean {
         if (page_stack.size > 0) {
-            val target_page = page_stack.removeLast()
+            val target_page: SettingsPage? = page_stack.removeLastOrNull()
             if (current_page != target_page) {
                 current_page.onClosed()
-                current_page = target_page
-                onPageChanged?.invoke(current_page.id)
+                if (target_page != null) {
+                    current_page = target_page
+                    onPageChanged?.invoke(current_page.id)
+                }
             }
+            return true
         }
-        else {
-            onCloseRequested?.invoke()
-        }
+        return false
     }
 
     fun openPage(target_page: SettingsPage) {

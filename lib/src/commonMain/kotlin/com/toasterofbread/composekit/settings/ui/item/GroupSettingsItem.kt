@@ -1,12 +1,14 @@
 package com.toasterofbread.composekit.settings.ui.item
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
-import com.toasterofbread.composekit.settings.ui.Theme
 
-class SettingsComposableItem(val composable: @Composable Theme.() -> Unit): EmptySettingsItem() {
+class GroupSettingsItem(var title: String?): EmptySettingsItem() {
     override fun getKeys(): List<String> = emptyList()
 
     @Composable
@@ -16,6 +18,8 @@ class SettingsComposableItem(val composable: @Composable Theme.() -> Unit): Empt
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        composable(settings_interface.theme)
+        title?.also {
+            Text(it, color = settings_interface.theme.vibrant_accent, fontSize = 20.sp, fontWeight = FontWeight.Light)
+        }
     }
 }

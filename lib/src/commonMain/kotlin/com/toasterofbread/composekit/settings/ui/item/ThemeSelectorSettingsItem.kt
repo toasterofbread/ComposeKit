@@ -1,4 +1,4 @@
-package com.toasterofbread.settings.ui.item
+package com.toasterofbread.composekit.settings.ui.item
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
@@ -32,8 +32,6 @@ import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.settings.ui.StaticThemeData
 import com.toasterofbread.composekit.settings.ui.Theme
 import com.toasterofbread.composekit.settings.ui.ThemeData
-import com.toasterofbread.composekit.settings.ui.item.SettingsItem
-import com.toasterofbread.composekit.settings.ui.item.SettingsValueState
 import com.toasterofbread.composekit.utils.*
 import com.toasterofbread.composekit.utils.common.contrastAgainst
 import com.toasterofbread.composekit.utils.common.generatePalette
@@ -46,7 +44,7 @@ import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
-class SettingsItemThemeSelector(
+class ThemeSelectorSettingsItem(
     val state: SettingsValueState<Int>,
     val title: String?,
     val subtitle: String?,

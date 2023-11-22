@@ -46,7 +46,7 @@ import com.toasterofbread.composekit.utils.common.roundTo
 import com.toasterofbread.composekit.utils.composable.MeasureUnconstrainedView
 import kotlin.math.roundToInt
 
-class SettingsSliderItem(
+class SliderSettingsItem(
     val state: BasicSettingsValueState<out Number>,
     val title: String?,
     val subtitle: String?,

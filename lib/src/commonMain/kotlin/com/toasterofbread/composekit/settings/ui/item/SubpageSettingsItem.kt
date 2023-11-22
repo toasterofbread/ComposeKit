@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 
-class SettingsSubpageItem(
+class SubpageSettingsItem(
     val title: String,
     val subtitle: String?,
     val target_page: Int,

@@ -42,7 +42,7 @@ import com.toasterofbread.composekit.utils.composable.SubtleLoadingIndicator
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 import com.toasterofbread.composekit.utils.modifier.background
 
-class SettingsLargeToggleItem(
+class LargeToggleSettingsItem(
     val state: BasicSettingsValueState<Boolean>,
     val enabled_text: String? = null,
     val disabled_text: String? = null,
@@ -54,6 +54,7 @@ class SettingsLargeToggleItem(
     val warningDialog: (@Composable (dismiss: () -> Unit, openPage: (Int, Any?) -> Unit) -> Unit)? = null,
     val infoButton: (@Composable (enabled: Boolean, showing_extra_state: MutableState<Boolean>) -> Unit)? = null,
     val extra_items: List<SettingsItem> = emptyList(),
+    val show_button: Boolean = true,
     val onClicked: (target: Boolean, setEnabled: (Boolean) -> Unit, setLoading: (Boolean) -> Unit, openPage: (Int, Any?) -> Unit) -> Unit =
         { target, setEnabled, _, _ -> setEnabled(target) }
 ): SettingsItem() {
@@ -148,35 +149,37 @@ class SettingsLargeToggleItem(
                             (if (enabled) enabledContent else disabledContent)?.invoke(Modifier.weight(1f).padding(vertical = 5.dp))
                             (if (enabled) enabled_text else disabled_text)?.also { WidthShrinkText(it, Modifier.fillMaxWidth().weight(1f)) }
 
-                            Button(
-                                {
-                                    if (!enabled && warningDialog != null) {
-                                        showing_dialog = warningDialog
-                                    }
-                                    else {
-                                        onClicked(
-                                            !enabled,
-                                            { state.set(it) },
-                                            { loading = it },
-                                            openPage
+                            AnimatedVisibility(show_button) {
+                                Button(
+                                    {
+                                        if (!enabled && warningDialog != null) {
+                                            showing_dialog = warningDialog
+                                        }
+                                        else {
+                                            onClicked(
+                                                !enabled,
+                                                { state.set(it) },
+                                                { loading = it },
+                                                openPage
+                                            )
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (enabled) theme.background else theme.vibrant_accent,
+                                        contentColor = if (enabled) theme.on_background else theme.on_accent
+                                    )
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        this@Row.AnimatedVisibility(loading, enter = fadeIn(), exit = fadeOut()) {
+                                            SubtleLoadingIndicator()
+                                        }
+
+                                        val text_alpha = animateFloatAsState(if (loading) 0f else 1f)
+                                        Text(
+                                            if (enabled) disable_button else enable_button,
+                                            Modifier.graphicsLayer { alpha = text_alpha.value }
                                         )
                                     }
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (enabled) theme.background else theme.vibrant_accent,
-                                    contentColor = if (enabled) theme.on_background else theme.on_accent
-                                )
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    this@Row.AnimatedVisibility(loading, enter = fadeIn(), exit = fadeOut()) {
-                                        SubtleLoadingIndicator()
-                                    }
-
-                                    val text_alpha = animateFloatAsState(if (loading) 0f else 1f)
-                                    Text(
-                                        if (enabled) disable_button else enable_button,
-                                        Modifier.graphicsLayer { alpha = text_alpha.value }
-                                    )
                                 }
                             }
 

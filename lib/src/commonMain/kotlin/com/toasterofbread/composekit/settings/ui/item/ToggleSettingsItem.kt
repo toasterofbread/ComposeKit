@@ -22,7 +22,7 @@ import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 
-class SettingsToggleItem(
+class ToggleSettingsItem(
     val state: BasicSettingsValueState<Boolean>,
     val title: String?,
     val subtitle: String?,

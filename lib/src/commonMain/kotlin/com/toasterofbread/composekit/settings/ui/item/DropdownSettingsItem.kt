@@ -25,7 +25,7 @@ import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.utils.composable.LargeDropdownMenu
 
-class SettingsDropdownItem(
+class DropdownSettingsItem(
     val state: BasicSettingsValueState<Int>,
     val title: String,
     val subtitle: String?,

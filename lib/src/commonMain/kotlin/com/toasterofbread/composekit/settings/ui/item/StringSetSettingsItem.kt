@@ -36,7 +36,7 @@ import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.utils.composable.ScrollabilityIndicatorColumn
 import com.toasterofbread.composekit.utils.composable.ShapedIconButton
 
-class SettingsStringSetItem(
+class StringSetSettingsItem(
     val state: BasicSettingsValueState<Set<String>>,
     val title: String?,
     val subtitle: String?,

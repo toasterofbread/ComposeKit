@@ -250,7 +250,7 @@ actual class PlatformFile(
         if (!is_file) {
             check(createFile()) { "Could not create file for writing $this" }
         }
-        return context.contentResolver.openOutputStream(file!!.uri, if (append) "wa" else "w")!!
+        return context.contentResolver.openOutputStream(file!!.uri, if (append) "wa" else "wt")!!
     }
 
     actual fun listFiles(): List<PlatformFile>? =
