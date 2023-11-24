@@ -353,7 +353,12 @@ actual class PlatformFile(
     actual fun renameTo(new_name: String): PlatformFile {
         file!!.renameTo(new_name)
 
-        val new_file = file!!.parentFile!!.child(context, new_name)!!
+        val parent: DocumentFile? = file!!.parentFile
+        checkNotNull(parent) { file.toString() }
+
+        val new_file: DocumentFile? = parent.child(context, new_name)
+        checkNotNull(new_file) { "$parent | $new_name" }
+
         return PlatformFile(
             new_file.uri,
             new_file,

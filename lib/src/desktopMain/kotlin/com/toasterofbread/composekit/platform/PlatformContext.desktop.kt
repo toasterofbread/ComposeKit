@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.platform.Font
+import org.jetbrains.skia.IRect
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 import java.awt.Desktop
@@ -164,11 +165,6 @@ actual open class PlatformContext(private val app_name: String, private val reso
 
     actual fun isConnectionMetered(): Boolean {
         TODO("Not yet implemented")
-    }
-
-    private var screen_size: Dimension? by mutableStateOf(null)
-    fun updateScreenSize() {
-        screen_size = Window.getWindows().first().size
     }
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
