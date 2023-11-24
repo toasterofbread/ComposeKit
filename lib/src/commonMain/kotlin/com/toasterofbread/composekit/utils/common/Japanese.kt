@@ -40,20 +40,20 @@ fun String.toHiragana(): String {
     return ret.toString()
 }
 
-fun String.hasKanjiAndHiragana(): Boolean {
+fun String.hasKanjiAndHiraganaOrKatakana(): Boolean {
     var has_kanji = false
-    var has_hiragana = false
+    var has_hiragana_or_katakana = false
     for (char in this) {
         when (of(char)) {
             CJK_UNIFIED_IDEOGRAPHS -> {
-                if (has_hiragana)
+                if (has_hiragana_or_katakana)
                     return true
                 has_kanji = true
             }
-            HIRAGANA -> {
+            HIRAGANA, KATAKANA -> {
                 if (has_kanji)
                     return true
-                has_hiragana = true
+                has_hiragana_or_katakana = true
             }
             else -> {}
         }
