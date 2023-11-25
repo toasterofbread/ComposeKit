@@ -361,7 +361,7 @@ private fun getEditPage(
                         ic_colours
                     ) {
                         Icon(
-                            painterResource("drawable/ic_die.xml"),
+                            painterResource("assets/drawable/ic_die.xml"),
                             null,
                             Modifier.size(25.dp),
                             tint = ui_theme.on_background
@@ -462,7 +462,7 @@ private fun ColourField(
                 current = Color.random()
                 instance = !instance
             }, colors = button_colours) {
-                Icon(painterResource("drawable/ic_die.xml"), null, Modifier.size(22.dp))
+                Icon(painterResource("assets/drawable/ic_die.xml"), null, Modifier.size(22.dp))
             }
             FilledIconButton({
                 current = default_colour

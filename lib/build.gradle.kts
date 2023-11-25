@@ -30,11 +30,11 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                api("androidx.activity:activity-compose:1.8.0")
+                api("androidx.activity:activity-compose:1.8.1")
 
                 implementation("com.anggrayudi:storage:1.5.5")
                 implementation("com.google.accompanist:accompanist-swiperefresh:0.21.2-beta")
-                implementation("io.coil-kt:coil-compose:2.3.0")
+                implementation("io.coil-kt:coil-compose:2.4.0")
                 implementation("com.github.andob:android-awt:1.0.0")
             }
         }
@@ -43,6 +43,12 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.common)
                 implementation("com.github.ltttttttttttt:load-the-image:1.0.5")
+
+                val file_chooser_version: String = "2.3.0"
+                implementation("games.spooky.gdx:gdx-nativefilechooser:$file_chooser_version")
+                implementation("games.spooky.gdx:gdx-nativefilechooser-desktop:$file_chooser_version")
+
+                implementation("com.sshtools:two-slices:0.9.1")
             }
         }
     }

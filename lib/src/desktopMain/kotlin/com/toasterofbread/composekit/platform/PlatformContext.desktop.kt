@@ -3,36 +3,45 @@ package com.toasterofbread.composekit.platform
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.platform.Font
-import org.jetbrains.skia.IRect
+import com.badlogic.gdx.files.FileHandle
+import com.sshtools.twoslices.Toast
+import com.sshtools.twoslices.ToastType
+import games.spooky.gdx.nativefilechooser.NativeFileChooser
+import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback
+import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration
+import games.spooky.gdx.nativefilechooser.NativeFileChooserIntent
+import games.spooky.gdx.nativefilechooser.desktop.DesktopFileChooser
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 import java.awt.Desktop
-import java.awt.Dimension
-import java.awt.Window
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Path
 import java.security.CodeSource
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
 
-actual open class PlatformContext(private val app_name: String, private val resource_class: Class<*>) {
+actual open class PlatformContext(private val app_name: String, private val icon_resource_path: String, private val resource_class: Class<*>) {
+    private val file_chooser: NativeFileChooser = DesktopFileChooser()
+    private fun getFileChooserConfiguration(): NativeFileChooserConfiguration =
+        NativeFileChooserConfiguration().apply {
+            directory = FileHandle(getHomeDir())
+        }
+
     actual fun getFilesDir(): File {
         val subdir = when (hostOs) {
             OS.Linux -> ".local/share"
             OS.Windows -> TODO()
-            OS.MacOS -> TODO()
             else -> throw NotImplementedError(hostOs.name)
         }
         return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
@@ -42,57 +51,59 @@ actual open class PlatformContext(private val app_name: String, private val reso
         val subdir = when (hostOs) {
             OS.Linux -> ".cache"
             OS.Windows -> TODO()
-            OS.MacOS -> TODO()
             else -> throw NotImplementedError(hostOs.name)
         }
         return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
     }
 
-    actual fun isAppInForeground(): Boolean {
-        TODO("Not yet implemented")
-    }
+    private fun getTempDir(): File =
+        when (hostOs) {
+            OS.Linux -> File("/tmp")
+            OS.Windows -> TODO()
+            else -> throw NotImplementedError(hostOs.name)
+        }
 
-    actual fun setStatusBarColour(colour: Color?) {}
+    actual fun isAppInForeground(): Boolean = true // TODO
 
     actual fun getLightColorScheme(): ColorScheme = lightColorScheme()
 
     actual fun getDarkColorScheme(): ColorScheme = darkColorScheme()
 
-    actual fun canShare(): Boolean = false
-
-    actual fun shareText(text: String, title: String?) {
-        throw NotImplementedError()
-    }
-
     actual fun canOpenUrl(): Boolean = Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
 
     actual fun openUrl(url: String) {
-        assert(canOpenUrl())
+        check(canOpenUrl())
         Desktop.getDesktop().browse(URI(url))
     }
 
-    actual fun canSendNotifications(): Boolean {
-        TODO()
-    }
+    actual fun canSendNotifications(): Boolean = true
 
     actual fun sendNotification(title: String, body: String) {
+        val icon_path: String = getIconFile()?.absolutePath ?: ""
+        Toast.toast(ToastType.INFO, icon_path, title, body)
     }
 
     actual fun sendNotification(throwable: Throwable) {
+        throwable.printStackTrace()
+        TODO(throwable.toString())
     }
 
     actual fun sendToast(text: String, long: Boolean) {
+        sendNotification(app_name, text)
     }
-
-    actual fun vibrate(duration: Double) {}
 
     actual fun openFileInput(name: String): FileInputStream =
         getFilesDir().resolve(name).inputStream()
 
     actual fun openFileOutput(name: String, append: Boolean): FileOutputStream {
-        val path = getFilesDir().resolve(name)
+        val path: File = getFilesDir().resolve(name)
         path.createNewFile()
         return path.outputStream()
+    }
+
+    actual fun deleteFile(name: String): Boolean {
+        val file: File = getFilesDir().resolve(name)
+        return file.delete()
     }
 
     private fun getResourceDir(): File = File("/assets")
@@ -154,17 +165,11 @@ actual open class PlatformContext(private val app_name: String, private val reso
     }
 
     actual fun loadFontFromFile(path: String): Font {
-        val resource_path = getResourceDir().resolve(path).path
-
-        val stream = resource_class.getResourceAsStream(resource_path)!!
-        val bytes = stream.readBytes()
-        stream.close()
-
+        val resource_path: String = getResourceDir().resolve(path).path
+        val bytes: ByteArray = resource_class.getResourceAsStream(resource_path)!!.use { stream ->
+            stream.readBytes()
+        }
         return Font(path, bytes)
-    }
-
-    actual fun isConnectionMetered(): Boolean {
-        TODO("Not yet implemented")
     }
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
@@ -172,23 +177,67 @@ actual open class PlatformContext(private val app_name: String, private val reso
     }
 
     actual fun promptUserForFile(mime_types: Set<String>, persist: Boolean, callback: (uri: String?) -> Unit) {
-        TODO()
+        file_chooser.chooseFile(getFileChooserConfiguration(), object : NativeFileChooserCallback {
+            override fun onFileChosen(file: FileHandle) {
+                callback(file.file().absolutePath)
+            }
+
+            override fun onCancellation() {
+                callback(null)
+            }
+
+            override fun onError(exception: Exception?) {
+                exception?.printStackTrace()
+                callback(null)
+            }
+        })
     }
 
     actual fun promptUserForJsonCreation(filename_suggestion: String?, persist: Boolean, callback: (uri: String?) -> Unit) {
-        TODO()
+        val configuration: NativeFileChooserConfiguration = getFileChooserConfiguration()
+        configuration.intent = NativeFileChooserIntent.SAVE
+
+        file_chooser.chooseFile(configuration, object : NativeFileChooserCallback {
+            override fun onFileChosen(file: FileHandle) {
+                callback(file.file().absolutePath)
+            }
+
+            override fun onCancellation() {
+                callback(null)
+            }
+
+            override fun onError(exception: Exception?) {
+                exception?.printStackTrace()
+                callback(null)
+            }
+        })
     }
 
     actual fun getUserDirectoryFile(uri: String): PlatformFile {
-        TODO("Not yet implemented")
+        return PlatformFile(File(uri))
     }
 
+    // Unsupported and/or too much work
+    actual fun isConnectionMetered(): Boolean = false
     actual fun setNavigationBarColour(colour: Color?) {}
-
     actual fun isDisplayingAboveNavigationBar(): Boolean = false
+    actual fun vibrate(duration: Double) {}
+    actual fun setStatusBarColour(colour: Color?) {}
+    actual fun canShare(): Boolean = false
+    actual fun shareText(text: String, title: String?): Unit = throw NotImplementedError()
 
-    actual fun deleteFile(name: String): Boolean {
-        TODO("Not yet implemented")
+    @Suppress("NewApi")
+    private fun getIconFile(): File? {
+        val slash_index: Int = icon_resource_path.lastIndexOf('/')
+        val file_name: String = if (slash_index == -1) icon_resource_path else icon_resource_path.substring(slash_index + 1)
+
+        val file: File = getTempDir().resolve(file_name)
+        if (!file.isFile) {
+            openResourceFile(icon_resource_path).use { icon ->
+                Files.copy(icon, Path.of(file.toURI()))
+            }
+        }
+        return file
     }
 }
 

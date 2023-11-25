@@ -196,7 +196,6 @@ class SettingsValueState<T: Any>(
         prefs.edit {
             save()
         }
-
         onChanged?.invoke(_value!!)
         for (listener in change_listeners) {
             listener(_value!!)
