@@ -43,12 +43,10 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.common)
                 implementation("com.github.ltttttttttttt:load-the-image:1.0.5")
-
-                val file_chooser_version: String = "2.3.0"
-                implementation("games.spooky.gdx:gdx-nativefilechooser:$file_chooser_version")
-                implementation("games.spooky.gdx:gdx-nativefilechooser-desktop:$file_chooser_version")
-
                 implementation("com.sshtools:two-slices:0.9.1")
+
+                val file_chooser_version: String = "325fa2a"
+                implementation("com.github.toasterofbread:gdx-nativefilechooser:$file_chooser_version")
             }
         }
     }

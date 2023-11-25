@@ -20,8 +20,8 @@ fun Color.Companion.random(randomise_alpha: Boolean = false, rnd: Random = Rando
     )
 }
 
-fun Color.blendWith(other: Color, ratio: Float = 0.075f): Color {
-    return copy(alpha = alpha * ratio).compositeOver(other)
+fun Color.blendWith(other: Color, our_ratio: Float = 0.075f): Color {
+    return copy(alpha = alpha * our_ratio).compositeOver(other)
 }
 
 fun Color.offsetRGB(offset: Float, clip: Boolean = true): Color {

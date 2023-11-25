@@ -21,6 +21,7 @@ import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -54,15 +55,13 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.UUID
 
 private const val DEFAULT_NOTIFICATION_CHANNEL_ID = "default_channel"
 private const val ERROR_NOTIFICATION_CHANNEL_ID = "download_error_channel"
 
 class ApplicationContext(private val activity: ComponentActivity) {
     private val permission_callbacks: MutableList<(Boolean) -> Unit> = mutableListOf()
-    private val document_tree_callbacks: MutableList<(Uri?) -> Unit> = mutableListOf()
-    private val document_callbacks: MutableList<(Uri?) -> Unit> = mutableListOf()
-    private val create_json_callbacks: MutableList<(Uri?) -> Unit> = mutableListOf()
 
     private val permission_launcher: ActivityResultLauncher<String> =
         activity.registerForActivityResult(
@@ -76,42 +75,6 @@ class ApplicationContext(private val activity: ComponentActivity) {
             }
         }
 
-    private val document_tree_launcher: ActivityResultLauncher<Uri?> =
-        activity.registerForActivityResult(
-            ActivityResultContracts.OpenDocumentTree()
-        ) { uri ->
-            synchronized(document_tree_callbacks) {
-                for (callback in document_tree_callbacks) {
-                    callback(uri)
-                }
-                document_tree_callbacks.clear()
-            }
-        }
-
-    private val document_launcher: ActivityResultLauncher<Array<String>?> =
-        activity.registerForActivityResult(
-            ActivityResultContracts.OpenDocument()
-        ) { uri ->
-            synchronized(document_callbacks) {
-                for (callback in document_callbacks) {
-                    callback(uri)
-                }
-                document_callbacks.clear()
-            }
-        }
-
-    private val create_json_launcher: ActivityResultLauncher<String?> =
-        activity.registerForActivityResult(
-            ActivityResultContracts.CreateDocument("application/json")
-        ) { uri ->
-            synchronized(create_json_callbacks) {
-                for (callback in create_json_callbacks) {
-                    callback(uri)
-                }
-                create_json_callbacks.clear()
-            }
-        }
-
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun requestNotficationPermission(callback: (granted: Boolean) -> Unit) {
         synchronized(permission_callbacks) {
@@ -122,59 +85,26 @@ class ApplicationContext(private val activity: ComponentActivity) {
         }
     }
 
-    fun takePersistentUriPermission(uri: Uri) {
+    private fun takePersistentUriPermission(uri: Uri) {
         val content_resolver: ContentResolver = activity.applicationContext.contentResolver
         val flags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         content_resolver.takePersistableUriPermission(uri, flags)
     }
 
-    fun requestDocumentTree(persist: Boolean = false, callback: (uri: Uri?) -> Unit) {
-        synchronized(document_tree_callbacks) {
-            document_tree_callbacks.add { uri ->
-                if (persist && uri != null) {
-                    takePersistentUriPermission(uri)
-                }
-                callback(uri)
-            }
-            if (document_tree_callbacks.size == 1) {
-                document_tree_launcher.launch(null)
-            }
-        }
-    }
+    fun <I, O> launchFileContract(contract: ActivityResultContract<I, O>, input: I, persist_uri: Boolean = false, callback: (output: O?) -> Unit) {
+        val key: String = UUID.randomUUID().toString()
 
-    fun requestDocument(mime_types: Array<String>, persist: Boolean = false, callback: (uri: Uri?) -> Unit) {
-        synchronized(document_callbacks) {
-            document_callbacks.add { uri ->
-                if (persist && uri != null) {
-                    takePersistentUriPermission(uri)
-                }
-                callback(uri)
+        var launcher: ActivityResultLauncher<I>? = null
+        launcher = activity.activityResultRegistry.register(key, contract) { result ->
+            if (persist_uri && result is Uri) {
+                takePersistentUriPermission(result)
             }
-            if (document_callbacks.size == 1) {
-                document_launcher.launch(mime_types)
-            }
+            callback(result)
+            launcher?.unregister()
         }
-    }
 
-    fun createJson(suggested_name: String?, persist: Boolean = false, callback: (uri: Uri?) -> Unit) {
-        synchronized(create_json_callbacks) {
-            create_json_callbacks.add { uri ->
-                if (persist && uri != null) {
-                    takePersistentUriPermission(uri)
-                }
-                callback(uri)
-            }
-            if (create_json_callbacks.size == 1) {
-                create_json_launcher.launch(suggested_name)
-            }
-        }
+        launcher.launch(input)
     }
-}
-
-fun getAppName(context: Context): String {
-    val info = context.applicationInfo
-    val string_id = info.labelRes
-    return if (string_id == 0) info.nonLocalizedLabel.toString() else context.getString(string_id)
 }
 
 private val Uri.clean_path: String
@@ -184,11 +114,14 @@ private val Uri.split_path: List<String>
     get() = clean_path.split('/').filter { it.isNotBlank() }
 
 actual class PlatformFile(
-    private var document_uri: Uri,
+    document_uri: Uri,
     private var file: DocumentFile?,
     private var parent_file: DocumentFile?,
     private val context: Context
 ) {
+    var document_uri: Uri = document_uri
+        private set
+
     init {
         assert(file != null || parent_file != null) {
             "PlatformFile must be created with file or parent_file ($document_uri)"
@@ -463,21 +396,33 @@ actual open class PlatformContext(
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
         check(application_context != null)
-        application_context.requestDocumentTree(persist) { uri ->
+        application_context.launchFileContract(
+            ActivityResultContracts.OpenDocumentTree(),
+            null,
+            persist
+        ) { uri ->
             callback(uri?.toString())
         }
     }
 
     actual fun promptUserForFile(mime_types: Set<String>, persist: Boolean, callback: (uri: String?) -> Unit) {
         check(application_context != null)
-        application_context.requestDocument(mime_types.toTypedArray(), persist) { uri ->
+        application_context.launchFileContract(
+            ActivityResultContracts.OpenDocument(),
+            mime_types.toTypedArray(),
+            persist
+        ) { uri ->
             callback(uri?.toString())
         }
     }
 
-    actual fun promptUserForJsonCreation(filename_suggestion: String?, persist: Boolean, callback: (uri: String?) -> Unit) {
+    actual fun promptUserForFileCreation(mime_type: String, filename_suggestion: String?, persist: Boolean, callback: (uri: String?) -> Unit) {
         check(application_context != null)
-        application_context.createJson(filename_suggestion, persist) { uri ->
+        application_context.launchFileContract(
+            ActivityResultContracts.CreateDocument(mime_type),
+            filename_suggestion ?: "",
+            persist
+        ) { uri ->
             callback(uri?.toString())
         }
     }

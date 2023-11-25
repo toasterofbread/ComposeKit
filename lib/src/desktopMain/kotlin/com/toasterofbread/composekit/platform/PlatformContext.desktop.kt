@@ -9,7 +9,6 @@ import androidx.compose.ui.text.platform.Font
 import com.badlogic.gdx.files.FileHandle
 import com.sshtools.twoslices.Toast
 import com.sshtools.twoslices.ToastType
-import games.spooky.gdx.nativefilechooser.NativeFileChooser
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration
 import games.spooky.gdx.nativefilechooser.NativeFileChooserIntent
@@ -32,7 +31,7 @@ import java.util.zip.ZipInputStream
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
 
 actual open class PlatformContext(private val app_name: String, private val icon_resource_path: String, private val resource_class: Class<*>) {
-    private val file_chooser: NativeFileChooser = DesktopFileChooser()
+    private val file_chooser: DesktopFileChooser = DesktopFileChooser()
     private fun getFileChooserConfiguration(): NativeFileChooserConfiguration =
         NativeFileChooserConfiguration().apply {
             directory = FileHandle(getHomeDir())
@@ -126,7 +125,6 @@ actual open class PlatformContext(private val app_name: String, private val icon
 
         val resource_dir: File = getResourceDir()
         val resource_path: String = resource_dir.resolve(path).path.trim('/') + '/'
-
         val searching_root: Boolean = resource_dir == File(resource_path)
 
         var ze: ZipEntry?
@@ -173,44 +171,31 @@ actual open class PlatformContext(private val app_name: String, private val icon
     }
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
-        TODO()
-    }
-
-    actual fun promptUserForFile(mime_types: Set<String>, persist: Boolean, callback: (uri: String?) -> Unit) {
-        file_chooser.chooseFile(getFileChooserConfiguration(), object : NativeFileChooserCallback {
-            override fun onFileChosen(file: FileHandle) {
-                callback(file.file().absolutePath)
-            }
-
-            override fun onCancellation() {
-                callback(null)
-            }
-
-            override fun onError(exception: Exception?) {
-                exception?.printStackTrace()
-                callback(null)
-            }
-        })
-    }
-
-    actual fun promptUserForJsonCreation(filename_suggestion: String?, persist: Boolean, callback: (uri: String?) -> Unit) {
         val configuration: NativeFileChooserConfiguration = getFileChooserConfiguration()
         configuration.intent = NativeFileChooserIntent.SAVE
 
-        file_chooser.chooseFile(configuration, object : NativeFileChooserCallback {
-            override fun onFileChosen(file: FileHandle) {
-                callback(file.file().absolutePath)
+        // Not perfect, but as close as I can get with the native dialog
+        file_chooser.chooseFile(
+            configuration,
+            createFileChooserCallback(callback),
+            { dir, file ->
+                dir.resolve(file).isDirectory
             }
+        )
+    }
 
-            override fun onCancellation() {
-                callback(null)
-            }
+    actual fun promptUserForFile(mime_types: Set<String>, persist: Boolean, callback: (uri: String?) -> Unit) {
+        file_chooser.chooseFile(
+            getFileChooserConfiguration(),
+            createFileChooserCallback(callback)
+        )
+    }
 
-            override fun onError(exception: Exception?) {
-                exception?.printStackTrace()
-                callback(null)
-            }
-        })
+    actual fun promptUserForFileCreation(mime_type: String, filename_suggestion: String?, persist: Boolean, callback: (uri: String?) -> Unit) {
+        val configuration: NativeFileChooserConfiguration = getFileChooserConfiguration()
+        configuration.intent = NativeFileChooserIntent.SAVE
+        configuration.mimeFilter = mime_type
+        file_chooser.chooseFile(configuration, createFileChooserCallback(callback))
     }
 
     actual fun getUserDirectoryFile(uri: String): PlatformFile {
@@ -239,6 +224,22 @@ actual open class PlatformContext(private val app_name: String, private val icon
         }
         return file
     }
+
+    private fun createFileChooserCallback(callback: (uri: String?) -> Unit) =
+        object : NativeFileChooserCallback {
+            override fun onFileChosen(file: FileHandle) {
+                callback(file.file().absolutePath)
+            }
+
+            override fun onCancellation() {
+                callback(null)
+            }
+
+            override fun onError(exception: Exception?) {
+                exception?.printStackTrace()
+                callback(null)
+            }
+        }
 }
 
 actual class PlatformFile(private val file: File) {

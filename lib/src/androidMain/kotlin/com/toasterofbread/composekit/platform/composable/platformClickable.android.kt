@@ -13,6 +13,7 @@ actual fun Modifier.platformClickable(
     enabled: Boolean,
     onClick: (() -> Unit)?,
     onAltClick: (() -> Unit)?,
+    onAlt2Click: (() -> Unit)?,
     indication: Indication?
 ): Modifier =
     composed {

@@ -9,7 +9,13 @@ import androidx.compose.ui.input.pointer.PointerButton
 import com.toasterofbread.composekit.utils.common.thenWith
 
 @OptIn(ExperimentalFoundationApi::class)
-actual fun Modifier.platformClickable(enabled: Boolean, onClick: (() -> Unit)?, onAltClick: (() -> Unit)?, indication: Indication?): Modifier =
+actual fun Modifier.platformClickable(
+    enabled: Boolean,
+    onClick: (() -> Unit)?,
+    onAltClick: (() -> Unit)?,
+    onAlt2Click: (() -> Unit)?,
+    indication: Indication?
+): Modifier =
     this
         .thenWith(onClick) {
             onClick(onClick = it)
@@ -17,6 +23,12 @@ actual fun Modifier.platformClickable(enabled: Boolean, onClick: (() -> Unit)?, 
         .thenWith(onAltClick) {
             onClick(
                 matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                onClick = it
+            )
+        }
+        .thenWith(onAlt2Click) {
+            onClick(
+                matcher = PointerMatcher.mouse(PointerButton.Tertiary),
                 onClick = it
             )
         }

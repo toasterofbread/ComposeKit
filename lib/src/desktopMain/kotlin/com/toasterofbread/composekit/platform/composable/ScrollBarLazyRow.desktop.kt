@@ -2,6 +2,7 @@ package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.LocalScrollbarStyle
+import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,6 @@ actual fun ScrollBarLazyRow(
     verticalAlignment: Alignment.Vertical,
     flingBehavior: FlingBehavior,
     userScrollEnabled: Boolean,
-    scrollbar_colour: Color,
     content: LazyListScope.() -> Unit
 ) {
     Column(modifier.scrollWheelScrollable(state)) {
@@ -37,11 +37,7 @@ actual fun ScrollBarLazyRow(
 
         HorizontalScrollbar(
             rememberScrollbarAdapter(state),
-            Modifier.padding(bottom = 5.dp),
-            style = LocalScrollbarStyle.current.copy(
-                hoverColor = scrollbar_colour,
-                unhoverColor = scrollbar_colour
-            )
+            Modifier.padding(bottom = 5.dp)
         )
     }
 }

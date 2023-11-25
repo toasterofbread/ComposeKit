@@ -35,8 +35,7 @@ class MultipleChoiceSettingsItem(
     val title: String?,
     val subtitle: String?,
     val choice_amount: Int,
-    val radio_style: Boolean,
-    val get_choice: (Int) -> String,
+    val getChoiceText: (Int) -> String,
 ): SettingsItem() {
     override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
         state.init(prefs, default_provider)
@@ -78,61 +77,34 @@ class MultipleChoiceSettingsItem(
 
                 Spacer(Modifier.height(10.dp))
 
-                if (radio_style) {
-                    Column(Modifier.padding(start = 15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        for (i in 0 until choice_amount) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier
-                                    .border(
-                                        Dp.Hairline,
-                                        theme.on_background,
-                                        SETTINGS_ITEM_ROUNDED_SHAPE
-                                    )
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 10.dp)
-                                    .clickable(
-                                        remember { MutableInteractionSource() },
-                                        null
-                                    ) { state.set(i) }
-                            ) {
-                                WidthShrinkText(get_choice(i))
-                                RadioButton(i == state.get(), onClick = { state.set(i) }, colors = RadioButtonDefaults.colors(theme.vibrant_accent))
-                            }
+                Column(Modifier.padding(start = 15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    for (i in 0 until choice_amount) {
+
+                        val colour = remember(i) { Animatable(if (state.get() == i) theme.vibrant_accent else Color.Transparent) }
+                        LaunchedEffect(state.get(), theme.vibrant_accent) {
+                            colour.animateTo(if (state.get() == i) theme.vibrant_accent else Color.Transparent, TweenSpec(150))
                         }
-                    }
-                }
-                else {
-                    Column(Modifier.padding(start = 15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        for (i in 0 until choice_amount) {
 
-                            val colour = remember(i) { Animatable(if (state.get() == i) theme.vibrant_accent else Color.Transparent) }
-                            LaunchedEffect(state.get(), theme.vibrant_accent) {
-                                colour.animateTo(if (state.get() == i) theme.vibrant_accent else Color.Transparent, TweenSpec(150))
-                            }
-
-                            Box(
-                                contentAlignment = Alignment.CenterStart,
-                                modifier = Modifier
-                                    .border(
-                                        Dp.Hairline,
-                                        theme.on_background,
-                                        SETTINGS_ITEM_ROUNDED_SHAPE
-                                    )
-                                    .fillMaxWidth()
-                                    .height(40.dp)
-                                    .clickable(remember { MutableInteractionSource() }, null) {
-                                        state.set(i)
-                                    }
-                                    .background(colour.value, SETTINGS_ITEM_ROUNDED_SHAPE)
-                            ) {
-                                Box(Modifier.padding(horizontal = 10.dp)) {
-                                    WidthShrinkText(
-                                        get_choice(i),
-                                        style = LocalTextStyle.current.copy(color = if (state.get() == i) theme.on_accent else theme.on_background)
-                                    )
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier
+                                .border(
+                                    Dp.Hairline,
+                                    theme.on_background,
+                                    SETTINGS_ITEM_ROUNDED_SHAPE
+                                )
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .clickable(remember { MutableInteractionSource() }, null) {
+                                    state.set(i)
                                 }
+                                .background(colour.value, SETTINGS_ITEM_ROUNDED_SHAPE)
+                        ) {
+                            Box(Modifier.padding(horizontal = 10.dp)) {
+                                WidthShrinkText(
+                                    getChoiceText(i),
+                                    style = LocalTextStyle.current.copy(color = if (state.get() == i) theme.on_accent else theme.on_background)
+                                )
                             }
                         }
                     }

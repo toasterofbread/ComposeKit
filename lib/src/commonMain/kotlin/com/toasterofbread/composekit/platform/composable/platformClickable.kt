@@ -7,5 +7,6 @@ expect fun Modifier.platformClickable(
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
     onAltClick: (() -> Unit)? = null,
+    onAlt2Click: (() -> Unit)? = null,
     indication: Indication? = null
 ): Modifier
