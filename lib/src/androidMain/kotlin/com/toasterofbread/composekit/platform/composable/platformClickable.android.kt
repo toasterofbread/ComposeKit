@@ -7,13 +7,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 
 @OptIn(ExperimentalFoundationApi::class)
 actual fun Modifier.platformClickable(
     enabled: Boolean,
-    onClick: (() -> Unit)?,
-    onAltClick: (() -> Unit)?,
-    onAlt2Click: (() -> Unit)?,
+    onClick: ((Offset) -> Unit)?,
+    onAltClick: ((Offset) -> Unit)?,
+    onAlt2Click: ((Offset) -> Unit)?,
     indication: Indication?
 ): Modifier =
     composed {
@@ -21,7 +22,9 @@ actual fun Modifier.platformClickable(
             enabled = enabled,
             interactionSource = remember { MutableInteractionSource() },
             indication = indication,
-            onClick = onClick ?: {},
-            onLongClick = onAltClick
+            // TODO
+            onClick = { onClick?.invoke(Offset.Zero) },
+            onLongClick = onAltClick?.let {{ it(Offset.Zero) }},
+            onDoubleClick = onAlt2Click?.let {{ it(Offset.Zero) }}
         )
     }

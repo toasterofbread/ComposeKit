@@ -428,8 +428,8 @@ actual open class PlatformContext(
     }
 
     actual fun getUserDirectoryFile(uri: String): PlatformFile {
-        val document_uri = Uri.parse(uri)
-        val file = DocumentFileCompat.fromUri(ctx, document_uri)!!
+        val document_uri: Uri = Uri.parse(uri)
+        val file: DocumentFile = DocumentFileCompat.fromUri(ctx, document_uri)!!
         return PlatformFile(document_uri, file, null, ctx)
     }
 

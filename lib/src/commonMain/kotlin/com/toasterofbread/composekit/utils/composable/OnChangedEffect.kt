@@ -32,3 +32,17 @@ fun OnChangedEffect(key1: Any?, key2: Any?, block: suspend () -> Unit) {
         }
     }
 }
+
+@Composable
+fun OnChangedEffect(key1: Any?, key2: Any?, key3: Any?, block: suspend () -> Unit) {
+    var launched by remember { mutableStateOf(false) }
+    LaunchedEffect(key1, key2, key3) {
+        if (!launched) {
+            launched = true
+        }
+        else {
+            block()
+        }
+    }
+}
+

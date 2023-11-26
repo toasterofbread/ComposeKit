@@ -210,3 +210,18 @@ fun Throwable.anyCauseIs(cls: KClass<out Throwable>): Boolean {
 operator fun <T> State<T>?.getValue(t: T?, property: KProperty<*>): T? {
 	return this?.getValue(t, property)
 }
+
+suspend fun <T, V : AnimationVector> Animatable<T, V>.snapOrAnimateTo(
+	targetValue: T,
+	snap: Boolean,
+	animationSpec: AnimationSpec<T> = defaultSpringSpec,
+	initialVelocity: T = velocity,
+	block: (Animatable<T, V>.() -> Unit)? = null
+) {
+	if (snap) {
+		snapTo(targetValue)
+	}
+	else {
+		animateTo(targetValue, animationSpec, initialVelocity, block)
+	}
+}

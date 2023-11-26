@@ -17,3 +17,4 @@ enum class Platform {
 }
 
 internal expect fun getPlatform(): Platform
+expect fun getPlatformForbiddenFilenameCharacters(): String

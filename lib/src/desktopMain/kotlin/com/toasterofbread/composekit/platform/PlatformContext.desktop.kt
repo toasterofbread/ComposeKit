@@ -19,6 +19,7 @@ import java.awt.Desktop
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
@@ -242,7 +243,7 @@ actual open class PlatformContext(private val app_name: String, private val icon
         }
 }
 
-actual class PlatformFile(private val file: File) {
+actual class PlatformFile(val file: File) {
     actual val uri: String
         get() = file.toURI().path
     actual val name: String
@@ -283,20 +284,36 @@ actual class PlatformFile(private val file: File) {
     }
 
     actual fun delete(): Boolean {
+        if (!exists) {
+            return true
+        }
         return file.delete()
     }
 
     actual fun createFile(): Boolean {
-        return file.createNewFile()
+        try {
+            val parent: File = file.parentFile
+            if (!parent.exists()) {
+                parent.mkdirs()
+            }
+
+            return file.createNewFile()
+        }
+        catch (e: Throwable) {
+            throw IOException("Could not create file $file", e)
+        }
     }
 
     actual fun mkdirs(): Boolean {
+        if (file.isDirectory) {
+            return true
+        }
         return file.mkdirs()
     }
 
     actual fun renameTo(new_name: String): PlatformFile {
-        val dest = getSibling(new_name)
-        file.renameTo(dest.file)
+        val dest: PlatformFile = getSibling(new_name)
+        check(file.renameTo(dest.file)) { "From $name to $new_name ($absolute_path)" }
         return dest
     }
 
@@ -316,4 +333,7 @@ actual class PlatformFile(private val file: File) {
     actual fun matches(other: PlatformFile): Boolean {
         return file == other.file
     }
+
+    override fun toString(): String =
+        "PlatformFile(file=${file.absolutePath})"
 }

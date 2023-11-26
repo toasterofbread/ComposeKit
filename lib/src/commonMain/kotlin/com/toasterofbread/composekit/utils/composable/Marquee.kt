@@ -1,5 +1,6 @@
 package com.toasterofbread.composekit.utils.composable
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.toasterofbread.composekit.utils.common.thenIf
@@ -27,10 +30,10 @@ import kotlin.math.roundToInt
 @Composable
 fun Marquee(modifier: Modifier = Modifier, arrangement: Arrangement.Horizontal = Arrangement.Start, disable: Boolean = false, content: @Composable () -> Unit) {
     MeasureUnconstrainedView(content) { content_width: Int, _ ->
-        val scroll_state = rememberScrollState()
+        val scroll_state: ScrollState = rememberScrollState()
 
-        val density = LocalDensity.current
-        var container_width by remember { mutableStateOf(0) }
+        val density: Density = LocalDensity.current
+        var container_width: Int by remember { mutableStateOf(0) }
 
         LaunchedEffect(scroll_state.isScrollInProgress) {
             val max_scroll = content_width - container_width
@@ -39,7 +42,7 @@ fun Marquee(modifier: Modifier = Modifier, arrangement: Arrangement.Horizontal =
             }
         }
 
-        val scroll_value by remember {
+        val scroll_value: Dp by remember {
             derivedStateOf {
                 with(density) {
                     if (container_width >= content_width) {
