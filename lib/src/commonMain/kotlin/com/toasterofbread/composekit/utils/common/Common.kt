@@ -14,6 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.unit.*
@@ -225,3 +228,18 @@ suspend fun <T, V : AnimationVector> Animatable<T, V>.snapOrAnimateTo(
 		animateTo(targetValue, animationSpec, initialVelocity, block)
 	}
 }
+
+fun Modifier.blockGestures(): Modifier =
+	pointerInput(Unit) {
+		while (currentCoroutineContext().isActive) {
+			awaitPointerEventScope {
+				val event: PointerEvent = awaitPointerEvent(PointerEventPass.Initial)
+				for (change in event.changes) {
+					change.consume()
+				}
+			}
+		}
+	}
+
+fun <T, K, V> Iterable<T>.associateNotNull(transform: (T) -> Pair<K, V>?): Map<K, V> =
+	mapNotNull(transform).associate { it }

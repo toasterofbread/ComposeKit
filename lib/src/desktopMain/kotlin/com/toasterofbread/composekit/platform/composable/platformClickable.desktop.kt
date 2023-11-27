@@ -20,25 +20,29 @@ actual fun Modifier.platformClickable(
     onAlt2Click: ((Offset) -> Unit)?,
     indication: Indication?
 ): Modifier =
-    this
+    if (!enabled) this
+    else this
         .thenWith(onClick) {
-            detectReleaseEvents { event ->
+            detectReleaseEvents(it) { event ->
                 if (event.button.isPrimary) {
                     it(event.changes.first().position)
+                    event.consume()
                 }
             }
         }
         .thenWith(onAltClick) {
-            detectReleaseEvents { event ->
+            detectReleaseEvents(it) { event ->
                 if (event.button.isSecondary) {
                     it(event.changes.first().position)
+                    event.consume()
                 }
             }
         }
         .thenWith(onAlt2Click) {
-            detectReleaseEvents { event ->
+            detectReleaseEvents(it) { event ->
                 if (event.button.isTertiary) {
                     it(event.changes.first().position)
+                    event.consume()
                 }
             }
         }

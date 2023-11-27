@@ -217,6 +217,7 @@ private fun getEditPage(
         private var name: String by mutableStateOf(theme.name)
         private var background: Color by mutableStateOf(theme.background)
         private var on_background: Color by mutableStateOf(theme.on_background)
+        private var card: Color by mutableStateOf(theme.card)
         private var accent: Color by mutableStateOf(theme.accent)
 
         @Composable
@@ -238,7 +239,7 @@ private fun getEditPage(
 
             OnChangedEffect(previewing) {
                 if (previewing) {
-                    ui_theme.setPreviewThemeData(StaticThemeData(name, background, on_background, accent))
+                    ui_theme.setPreviewThemeData(StaticThemeData(name, background, on_background, card, accent))
                 }
                 else {
                     ui_theme.setPreviewThemeData(null)
@@ -281,11 +282,12 @@ private fun getEditPage(
                         if (ui_theme.preview_active) {
                             ui_theme.setPreviewThemeData(
                                 StaticThemeData(
-                                "",
-                                background,
-                                on_background,
-                                accent
-                            )
+                                    "",
+                                    background,
+                                    on_background,
+                                    card,
+                                    accent
+                                )
                             )
                         }
                     }
@@ -308,6 +310,16 @@ private fun getEditPage(
                         randomise
                     ) { colour ->
                         on_background = colour
+                        updatePreview()
+                    }
+                    ColourField(
+                        "Card",
+                        ui_theme,
+                        theme.card,
+                        icon_button_colours,
+                        randomise
+                    ) { colour ->
+                        card = colour
                         updatePreview()
                     }
                     ColourField(
@@ -372,7 +384,7 @@ private fun getEditPage(
 
                     ShapedIconButton(
                         {
-                            onEditCompleted(StaticThemeData(name, background, on_background, accent))
+                            onEditCompleted(StaticThemeData(name, background, on_background, card, accent))
                             goBack()
                         },
                         ic_colours
@@ -392,6 +404,7 @@ private fun getEditPage(
             name = theme.name
             background = theme.background
             on_background = theme.on_background
+            card = theme.card
             accent = theme.accent
             reset = !reset
         }

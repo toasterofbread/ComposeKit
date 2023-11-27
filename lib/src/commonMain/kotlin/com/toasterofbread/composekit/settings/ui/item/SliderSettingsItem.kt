@@ -228,7 +228,7 @@ class SliderSettingsItem(
                         val value_text = getValueText?.invoke(getTypedValue())
 
                         if (value_text != null) {
-                            MeasureUnconstrainedView({ ItemText(value_text, theme) }) { width, height ->
+                            MeasureUnconstrainedView({ ItemText(value_text, theme) }) { size ->
 
                                 var is_pressed by remember { mutableStateOf(false) }
                                 interaction_source.ListenOnPressed { is_pressed = it }
@@ -239,7 +239,7 @@ class SliderSettingsItem(
 
                                 Column(
                                     Modifier
-                                        .offset(with(LocalDensity.current) { offset - (width.toDp() / 2) + 12.dp })
+                                        .offset(with(LocalDensity.current) { offset - (size.width.toDp() / 2) + 12.dp })
                                         .requiredHeight(55.dp)
                                         .graphicsLayer(scale, scale),
                                     verticalArrangement = Arrangement.Bottom,

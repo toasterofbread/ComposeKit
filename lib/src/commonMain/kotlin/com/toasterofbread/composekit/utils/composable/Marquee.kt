@@ -29,14 +29,14 @@ import kotlin.math.roundToInt
 
 @Composable
 fun Marquee(modifier: Modifier = Modifier, arrangement: Arrangement.Horizontal = Arrangement.Start, disable: Boolean = false, content: @Composable () -> Unit) {
-    MeasureUnconstrainedView(content) { content_width: Int, _ ->
+    MeasureUnconstrainedView(content) { content_size ->
         val scroll_state: ScrollState = rememberScrollState()
 
         val density: Density = LocalDensity.current
         var container_width: Int by remember { mutableStateOf(0) }
 
         LaunchedEffect(scroll_state.isScrollInProgress) {
-            val max_scroll = content_width - container_width
+            val max_scroll: Int = content_size.width - container_width
             if (scroll_state.value > max_scroll) {
                 scroll_state.scrollTo(max_scroll)
             }
@@ -45,11 +45,11 @@ fun Marquee(modifier: Modifier = Modifier, arrangement: Arrangement.Horizontal =
         val scroll_value: Dp by remember {
             derivedStateOf {
                 with(density) {
-                    if (container_width >= content_width) {
+                    if (container_width >= content_size.width) {
                         0.dp
                     } 
                     else {
-                        (-scroll_state.value).coerceIn(container_width - content_width, 0).toDp()
+                        (-scroll_state.value).coerceIn(container_width - content_size.width, 0).toDp()
                     }
                 }
             }

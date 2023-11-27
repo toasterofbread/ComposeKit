@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,6 +14,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.dp
 import com.toasterofbread.composekit.utils.common.amplify
 import com.toasterofbread.composekit.utils.common.contrastAgainst
 import com.toasterofbread.composekit.utils.common.getContrasted
@@ -32,6 +34,7 @@ abstract class Theme(
 
     override val background: Color get() = background_state.value
     override val on_background: Color get() = on_background_state.value
+    override val card: Color get() = card_state.value
     override val accent: Color get() = accent_state.value
     val on_accent: Color get() = accent.getContrasted()
     val vibrant_accent: Color get() = makeVibrant(accent)
@@ -77,13 +80,13 @@ abstract class Theme(
     }
 
     private fun getCurrentSystemTheme(): ThemeData {
-        val gtk_theme: String? = System.getenv("GTK_THEME")
+        val gtk_theme: String? = System.getenv("GTK_THEME")?.lowercase()
 
-        if (gtk_theme?.startsWith("Catppuccin-") == true) {
+        if (gtk_theme?.startsWith("catppuccin-") == true) {
             val split: List<String> = gtk_theme.substring(11).split("-", limit = 4)
             if (split.size >= 3) {
-                val flavour: String = split[0].lowercase()
-                val accent: String = split[2].lowercase()
+                val flavour: String = split[0]
+                val accent: String = split[2]
 
                 val theme: ThemeData? = getCatppuccinTheme(flavour, accent)
                 if (theme != null) {
@@ -104,6 +107,7 @@ abstract class Theme(
 
     private val background_state: Animatable<Color, AnimationVector4D> by lazy { Animatable(getLoadedThemes().first().background) }
     private val on_background_state: Animatable<Color, AnimationVector4D> by lazy { Animatable(getLoadedThemes().first().on_background) }
+    private val card_state: Animatable<Color, AnimationVector4D> by lazy { Animatable(getLoadedThemes().first().card) }
     private val accent_state: Animatable<Color, AnimationVector4D> by lazy { Animatable(getLoadedThemes().first().accent) }
 
     private fun getLoadedThemes(): List<ThemeData> {
@@ -119,6 +123,7 @@ abstract class Theme(
             name,
             background_state.targetValue,
             on_background_state.targetValue,
+            card_state.targetValue,
             accent_state.targetValue
         )
 
@@ -137,6 +142,9 @@ abstract class Theme(
             }
             launch {
                 on_background_state.animateTo(data.on_background)
+            }
+            launch {
+                card_state.animateTo(data.card)
             }
             launch {
                 accent_state.animateTo(selectAccentColour(data, thumbnail_colour))
@@ -209,8 +217,9 @@ abstract class Theme(
                     if (accent.key == target_accent) {
                         return StaticThemeData(
                             "Catppuccin ${flavour.name.replaceFirstChar { it.uppercaseChar() }} (${accent.key})",
-                            Color(flavour.crust.rgb),
+                            Color(flavour.base.rgb),
                             Color(flavour.text.rgb),
+                            Color(flavour.crust.rgb),
                             Color(accent.value.rgb)
                         )
                     }
@@ -247,6 +256,7 @@ interface ThemeData {
     val name: String
     val background: Color
     val on_background: Color
+    val card: Color
     val accent: Color
 
     fun isEditable(): Boolean = false
@@ -257,10 +267,11 @@ data class StaticThemeData(
     override val name: String,
     override val background: Color,
     override val on_background: Color,
+    override val card: Color,
     override val accent: Color
 ): ThemeData {
     fun serialise(): String {
-        return "${background.toArgb()},${on_background.toArgb()},${accent.toArgb()},$name"
+        return "${background.toArgb()},${on_background.toArgb()},${card.toArgb()},${accent.toArgb()},$name"
     }
 
     override fun isEditable(): Boolean = true
@@ -268,12 +279,13 @@ data class StaticThemeData(
 
     companion object {
         fun deserialise(data: String): StaticThemeData {
-            val split = data.split(',', limit = 4)
+            val split = data.split(',', limit = 5)
             return StaticThemeData(
-                split[3],
+                split[4],
                 Color(split[0].toInt()),
                 Color(split[1].toInt()),
-                Color(split[2].toInt())
+                Color(split[2].toInt()),
+                Color(split[3].toInt())
             )
         }
     }
@@ -288,6 +300,8 @@ class ColourSchemeThemeData(
         get() = colour_scheme?.background ?: Color.Unspecified
     override val on_background: Color
         get() = colour_scheme?.onBackground ?: Color.Unspecified
+    override val card: Color
+        get() = colour_scheme?.surfaceColorAtElevation(2.dp) ?: Color.Unspecified
     override val accent: Color
         get() = colour_scheme?.primary ?: Color.Unspecified
 
@@ -296,6 +310,7 @@ class ColourSchemeThemeData(
             name,
             background,
             on_background,
+            card,
             accent
         )
 }

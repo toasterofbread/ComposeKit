@@ -1,24 +1,26 @@
 package com.toasterofbread.composekit.utils.composable
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 
 @Composable
 fun MeasureUnconstrainedView(
     view_to_measure: @Composable () -> Unit,
     view_constraints: Constraints = Constraints(),
-    content: @Composable (width: Int, height: Int) -> Unit,
+    content: @Composable (IntSize) -> Unit,
 ) {
     SubcomposeLayout { constraints ->
-        val measurement = subcompose("viewToMeasure", view_to_measure)[0].measure(view_constraints)
+        val measurement: Placeable = subcompose("viewToMeasure", view_to_measure)[0].measure(view_constraints)
 
-        val contentPlaceable = subcompose("content") {
-            content(measurement.width, measurement.height)
-        }[0].measure(constraints)
+        val content_placeable: Placeable? = subcompose("content") {
+            content(IntSize(measurement.width, measurement.height))
+        }.firstOrNull()?.measure(constraints)
 
-        layout(contentPlaceable.width, contentPlaceable.height) {
-            contentPlaceable.place(0, 0)
+        layout(content_placeable?.width ?: 0, content_placeable?.height ?: 0) {
+            content_placeable?.place(0, 0)
         }
     }
 }

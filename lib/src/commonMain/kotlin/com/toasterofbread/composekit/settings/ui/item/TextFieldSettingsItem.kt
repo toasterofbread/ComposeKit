@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
@@ -78,7 +79,9 @@ class TextFieldSettingsItem(
                         state.set(text)
                     }
                 },
-                Modifier.fillMaxWidth(),
+                Modifier
+                    .fillMaxWidth()
+                    .pointerHoverIcon(PointerIcon.Text),
                 singleLine = single_line,
                 isError = input_error != null,
                 label = {
