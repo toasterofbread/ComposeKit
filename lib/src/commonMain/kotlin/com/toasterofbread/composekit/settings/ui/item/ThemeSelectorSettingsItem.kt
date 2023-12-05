@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.godaddy.android.colorpicker.ClassicColorPicker
@@ -41,6 +42,7 @@ import com.toasterofbread.composekit.utils.common.sorted
 import com.toasterofbread.composekit.utils.composable.OnChangedEffect
 import com.toasterofbread.composekit.utils.composable.ShapedIconButton
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
+import com.toasterofbread.composekit.utils.modifier.horizontal
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
@@ -48,7 +50,15 @@ class ThemeSelectorSettingsItem(
     val state: SettingsValueState<Int>,
     val title: String?,
     val subtitle: String?,
-    val editor_title: String?,
+
+    val str_editor_title: String?,
+    val str_field_name: String,
+    val str_field_background: String,
+    val str_field_on_background: String,
+    val str_field_card: String,
+    val str_field_accent: String,
+    val str_button_preview: String,
+
     val getThemeCount: () -> Int,
     val getTheme: (index: Int) -> ThemeData,
     val onThemeEdited: (index: Int, edited_theme: ThemeData) -> Unit,
@@ -172,7 +182,16 @@ class ThemeSelectorSettingsItem(
                     ShapedIconButton(
                         {
                             openCustomPage(
-                                getEditPage(editor_title, theme_data) {
+                                getEditPage(
+                                    str_editor_title,
+                                    str_field_name,
+                                    str_field_background,
+                                    str_field_on_background,
+                                    str_field_card,
+                                    str_field_accent,
+                                    str_button_preview,
+                                    theme_data
+                                ) {
                                     onThemeEdited(theme_index, it)
                                 }
                             )
@@ -204,6 +223,12 @@ class ThemeSelectorSettingsItem(
 @OptIn(ExperimentalResourceApi::class)
 private fun getEditPage(
     editor_title: String?,
+    str_field_name: String,
+    str_field_background: String,
+    str_field_on_background: String,
+    str_field_card: String,
+    str_field_accent: String,
+    str_button_preview: String,
     theme: ThemeData,
     onEditCompleted: (theme_data: ThemeData) -> Unit
 ): SettingsPage {
@@ -227,16 +252,18 @@ private fun getEditPage(
             openCustomPage: (SettingsPage) -> Unit,
             goBack: () -> Unit
         ) {
+            val focus_manager: FocusManager = LocalFocusManager.current
+            val density: Density = LocalDensity.current
+
             val ui_theme: Theme = settings_interface.theme
             var previewing: Boolean by remember { mutableStateOf(ui_theme.preview_active) }
+            var randomise: Boolean by remember { mutableStateOf(false) }
+
 
             val icon_button_colours = IconButtonDefaults.iconButtonColors(
                 containerColor = ui_theme.vibrant_accent,
                 contentColor = ui_theme.vibrant_accent.getContrasted()
             )
-
-            var randomise: Boolean by remember { mutableStateOf(false) }
-
             OnChangedEffect(previewing) {
                 if (previewing) {
                     ui_theme.setPreviewThemeData(StaticThemeData(name, background, on_background, card, accent))
@@ -245,8 +272,6 @@ private fun getEditPage(
                     ui_theme.setPreviewThemeData(null)
                 }
             }
-
-            val focus_manager: FocusManager = LocalFocusManager.current
 
             Box(
                 Modifier
@@ -257,80 +282,84 @@ private fun getEditPage(
                         }
                     }
             ) {
-                Column(
-                    Modifier.padding(content_padding),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    OutlinedTextField(
-                        name,
-                        { name = it },
-                        Modifier.fillMaxWidth(),
-                        label = { Text("Name") },
-                        isError = name.isEmpty(),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            cursorColor = ui_theme.vibrant_accent,
-                            focusedBorderColor = ui_theme.vibrant_accent,
-                            focusedLabelColor = ui_theme.vibrant_accent,
-                        ),
-                        keyboardActions = KeyboardActions(onDone = {
-                            focus_manager.clearFocus()
-                        })
-                    )
+                var footer_height: Dp by remember { mutableStateOf(0.dp) }
 
-                    fun updatePreview() {
-                        if (ui_theme.preview_active) {
-                            ui_theme.setPreviewThemeData(
-                                StaticThemeData(
-                                    "",
-                                    background,
-                                    on_background,
-                                    card,
-                                    accent
-                                )
-                            )
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = content_padding
+                ) {
+                    item {
+                        OutlinedTextField(
+                            name,
+                            { name = it },
+                            Modifier.fillMaxWidth(),
+                            label = { Text(str_field_name) },
+                            isError = name.isEmpty(),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                cursorColor = ui_theme.vibrant_accent,
+                                focusedBorderColor = ui_theme.vibrant_accent,
+                                focusedLabelColor = ui_theme.vibrant_accent,
+                            ),
+                            keyboardActions = KeyboardActions(onDone = {
+                                focus_manager.clearFocus()
+                            })
+                        )
+                    }
+
+                    fun Field(name: String, default_colour: Color, onChanged: suspend (Color) -> Unit) {
+                        item {
+                            ColourField(
+                                name,
+                                ui_theme,
+                                default_colour,
+                                icon_button_colours,
+                                randomise
+                            ) { colour ->
+                                onChanged(colour)
+
+                                if (ui_theme.preview_active) {
+                                    ui_theme.setPreviewThemeData(
+                                        StaticThemeData(
+                                            "",
+                                            background,
+                                            on_background,
+                                            card,
+                                            accent
+                                        )
+                                    )
+                                }
+                            }
                         }
                     }
 
-                    ColourField(
-                        "Background",
-                        ui_theme,
+                    Field(
+                        str_field_background,
                         theme.background,
-                        icon_button_colours,
-                        randomise
                     ) { colour ->
                         background = colour
-                        updatePreview()
                     }
-                    ColourField(
-                        "On background",
-                        ui_theme,
+                    Field(
+                        str_field_on_background,
                         theme.on_background,
-                        icon_button_colours,
-                        randomise
                     ) { colour ->
                         on_background = colour
-                        updatePreview()
                     }
-                    ColourField(
-                        "Card",
-                        ui_theme,
+                    Field(
+                        str_field_card,
                         theme.card,
-                        icon_button_colours,
-                        randomise
                     ) { colour ->
                         card = colour
-                        updatePreview()
                     }
-                    ColourField(
-                        "Accent",
-                        ui_theme,
+                    Field(
+                        str_field_accent,
                         theme.accent,
-                        icon_button_colours,
-                        randomise
                     ) { colour ->
                         accent = colour
-                        updatePreview()
+                    }
+
+                    item {
+                        Spacer(Modifier.height(footer_height))
                     }
                 }
 
@@ -339,7 +368,12 @@ private fun getEditPage(
                         .fillMaxWidth()
                         .height(IntrinsicSize.Max)
                         .align(Alignment.BottomCenter)
-                        .padding(20.dp),
+                        .padding(20.dp)
+                        .onSizeChanged {
+                            footer_height = with (density) {
+                                it.height.toDp()
+                            }
+                        },
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     val button_colours: ButtonColors = ButtonDefaults.buttonColors(
@@ -363,7 +397,7 @@ private fun getEditPage(
                                 uncheckedThumbColor = ui_theme.vibrant_accent.copy(alpha = 0.5f)
                             )
                         )
-                        Text("Preview", Modifier.padding(start = 5.dp))
+                        Text(str_button_preview, Modifier.padding(start = 5.dp))
                     }
 
                     ShapedIconButton(
