@@ -16,7 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -227,8 +227,8 @@ private fun getEditPage(
             openCustomPage: (SettingsPage) -> Unit,
             goBack: () -> Unit
         ) {
-            val ui_theme = settings_interface.theme
-            var previewing by remember { mutableStateOf(ui_theme.preview_active) }
+            val ui_theme: Theme = settings_interface.theme
+            var previewing: Boolean by remember { mutableStateOf(ui_theme.preview_active) }
 
             val icon_button_colours = IconButtonDefaults.iconButtonColors(
                 containerColor = ui_theme.vibrant_accent,
@@ -246,7 +246,7 @@ private fun getEditPage(
                 }
             }
 
-            val focus_manager = LocalFocusManager.current
+            val focus_manager: FocusManager = LocalFocusManager.current
 
             Box(
                 Modifier
@@ -334,49 +334,47 @@ private fun getEditPage(
                     }
                 }
 
-                Row(settings_interface.footer_modifier.fillMaxWidth()) {
-                    val colours = ButtonDefaults.buttonColors(
-                        containerColor = ui_theme.background,
-                        contentColor = ui_theme.on_background
+                Row(
+                    settings_interface.footer_modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max)
+                        .align(Alignment.BottomCenter)
+                        .padding(20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    val button_colours: ButtonColors = ButtonDefaults.buttonColors(
+                        containerColor = ui_theme.accent,
+                        contentColor = ui_theme.on_accent
                     )
 
                     Button(
                         { previewing = !previewing },
                         Modifier.fillMaxHeight(),
-                        colors = colours,
+                        colors = button_colours,
                         contentPadding = PaddingValues(start = 10.dp, end = 15.dp)
                     ) {
                         Switch(
                             previewing,
                             { previewing = it },
-                            Modifier
-                                .scale(0.75f)
-                                .height(0.dp),
                             colors = SwitchDefaults.colors(
-                                checkedTrackColor = ui_theme.vibrant_accent.getContrasted(),
-                                checkedThumbColor = ui_theme.vibrant_accent
+                                checkedTrackColor = ui_theme.vibrant_accent.getContrasted().copy(alpha = 0.5f),
+                                checkedThumbColor = ui_theme.vibrant_accent,
+                                uncheckedTrackColor = ui_theme.vibrant_accent.getContrasted(),
+                                uncheckedThumbColor = ui_theme.vibrant_accent.copy(alpha = 0.5f)
                             )
                         )
                         Text("Preview", Modifier.padding(start = 5.dp))
                     }
 
-                    Spacer(Modifier.width(10.dp))
-
-                    val ic_colours = IconButtonDefaults.iconButtonColors(
-                        containerColor = ui_theme.accent,
-                        contentColor = ui_theme.on_accent,
-                        disabledContainerColor = ui_theme.accent.copy(alpha = 0.5f)
-                    )
-
                     ShapedIconButton(
                         { randomise = !randomise },
-                        ic_colours
+                        icon_button_colours,
+                        Modifier.fillMaxHeight().aspectRatio(1f)
                     ) {
                         Icon(
                             painterResource("assets/drawable/ic_die.xml"),
                             null,
-                            Modifier.size(25.dp),
-                            tint = ui_theme.on_background
+                            Modifier.size(25.dp)
                         )
                     }
 
@@ -387,13 +385,13 @@ private fun getEditPage(
                             onEditCompleted(StaticThemeData(name, background, on_background, card, accent))
                             goBack()
                         },
-                        ic_colours
+                        icon_button_colours,
+                        Modifier.fillMaxHeight().aspectRatio(1f)
                     ) {
                         Icon(
                             Icons.Filled.Done,
                             null,
-                            Modifier.size(25.dp),
-                            tint = ui_theme.on_background
+                            Modifier.size(25.dp)
                         )
                     }
                 }
