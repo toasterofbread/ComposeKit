@@ -19,6 +19,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 
@@ -39,8 +40,7 @@ fun ShapedIconButton(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier =
-        modifier
+        modifier = modifier
             .size(IconButtonTokens.StateLayerSize)
             .background(color = colours.containerColor(enabled).value, shape = shape)
             .combinedClickable(
@@ -53,7 +53,7 @@ fun ShapedIconButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        val contentColor = colours.contentColor(enabled).value
-        CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
+        val content_colour: Color = colours.contentColor(enabled).value
+        CompositionLocalProvider(LocalContentColor provides content_colour, content = content)
     }
 }

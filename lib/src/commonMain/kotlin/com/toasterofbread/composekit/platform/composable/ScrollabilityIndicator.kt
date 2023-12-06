@@ -1,14 +1,15 @@
-package com.toasterofbread.composekit.utils.composable
+package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -18,13 +19,17 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -50,25 +55,17 @@ fun ScrollabilityIndicatorColumn(
 
 
 @Composable
-fun ScrollabilityIndicatorRow(
-    scroll_state: ScrollableState,
+expect fun ScrollabilityIndicatorRow(
+    scroll_state: ScrollState,
     modifier: Modifier = Modifier,
     show_start_indicator: Boolean = false,
+    show_end_indicator: Boolean = true,
     scroll_amount: Float? = with(LocalDensity.current) { 50.dp.toPx() },
-    content: @Composable () -> Unit
-) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        if (show_start_indicator) {
-            ScrollabilityIndicator(true, scroll_state, scroll_amount)
-        }
-
-        Box(Modifier.weight(1f)) {
-            content()
-        }
-
-        ScrollabilityIndicator(false, scroll_state, scroll_amount)
-    }
-}
+    horizontal_arrangement: Arrangement.Horizontal = Arrangement.Start,
+    vertical_alignment: Alignment.Vertical = Alignment.Top,
+    accent_colour: Color = LocalContentColor.current,
+    content: @Composable() (RowScope.() -> Unit)
+)
 
 @Composable
 fun ColumnScope.ScrollabilityIndicator(up: Boolean, list_state: ScrollableState, scroll_amount: Float? = null) {
@@ -97,10 +94,15 @@ fun ColumnScope.ScrollabilityIndicator(up: Boolean, list_state: ScrollableState,
 }
 
 @Composable
-fun RowScope.ScrollabilityIndicator(left: Boolean, list_state: ScrollableState, scroll_amount: Float? = null) {
-    val coroutine_scope = rememberCoroutineScope()
-    val show = if (left) list_state.canScrollBackward else list_state.canScrollForward
-    val icon = if (left) Icons.Default.KeyboardArrowLeft else Icons.Default.KeyboardArrowRight
+fun RowScope.ScrollabilityIndicator(
+    left: Boolean,
+    list_state: ScrollableState,
+    scroll_amount: Float? = null,
+    colour: Color = LocalContentColor.current
+) {
+    val coroutine_scope: CoroutineScope = rememberCoroutineScope()
+    val show: Boolean = if (left) list_state.canScrollBackward else list_state.canScrollForward
+    val icon: ImageVector = if (left) Icons.Default.KeyboardArrowLeft else Icons.Default.KeyboardArrowRight
 
     Box(
         Modifier
@@ -117,7 +119,7 @@ fun RowScope.ScrollabilityIndicator(left: Boolean, list_state: ScrollableState, 
             }
     ) {
         this@ScrollabilityIndicator.AnimatedVisibility(show) {
-            Icon(icon, null)
+            Icon(icon, null, tint = colour)
         }
     }
 }

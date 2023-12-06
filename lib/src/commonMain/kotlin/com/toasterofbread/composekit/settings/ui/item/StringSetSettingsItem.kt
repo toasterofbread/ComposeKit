@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
-import com.toasterofbread.composekit.utils.composable.ScrollabilityIndicatorColumn
+import com.toasterofbread.composekit.platform.composable.ScrollabilityIndicatorColumn
 import com.toasterofbread.composekit.utils.composable.ShapedIconButton
 
 class StringSetSettingsItem(
