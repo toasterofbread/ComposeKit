@@ -3,6 +3,7 @@ package com.toasterofbread.composekit.utils.composable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -65,38 +66,39 @@ fun LinkifyText(
         }
     }
 
-    Text(
-        text = annotated_string,
-        color = colour,
-        style = style,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier,
-        inlineContent = urls.withIndex().associateNotNull {
-            val (i, url) = it
-            val link_size: IntSize = link_sizes[url] ?: return@associateNotNull null
-            Pair(
-                i.toString(),
-                InlineTextContent(
-                    with (density) {
-                        Placeholder(link_size.width.toSp(), link_size.height.toSp(), placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter)
+    SelectionContainer(modifier = modifier) {
+        Text(
+            text = annotated_string,
+            color = colour,
+            style = style,
+            overflow = TextOverflow.Ellipsis,
+            inlineContent = urls.withIndex().associateNotNull {
+                val (i, url) = it
+                val link_size: IntSize = link_sizes[url] ?: return@associateNotNull null
+                Pair(
+                    i.toString(),
+                    InlineTextContent(
+                        with (density) {
+                            Placeholder(link_size.width.toSp(), link_size.height.toSp(), placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter)
+                        }
+                    ) {
+                        Text(
+                            url.first,
+                            Modifier
+                                .pointerHoverIcon(PointerIcon.Hand)
+                                .pointerInput(Unit) {
+                                    detectTapGestures {
+                                        uri_handler.openUri(url.first)
+                                    }
+                                },
+                            color = highlight_colour,
+                            textDecoration = TextDecoration.Underline
+                        )
                     }
-                ) {
-                    Text(
-                        url.first,
-                        Modifier
-                            .pointerHoverIcon(PointerIcon.Hand)
-                            .pointerInput(Unit) {
-                                detectTapGestures {
-                                    uri_handler.openUri(url.first)
-                                }
-                            },
-                        color = highlight_colour,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
-            )
-        }
-    )
+                )
+            }
+        )
+    }
 }
 
 private val URL_PATTERN: Pattern = Pattern.compile(

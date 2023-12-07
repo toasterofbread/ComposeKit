@@ -24,6 +24,7 @@ import com.toasterofbread.composekit.utils.common.thenIf
 fun PlatformClickableIconButton(
     onClick: ((Offset) -> Unit)? = null,
     onAltClick: ((Offset) -> Unit)? = null,
+    onAlt2Click: ((Offset) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     indication: Indication? = rememberRipple(bounded = false, radius = 24.dp),
@@ -39,6 +40,7 @@ fun PlatformClickableIconButton(
             .platformClickable(
                 onClick = onClick,
                 onAltClick = onAltClick,
+                onAlt2Click = onAlt2Click,
                 enabled = enabled,
                 indication = indication
             )
