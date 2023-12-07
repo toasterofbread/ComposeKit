@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
 @Composable
 actual fun ScrollBarLazyColumn(
@@ -19,7 +20,18 @@ actual fun ScrollBarLazyColumn(
     horizontalAlignment: Alignment.Horizontal,
     flingBehavior: FlingBehavior,
     userScrollEnabled: Boolean,
+    scrollBarColour: Color,
     content: LazyListScope.() -> Unit
 ) {
-    ScrollBarLazyColumn(modifier, state, contentPadding, reverseLayout, verticalArrangement, horizontalAlignment, flingBehavior, userScrollEnabled, content)
+    ScrollBarLazyColumn(
+        modifier,
+        state,
+        contentPadding,
+        reverseLayout,
+        verticalArrangement,
+        horizontalAlignment,
+        flingBehavior,
+        userScrollEnabled,
+        content = content
+    )
 }
