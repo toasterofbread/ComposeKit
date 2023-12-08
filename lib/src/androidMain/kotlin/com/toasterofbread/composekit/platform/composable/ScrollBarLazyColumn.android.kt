@@ -3,6 +3,7 @@ package com.toasterofbread.composekit.platform.composable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -23,7 +24,7 @@ actual fun ScrollBarLazyColumn(
     scrollBarColour: Color,
     content: LazyListScope.() -> Unit
 ) {
-    ScrollBarLazyColumn(
+    LazyColumn(
         modifier,
         state,
         contentPadding,
