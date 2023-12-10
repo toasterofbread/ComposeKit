@@ -21,7 +21,6 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
     
     protected open fun loadData(): MutableMap<String, Any> {
         if (!file.exists) {
-            data.clear()
             return mutableMapOf()
         }
 

@@ -205,6 +205,7 @@ class SettingsValueState<T: Any>(
     override fun PlatformPreferences.Editor.save() {
         val value: Any = this@SettingsValueState.setValueConverter(get())
         when (value) {
+            defaultProvider(key) -> remove(key)
             is Boolean -> putBoolean(key, value)
             is Float -> putFloat(key, value)
             is Int -> putInt(key, value)
