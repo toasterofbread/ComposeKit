@@ -317,6 +317,11 @@ actual class PlatformFile(val file: File) {
         return dest
     }
 
+    @Suppress("NewApi")
+    actual fun moveTo(destination: PlatformFile) {
+        Files.move(file.toPath(), destination.file.toPath())
+    }
+
     actual fun moveDirContentTo(destination: PlatformFile): Result<PlatformFile> {
         TODO()
     }

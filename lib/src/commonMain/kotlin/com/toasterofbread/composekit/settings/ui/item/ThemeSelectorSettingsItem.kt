@@ -259,7 +259,6 @@ private fun getEditPage(
             var previewing: Boolean by remember { mutableStateOf(ui_theme.preview_active) }
             var randomise: Boolean by remember { mutableStateOf(false) }
 
-
             val icon_button_colours = IconButtonDefaults.iconButtonColors(
                 containerColor = ui_theme.vibrant_accent,
                 contentColor = ui_theme.vibrant_accent.getContrasted()

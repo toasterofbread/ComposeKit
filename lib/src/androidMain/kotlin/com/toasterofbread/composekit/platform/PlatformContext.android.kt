@@ -46,13 +46,17 @@ import com.anggrayudi.storage.file.copyFileTo
 import com.anggrayudi.storage.file.findParent
 import com.anggrayudi.storage.file.getAbsolutePath
 import com.anggrayudi.storage.file.makeFolder
+import com.anggrayudi.storage.file.moveFileTo
 import com.anggrayudi.storage.file.moveFolderTo
 import com.anggrayudi.storage.media.MediaFile
 import com.toasterofbread.composekit.utils.common.isDark
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.UUID
@@ -242,7 +246,7 @@ actual class PlatformFile(
             return false
         }
 
-        val parts = document_uri.split_path.drop(parent_file!!.uri.split_path.size).dropLast(1)
+        val parts: List<String> = document_uri.split_path.drop(parent_file!!.uri.split_path.size).dropLast(1)
         for (part in parts) {
             parent_file = parent_file!!.makeFolder(context, part) ?: return false
         }
@@ -298,6 +302,41 @@ actual class PlatformFile(
             null,
             context
         )
+    }
+
+    @SuppressLint("NewApi")
+    actual fun moveTo(destination: PlatformFile) {
+        check(is_file)
+        check(destination.createFile())
+
+        runBlocking {
+            val result_channel: Channel<Result<Unit>> = Channel()
+
+            file!!.moveFileTo(
+                context,
+                MediaFile(context, destination.document_uri),
+                object : FileCallback() {
+                    override fun onCompleted(result: Any) {
+                        runBlocking {
+                            result_channel.send(Result.success(Unit))
+                        }
+                    }
+
+                    override fun onFailed(errorCode: ErrorCode) {
+                        runBlocking {
+                            if (errorCode == ErrorCode.UNKNOWN_IO_ERROR) {
+                                result_channel.send(Result.success(Unit))
+                            }
+                            else {
+                                result_channel.send(Result.failure(IOException(errorCode.name)))
+                            }
+                        }
+                    }
+                }
+            )
+
+            result_channel.receive().getOrThrow()
+        }
     }
 
 //    actual fun copyTo(destination: PlatformFile) {

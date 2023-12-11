@@ -56,7 +56,7 @@ class FileSettingsItem(
         val title: String,
         val body: String,
         val accept_button: String,
-        val deny_button: String,
+        val deny_button: String?,
         val onSelected: suspend (accepted: Boolean) -> Unit
     )
 
@@ -134,7 +134,7 @@ class FileSettingsItem(
                         }
                     }
                 },
-                dismissButton = {
+                dismissButton = dialog.deny_button?.let { deny_button -> {
                     Crossfade(!action_in_progress) { enabled ->
                         Button(
                             {
@@ -154,10 +154,10 @@ class FileSettingsItem(
                             },
                             enabled = enabled
                         ) {
-                            Text(dialog.deny_button)
+                            Text(deny_button)
                         }
                     }
-                }
+                }}
             )
         }
 

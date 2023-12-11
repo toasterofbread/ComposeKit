@@ -76,8 +76,7 @@ expect class PlatformFile {
     fun createFile(): Boolean
     fun mkdirs(): Boolean
     fun renameTo(new_name: String): PlatformFile
-//    fun copyTo(destination: PlatformFile)
-//    fun delete()
+    fun moveTo(destination: PlatformFile)
     fun moveDirContentTo(destination: PlatformFile): Result<PlatformFile>
 
     fun matches(other: PlatformFile): Boolean
