@@ -9,6 +9,7 @@ import android.content.Context.MODE_APPEND
 import android.content.Context.MODE_PRIVATE
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
@@ -196,7 +197,7 @@ actual class PlatformFile(
         }
 
     actual fun resolve(relative_path: String): PlatformFile {
-        val uri = document_uri.buildUpon().appendPath(relative_path).build()
+        val uri: Uri = document_uri.buildUpon().appendPath(relative_path).build()
 
         if (file != null) {
             var existing_file: DocumentFile = file!!
@@ -217,11 +218,11 @@ actual class PlatformFile(
     }
 
     actual fun getSibling(sibling_name: String): PlatformFile {
-        val uri = document_uri.toString()
-        val last_slash = uri.lastIndexOf('/')
+        val uri: String = document_uri.toString()
+        val last_slash: Int = uri.lastIndexOf('/')
         check(last_slash != -1)
 
-        val sibling_uri = Uri.parse(uri.substring(0, last_slash + 1) + sibling_name)
+        val sibling_uri: Uri = Uri.parse(uri.substring(0, last_slash + 1) + sibling_name)
 
         if (file != null) {
             return PlatformFile(sibling_uri, null, file!!.findParent(context, true)!!, context)
@@ -276,7 +277,7 @@ actual class PlatformFile(
             return true
         }
 
-        val parts = document_uri.split_path.drop(parent_file!!.uri.split_path.size)
+        val parts: List<String> = document_uri.split_path.drop(parent_file!!.uri.split_path.size)
         for (part in parts) {
             parent_file = parent_file!!.makeFolder(context, part) ?: return false
         }
@@ -351,10 +352,6 @@ actual class PlatformFile(
 //        )
 //
 //        DocumentsContract.copyDocument(context.contentResolver, document_uri, destination.document_uri)
-//    }
-//
-//    actual fun delete() {
-//        DocumentsContract.deleteDocument(context.contentResolver, document_uri)
 //    }
 
     actual fun moveDirContentTo(destination: PlatformFile): Result<PlatformFile> {
@@ -475,7 +472,7 @@ actual open class PlatformContext(
     actual fun isAppInForeground(): Boolean = ctx.isAppInForeground()
 
     actual fun setStatusBarColour(colour: Color?) {
-        val window = ctx.findWindow() ?: return
+        val window: Window = ctx.findWindow() ?: return
 
         val dark_icons: Boolean
         val bar_colour: Color
@@ -510,7 +507,7 @@ actual open class PlatformContext(
     }
 
     actual fun setNavigationBarColour(colour: Color?) {
-        val window = ctx.findWindow() ?: return
+        val window: Window = ctx.findWindow() ?: return
         window.navigationBarColor = (colour ?: Color.Transparent).toArgb()
 
         if (Build.VERSION.SDK_INT in Build.VERSION_CODES.O .. Build.VERSION_CODES.Q) {
@@ -531,7 +528,7 @@ actual open class PlatformContext(
             return true
         }
 
-        val resources = context.resources
+        val resources: Resources = context.resources
 
         val resource_id: Int = resources.getIdentifier("config_navBarInteractionMode", "integer", "android")
         if (resource_id > 0) {
@@ -550,7 +547,7 @@ actual open class PlatformContext(
 
     actual fun canShare(): Boolean = true
     actual fun shareText(text: String, title: String?) {
-        val share_intent = Intent.createChooser(
+        val share_intent: Intent = Intent.createChooser(
             Intent().apply {
                 action = Intent.ACTION_SEND
                 type = "text/plain"
@@ -568,11 +565,11 @@ actual open class PlatformContext(
     }
 
     actual fun canOpenUrl(): Boolean {
-        val open_intent = Intent(Intent.ACTION_VIEW)
+        val open_intent: Intent = Intent(Intent.ACTION_VIEW)
         return open_intent.resolveActivity(ctx.packageManager) != null
     }
     actual fun openUrl(url: String) {
-        val open_intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        val open_intent: Intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         checkNotNull(open_intent.resolveActivity(ctx.packageManager))
         ctx.startActivity(open_intent)
     }
@@ -582,7 +579,7 @@ actual open class PlatformContext(
     }
 
     actual fun vibrate(duration: Double) {
-        val vibrator = (ctx.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?) ?: return
+        val vibrator: Vibrator = (ctx.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?) ?: return
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(
@@ -640,7 +637,7 @@ actual open class PlatformContext(
 }
 
 private fun Context.findWindow(): Window? {
-    var context = this
+    var context: Context = this
     while (context is ContextWrapper) {
         if (context is Activity) return context.window
         context = context.baseContext
@@ -649,7 +646,7 @@ private fun Context.findWindow(): Window? {
 }
 
 private fun getDefaultNotificationChannel(context: Context): String {
-    val channel = NotificationChannelCompat.Builder(
+    val channel: NotificationChannelCompat = NotificationChannelCompat.Builder(
         DEFAULT_NOTIFICATION_CHANNEL_ID,
         NotificationManagerCompat.IMPORTANCE_DEFAULT
     ).build()
@@ -659,7 +656,7 @@ private fun getDefaultNotificationChannel(context: Context): String {
 }
 
 private fun getErrorNotificationChannel(context: Context): String {
-    val channel =
+    val channel: NotificationChannelCompat =
         NotificationChannelCompat.Builder(
             ERROR_NOTIFICATION_CHANNEL_ID,
             NotificationManagerCompat.IMPORTANCE_HIGH

@@ -51,6 +51,7 @@ class FileSettingsItem(
         setValue: (String) -> Unit,
         showDialog: (Dialog) -> Unit,
     ) -> Unit,
+    val extraContent: (@Composable (BasicSettingsValueState<String>) -> Unit)? = null
 ): SettingsItem() {
     data class Dialog(
         val title: String,
@@ -193,11 +194,7 @@ class FileSettingsItem(
                     Icon(Icons.Default.Folder, null)
                 }
 
-                IconButton({
-                    state.reset()
-                }) {
-                    Icon(Icons.Default.Refresh, null)
-                }
+                extraContent?.invoke(state)
             }
 
             Box(
