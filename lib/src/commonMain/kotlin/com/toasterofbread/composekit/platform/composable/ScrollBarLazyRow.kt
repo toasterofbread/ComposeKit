@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 expect fun ScrollBarLazyRow(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
+    show_scrollbar: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     reverseLayout: Boolean = false,
     horizontalArrangement: Arrangement.Horizontal =

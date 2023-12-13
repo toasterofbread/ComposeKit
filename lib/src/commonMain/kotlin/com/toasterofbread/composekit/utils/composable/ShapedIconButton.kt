@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.tokens.IconButtonTokens
 import androidx.compose.runtime.Composable
@@ -27,7 +28,7 @@ import androidx.compose.ui.semantics.Role
 @Composable
 fun ShapedIconButton(
     onClick: () -> Unit,
-    colours: IconButtonColors,
+    colours: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     modifier: Modifier = Modifier,
     shape: Shape = CircleShape,
     enabled: Boolean = true,

@@ -15,13 +15,13 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 actual fun ScrollBarLazyRow(
     modifier: Modifier,
     state: LazyListState,
+    show_scrollbar: Boolean,
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     horizontalArrangement: Arrangement.Horizontal,
@@ -35,9 +35,11 @@ actual fun ScrollBarLazyRow(
             Modifier, state, contentPadding, reverseLayout, horizontalArrangement, verticalAlignment, flingBehavior, userScrollEnabled, content
         )
 
-        HorizontalScrollbar(
-            rememberScrollbarAdapter(state),
-            Modifier.padding(bottom = 5.dp)
-        )
+        if (show_scrollbar) {
+            HorizontalScrollbar(
+                rememberScrollbarAdapter(state),
+                Modifier.padding(bottom = 5.dp)
+            )
+        }
     }
 }
