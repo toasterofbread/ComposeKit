@@ -2,9 +2,6 @@ package com.toasterofbread.composekit.platform
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.io.InputStream
-import java.io.OutputStreamWriter
 import java.lang.reflect.Type
 
 open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPreferences {
@@ -121,6 +118,7 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
 
         override fun remove(key: String): PlatformPreferences.Editor {
             data.remove(key)
+            changed.add(key)
             return this
         }
 

@@ -142,14 +142,14 @@ fun ImageBitmap.getThemeColour(): Color? {
 fun Color.isDark(): Boolean =
     luminance() < 0.2
 
-fun Color.contrastAgainst(against: Color, by: Float = 0.5f): Color =
-    offsetRGB(if (against.isDark()) by else -by)
+fun Color.contrastAgainst(against: Color, by: Float = 0.5f, clip: Boolean = true): Color =
+    offsetRGB(if (against.isDark()) by else -by, clip = clip)
 
 fun Color.getContrasted(keep_alpha: Boolean = false): Color {
-    val colour =
+    val base: Color =
         if (isDark()) Color.White
         else Color.Black
-    return if (keep_alpha) colour.copy(alpha = alpha) else colour
+    return if (keep_alpha) base.copy(alpha = alpha) else base
 }
 
 fun Color.getNeutral(): Color {
