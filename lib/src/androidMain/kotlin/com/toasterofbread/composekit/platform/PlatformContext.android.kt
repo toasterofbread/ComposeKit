@@ -19,6 +19,7 @@ import android.os.Vibrator
 import android.view.View
 import android.view.Window
 import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -38,6 +39,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.callback.FileCallback
 import com.anggrayudi.storage.callback.FolderCallback
@@ -50,6 +52,7 @@ import com.anggrayudi.storage.file.makeFolder
 import com.anggrayudi.storage.file.moveFileTo
 import com.anggrayudi.storage.file.moveFolderTo
 import com.anggrayudi.storage.media.MediaFile
+import com.toasterofbread.composekit.utils.common.getContrasted
 import com.toasterofbread.composekit.utils.common.isDark
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -510,16 +513,8 @@ actual open class PlatformContext(
         val window: Window = ctx.findWindow() ?: return
         window.navigationBarColor = (colour ?: Color.Transparent).toArgb()
 
-        if (Build.VERSION.SDK_INT in Build.VERSION_CODES.O .. Build.VERSION_CODES.Q) {
-            window.decorView.apply {
-                if (colour?.isDark() == false) {
-                    systemUiVisibility = systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                }
-                else {
-                    systemUiVisibility = systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
-                }
-            }
-        }
+        val window_insets_controller: WindowInsetsControllerCompat = WindowInsetsControllerCompat(window, window.decorView)
+        window_insets_controller.isAppearanceLightNavigationBars = colour?.isDark()?.not() ?: false
     }
 
     @SuppressLint("DiscouragedApi")

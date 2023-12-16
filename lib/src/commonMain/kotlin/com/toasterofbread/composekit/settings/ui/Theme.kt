@@ -191,6 +191,10 @@ abstract class Theme(
     }
 
     fun removeTheme(index: Int) {
+        if (index <= 1) {
+            return
+        }
+
         if (getLoadedThemes().size == 1) {
             loaded_themes = default_themes
         }

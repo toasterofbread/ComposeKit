@@ -33,7 +33,6 @@ import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.settings.ui.StaticThemeData
 import com.toasterofbread.composekit.settings.ui.Theme
 import com.toasterofbread.composekit.settings.ui.ThemeData
-import com.toasterofbread.composekit.utils.*
 import com.toasterofbread.composekit.utils.common.contrastAgainst
 import com.toasterofbread.composekit.utils.common.generatePalette
 import com.toasterofbread.composekit.utils.common.getContrasted
@@ -42,7 +41,6 @@ import com.toasterofbread.composekit.utils.common.sorted
 import com.toasterofbread.composekit.utils.composable.OnChangedEffect
 import com.toasterofbread.composekit.utils.composable.ShapedIconButton
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
-import com.toasterofbread.composekit.utils.modifier.horizontal
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
@@ -60,7 +58,7 @@ class ThemeSelectorSettingsItem(
     val str_button_preview: String,
 
     val getThemeCount: () -> Int,
-    val getTheme: (index: Int) -> ThemeData,
+    val getTheme: (index: Int) -> ThemeData?,
     val onThemeEdited: (index: Int, edited_theme: ThemeData) -> Unit,
     val createTheme: (Int) -> Unit,
     val removeTheme: (index: Int) -> Unit
@@ -107,7 +105,7 @@ class ThemeSelectorSettingsItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                val icon_button_colours = IconButtonDefaults.iconButtonColors(
+                val icon_button_colours: IconButtonColors = IconButtonDefaults.iconButtonColors(
                     containerColor = settings_interface.theme.accent,
                     contentColor = settings_interface.theme.accent.getContrasted(),
                     disabledContainerColor = settings_interface.theme.accent.copy(alpha = 0.1f)
@@ -148,7 +146,7 @@ class ThemeSelectorSettingsItem(
                 }
 
                 IconButton({
-                    val index = state.get() + 1
+                    val index: Int = state.get() + 1
                     createTheme(index)
                     state.set(index)
                 }) {
@@ -157,8 +155,8 @@ class ThemeSelectorSettingsItem(
             }
 
             Crossfade(state.get()) { theme_index ->
-                val theme_data = getTheme(theme_index)
-                val height = 40.dp
+                val theme_data: ThemeData = getTheme(theme_index) ?: return@Crossfade
+                val height: Dp = 40.dp
                 Row(
                     Modifier.height(height),
                     verticalAlignment = Alignment.CenterVertically,
