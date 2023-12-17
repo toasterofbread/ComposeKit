@@ -319,6 +319,7 @@ actual class PlatformFile(val file: File) {
 
     @Suppress("NewApi")
     actual fun moveTo(destination: PlatformFile) {
+        destination.file.parentFile.mkdirs()
         Files.move(file.toPath(), destination.file.toPath())
     }
 

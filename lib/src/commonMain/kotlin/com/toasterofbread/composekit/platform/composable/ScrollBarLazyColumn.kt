@@ -25,5 +25,6 @@ expect fun ScrollBarLazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     scrollBarColour: Color = Color.Unspecified,
+    reverse: Boolean = false,
     content: LazyListScope.() -> Unit
 )

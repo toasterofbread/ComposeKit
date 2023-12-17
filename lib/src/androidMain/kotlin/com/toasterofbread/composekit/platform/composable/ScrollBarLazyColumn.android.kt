@@ -22,6 +22,7 @@ actual fun ScrollBarLazyColumn(
     flingBehavior: FlingBehavior,
     userScrollEnabled: Boolean,
     scrollBarColour: Color,
+    reverse: Boolean,
     content: LazyListScope.() -> Unit
 ) {
     LazyColumn(
