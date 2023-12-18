@@ -32,7 +32,7 @@ actual fun ScrollBarLazyColumn(
     reverse: Boolean,
     content: LazyListScope.() -> Unit
 ) {
-    Row(modifier.scrollWheelScrollable(state)) {
+    Row(modifier.scrollWheelScrollable(state), horizontalArrangement = Arrangement.aligned(horizontalAlignment)) {
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
             else copy(hoverColor = scrollBarColour)
