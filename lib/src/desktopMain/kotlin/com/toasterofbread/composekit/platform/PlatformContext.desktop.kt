@@ -39,29 +39,31 @@ actual open class PlatformContext(private val app_name: String, private val icon
         }
 
     actual fun getFilesDir(): File {
-        val subdir = when (hostOs) {
+        val subdir: String = when (hostOs) {
             OS.Linux -> ".local/share"
-            OS.Windows -> TODO()
+            OS.Windows -> "AppData/Local/"
             else -> throw NotImplementedError(hostOs.name)
         }
         return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
     }
 
     actual fun getCacheDir(): File {
-        val subdir = when (hostOs) {
+        val subdir: String = when (hostOs) {
             OS.Linux -> ".cache"
-            OS.Windows -> TODO()
+            OS.Windows -> return getFilesDir().resolve("cache")
             else -> throw NotImplementedError(hostOs.name)
         }
         return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
     }
 
-    private fun getTempDir(): File =
-        when (hostOs) {
+    private fun getTempDir(): File {
+        val dir: File = when (hostOs) {
             OS.Linux -> File("/tmp")
-            OS.Windows -> TODO()
+            OS.Windows -> getHomeDir().resolve("AppData/Local/Temp")
             else -> throw NotImplementedError(hostOs.name)
         }
+        return dir.resolve(app_name.lowercase())
+    }
 
     actual fun isAppInForeground(): Boolean = true // TODO
 
@@ -109,7 +111,7 @@ actual open class PlatformContext(private val app_name: String, private val icon
     private fun getResourceDir(): File = File("/assets")
 
     actual fun openResourceFile(path: String): InputStream {
-        val resource_path: String = getResourceDir().resolve(path).path
+        val resource_path: String = getResourceDir().resolve(path).path.replace('\\', '/')
 
         val stream: InputStream? = resource_class.getResourceAsStream(resource_path)
         checkNotNull(stream) { "Could not open resource at $resource_path" }
@@ -219,6 +221,7 @@ actual open class PlatformContext(private val app_name: String, private val icon
 
         val file: File = getTempDir().resolve(file_name)
         if (!file.isFile) {
+            file.parentFile.mkdirs()
             openResourceFile(icon_resource_path).use { icon ->
                 Files.copy(icon, Path.of(file.toURI()))
             }
