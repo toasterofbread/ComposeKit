@@ -24,7 +24,8 @@ class TextFieldSettingsItem(
     val title: String?,
     val subtitle: String?,
     val single_line: Boolean = true,
-    val getStringError: (String) -> String? = { null }
+    val getStringError: (String) -> String? = { null },
+    val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
     override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
         state.init(prefs, default_provider)
@@ -79,7 +80,7 @@ class TextFieldSettingsItem(
                         state.set(text)
                     }
                 },
-                Modifier
+                getFieldModifier()
                     .fillMaxWidth()
                     .pointerHoverIcon(PointerIcon.Text),
                 singleLine = single_line,

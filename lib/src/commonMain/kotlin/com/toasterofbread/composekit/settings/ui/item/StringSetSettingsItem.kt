@@ -46,7 +46,8 @@ class StringSetSettingsItem(
     val single_line_content: Boolean = true,
     val max_height: Dp = 300.dp,
     val itemToText: @Composable (String) -> String = { it },
-    val textToItem: (String) -> String = { it }
+    val textToItem: (String) -> String = { it },
+    val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
     override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
         state.init(prefs, default_provider)
@@ -123,6 +124,7 @@ class StringSetSettingsItem(
                     TextField(
                         new_item_content,
                         { new_item_content = it },
+                        getFieldModifier(),
                         singleLine = single_line_content,
                         isError = item_already_added,
                         label = if (item_already_added) {{

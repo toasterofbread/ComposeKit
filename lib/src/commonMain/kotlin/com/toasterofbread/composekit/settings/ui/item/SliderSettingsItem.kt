@@ -60,7 +60,8 @@ class SliderSettingsItem(
     val getValueText: ((value: Number) -> String?)? = {
         if (it is Float) it.roundTo(2).toString()
         else it.toString()
-    }
+    },
+    val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
     private var is_int: Boolean = false
     private var value_state by mutableStateOf(0f)
@@ -176,7 +177,8 @@ class SliderSettingsItem(
                                 error = if (is_int) errmsg_value_not_int else errmsg_value_not_float
                             }
                         },
-                        singleLine = true
+                        singleLine = true,
+                        modifier = getFieldModifier()
                     )
                 }
             )

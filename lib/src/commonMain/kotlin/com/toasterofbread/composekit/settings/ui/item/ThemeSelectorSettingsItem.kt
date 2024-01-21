@@ -61,7 +61,9 @@ class ThemeSelectorSettingsItem(
     val getTheme: (index: Int) -> ThemeData?,
     val onThemeEdited: (index: Int, edited_theme: ThemeData) -> Unit,
     val createTheme: (Int) -> Unit,
-    val removeTheme: (index: Int) -> Unit
+    val removeTheme: (index: Int) -> Unit,
+
+    val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
     override fun initialiseValueStates(
         prefs: PlatformPreferences,
@@ -188,10 +190,12 @@ class ThemeSelectorSettingsItem(
                                     str_field_card,
                                     str_field_accent,
                                     str_button_preview,
-                                    theme_data
-                                ) {
-                                    onThemeEdited(theme_index, it)
-                                }
+                                    theme_data,
+                                    onEditCompleted = {
+                                        onThemeEdited(theme_index, it)
+                                    },
+                                    getFieldModifier = getFieldModifier
+                                )
                             )
                         },
                         icon_button_colours,
@@ -228,7 +232,8 @@ private fun getEditPage(
     str_field_accent: String,
     str_button_preview: String,
     theme: ThemeData,
-    onEditCompleted: (theme_data: ThemeData) -> Unit
+    onEditCompleted: (theme_data: ThemeData) -> Unit,
+    getFieldModifier: @Composable () -> Modifier
 ): SettingsPage {
     return object : SettingsPage() {
         override val title: String?
@@ -289,7 +294,7 @@ private fun getEditPage(
                         OutlinedTextField(
                             name,
                             { name = it },
-                            Modifier.fillMaxWidth(),
+                            getFieldModifier().fillMaxWidth(),
                             label = { Text(str_field_name) },
                             isError = name.isEmpty(),
                             singleLine = true,
