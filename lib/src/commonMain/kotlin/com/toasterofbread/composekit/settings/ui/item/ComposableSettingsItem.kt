@@ -5,8 +5,17 @@ import androidx.compose.ui.Modifier
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 
-class ComposableSettingsItem(val composable: @Composable SettingsInterface.(Modifier) -> Unit): EmptySettingsItem() {
-    override fun getKeys(): List<String> = emptyList()
+class ComposableSettingsItem(
+    val settings_keys: List<String> = emptyList(),
+    val resetSettingsValues: () -> Unit = {},
+    val composable: @Composable SettingsInterface.(Modifier) -> Unit
+): EmptySettingsItem() {
+    override fun getKeys(): List<String> = settings_keys
+
+    override fun resetValues() {
+        super.resetValues()
+        resetSettingsValues()
+    }
 
     @Composable
     override fun Item(
