@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.toasterofbread.composekit.utils.common.thenIf
 import com.toasterofbread.composekit.utils.common.toFloat
 import kotlin.math.roundToInt
 
@@ -30,9 +31,10 @@ fun <T> SidebarButtonSelector(
     onButtonSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
     bottom_padding: Dp = 0.dp,
+    scrolling: Boolean = true,
     vertical_arrangement: Arrangement.Vertical = Arrangement.Top,
     showButton: @Composable (T) -> Boolean = { true },
-    isSpacing: (T) -> Boolean,
+    isSpacing: (T) -> Boolean = { false },
     extraContent: @Composable ColumnScope.(T) -> Unit = {},
     buttonContent: @Composable (T) -> Unit
 ) {
@@ -95,7 +97,11 @@ fun <T> SidebarButtonSelector(
         modifier,
         contentAlignment = Alignment.TopCenter
     ) {
-        Box(Modifier.verticalScroll(rememberScrollState())) {
+        Box(
+            Modifier.thenIf(scrolling) {
+                verticalScroll(rememberScrollState())
+            }
+        ) {
             CurrentButtonIndicator(
                 indicator_colour,
                 Modifier
@@ -111,7 +117,9 @@ fun <T> SidebarButtonSelector(
             )
 
             Column(
-                Modifier.heightIn(min = this@BoxWithConstraints.maxHeight),
+                Modifier.thenIf(scrolling) {
+                    heightIn(min = this@BoxWithConstraints.maxHeight)
+                },
                 verticalArrangement = vertical_arrangement
             ) {
                 for (button in buttons) {
