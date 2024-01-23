@@ -141,9 +141,7 @@ fun <T> SidebarButtonSelector(
                         }
 
                         IconButton(
-                            {
-                                onButtonSelected(button)
-                            }
+                            { onButtonSelected(button) }
                         ) {
                             buttonContent(button)
                         }

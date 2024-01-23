@@ -28,6 +28,25 @@ fun <T> EmptyListCrossfade(
 }
 
 @Composable
+fun <T, D> EmptyListAndDataCrossfade(
+    list: List<T>,
+    data: D,
+    modifier: Modifier = Modifier,
+    content: @Composable (list: List<T>?, data: D) -> Unit,
+) {
+    var current_list: List<T> by remember { mutableStateOf(list) }
+    LaunchedEffect(list) {
+        if (list.isNotEmpty()) {
+            current_list = list
+        }
+    }
+
+    Crossfade(Pair(list.isEmpty(), data), modifier) {
+        content(if (it.first) null else current_list, it.second)
+    }
+}
+
+@Composable
 fun <T: Any> NullCrossfade(
     value: T?,
     modifier: Modifier = Modifier,
