@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.IntSize
 fun MeasureUnconstrainedView(
     view_to_measure: @Composable () -> Unit,
     view_constraints: Constraints = Constraints(),
-    content: @Composable (IntSize) -> Unit,
+    content: @Composable (IntSize) -> Unit
 ) {
     SubcomposeLayout { constraints ->
         val measurement: Placeable = subcompose("viewToMeasure", view_to_measure)[0].measure(view_constraints)

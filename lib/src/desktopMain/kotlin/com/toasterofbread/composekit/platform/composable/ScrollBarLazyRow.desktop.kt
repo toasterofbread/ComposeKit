@@ -1,13 +1,8 @@
 package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.foundation.HorizontalScrollbar
-import androidx.compose.foundation.LocalScrollbarStyle
-import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -28,9 +23,10 @@ actual fun ScrollBarLazyRow(
     verticalAlignment: Alignment.Vertical,
     flingBehavior: FlingBehavior,
     userScrollEnabled: Boolean,
+    horizontalAlignment: Alignment.Horizontal,
     content: LazyListScope.() -> Unit
 ) {
-    Column(modifier.scrollWheelScrollable(state)) {
+    Column(modifier.scrollWheelScrollable(state), horizontalAlignment = horizontalAlignment) {
         LazyRow(
             Modifier, state, contentPadding, reverseLayout, horizontalArrangement, verticalAlignment, flingBehavior, userScrollEnabled, content
         )
