@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -90,10 +91,12 @@ actual fun ScrollBarLazyColumn(
         }
 
         val scrollbar_adapter: ScrollbarAdapter = rememberScrollbarAdapter(state)
+        val scrollbar_modifier: Modifier = Modifier.padding(contentPadding)
 
         if (reverse) {
             VerticalScrollbar(
                 scrollbar_adapter,
+                scrollbar_modifier,
                 style = scrollbar_style
             )
         }
@@ -105,6 +108,7 @@ actual fun ScrollBarLazyColumn(
         if (!reverse) {
             VerticalScrollbar(
                 scrollbar_adapter,
+                scrollbar_modifier,
                 style = scrollbar_style
             )
         }

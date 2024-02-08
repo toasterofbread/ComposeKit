@@ -141,7 +141,7 @@ class SliderSettingsItem(
                                 setValue(if (is_int) text.toInt().toFloat() else text.toFloat())
                                 show_edit_dialog = false
                             }
-                            catch(_: NumberFormatException) {}
+                            catch (_: NumberFormatException) {}
                         },
                         enabled = error == null
                     ) {
@@ -173,7 +173,7 @@ class SliderSettingsItem(
 
                                 error = null
                             }
-                            catch(_: NumberFormatException) {
+                            catch (_: NumberFormatException) {
                                 error = if (is_int) errmsg_value_not_int else errmsg_value_not_float
                             }
                         },

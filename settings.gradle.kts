@@ -1,4 +1,4 @@
-rootProject.name = "ToasterComposeTools"
+rootProject.name = "ComposeKit"
 
 include(":lib")
 //include(":androidApp")
