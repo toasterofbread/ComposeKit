@@ -31,7 +31,11 @@ import java.util.zip.ZipInputStream
 
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
 
-actual open class PlatformContext(private val app_name: String, private val icon_resource_path: String, private val resource_class: Class<*>) {
+actual open class PlatformContext(
+    private val app_name: String,
+    private val icon_resource_path: String,
+    private val resource_class: Class<*>
+) {
     private val file_chooser: DesktopFileChooser = DesktopFileChooser()
     private fun getFileChooserConfiguration(): NativeFileChooserConfiguration =
         NativeFileChooserConfiguration().apply {
@@ -255,6 +259,9 @@ actual class PlatformFile(val file: File) {
         get() = file.path
     actual val absolute_path: String
         get() = file.absolutePath
+    actual val parent_file: PlatformFile
+        get() = PlatformFile(file.parentFile)
+
     actual val exists: Boolean
         get() = file.exists()
     actual val is_directory: Boolean
@@ -333,7 +340,7 @@ actual class PlatformFile(val file: File) {
     actual companion object {
         actual fun fromFile(
             file: File,
-            context: PlatformContext,
+            context: PlatformContext
         ): PlatformFile {
             return PlatformFile(file)
         }

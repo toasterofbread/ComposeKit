@@ -59,6 +59,7 @@ expect class PlatformFile {
     val name: String
     val path: String
     val absolute_path: String
+    val parent_file: PlatformFile
 
     val exists: Boolean
     val is_directory: Boolean

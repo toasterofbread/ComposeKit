@@ -21,12 +21,16 @@ import androidx.compose.ui.unit.dp
 import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
+import com.toasterofbread.composekit.settings.ui.Theme
 
 class ToggleSettingsItem(
     val state: BasicSettingsValueState<Boolean>,
     val title: String?,
     val subtitle: String?,
     val title_max_lines: Int = 1,
+    val getEnabled: @Composable () -> Boolean = { true },
+    val getValueOverride: @Composable () -> Boolean? = { null },
+    val getSubtitleOverride: @Composable () -> String? = { null },
     val checker: ((target: Boolean, setLoading: (Boolean) -> Unit, (allow_change: Boolean) -> Unit) -> Unit)? = null
 ): SettingsItem() {
     private var loading: Boolean by mutableStateOf(false)
@@ -62,7 +66,9 @@ class ToggleSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme = settings_interface.theme
+        val theme: Theme = settings_interface.theme
+        val enabled: Boolean = getEnabled()
+        val value_override: Boolean? = getValueOverride()
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             Column(
@@ -72,7 +78,7 @@ class ToggleSettingsItem(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 ItemTitleText(title, theme, max_lines = title_max_lines)
-                ItemText(subtitle, theme)
+                ItemText(getSubtitleOverride() ?: subtitle, theme)
             }
 
             Crossfade(loading) {
@@ -81,29 +87,32 @@ class ToggleSettingsItem(
                 }
                 else {
                     Switch(
-                        state.get(),
+                        value_override ?: state.get(),
                         onCheckedChange = null,
-                        Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            if (checker == null) {
-                                state.set(!state.get())
-                                return@clickable
-                            }
-
-                            checker.invoke(
-                                !state.get(),
-                                { l ->
-                                    loading = l
-                                }
-                            ) { allow_change ->
-                                if (allow_change) {
+                        enabled = enabled,
+                        modifier =
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                enabled = enabled
+                            ) {
+                                if (checker == null) {
                                     state.set(!state.get())
+                                    return@clickable
                                 }
-                                loading = false
-                            }
-                        },
+
+                                checker.invoke(
+                                    !state.get(),
+                                    { l ->
+                                        loading = l
+                                    }
+                                ) { allow_change ->
+                                    if (allow_change) {
+                                        state.set(!state.get())
+                                    }
+                                    loading = false
+                                }
+                            },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = theme.vibrant_accent,
                             checkedTrackColor = theme.vibrant_accent.copy(alpha = 0.5f)

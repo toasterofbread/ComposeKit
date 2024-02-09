@@ -2,7 +2,10 @@ package com.toasterofbread.composekit.platform
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.Activity
+import android.app.ActivityManager
+import android.app.Notification
+import android.app.PendingIntent
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_APPEND
@@ -19,20 +22,16 @@ import android.os.Vibrator
 import android.view.View
 import android.view.Window
 import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.font.Font
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
@@ -43,27 +42,14 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.callback.FileCallback
 import com.anggrayudi.storage.callback.FolderCallback
-import com.anggrayudi.storage.file.DocumentFileCompat
-import com.anggrayudi.storage.file.child
-import com.anggrayudi.storage.file.copyFileTo
-import com.anggrayudi.storage.file.findParent
-import com.anggrayudi.storage.file.getAbsolutePath
-import com.anggrayudi.storage.file.makeFolder
-import com.anggrayudi.storage.file.moveFileTo
-import com.anggrayudi.storage.file.moveFolderTo
+import com.anggrayudi.storage.file.*
 import com.anggrayudi.storage.media.MediaFile
-import com.toasterofbread.composekit.utils.common.getContrasted
 import com.toasterofbread.composekit.utils.common.isDark
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.util.UUID
+import java.io.*
+import java.util.*
 
 private const val DEFAULT_NOTIFICATION_CHANNEL_ID = "default_channel"
 private const val ERROR_NOTIFICATION_CHANNEL_ID = "download_error_channel"
@@ -124,14 +110,14 @@ private val Uri.split_path: List<String>
 actual class PlatformFile(
     document_uri: Uri,
     private var file: DocumentFile?,
-    private var parent_file: DocumentFile?,
+    private var parent_docfile: DocumentFile?,
     private val context: Context
 ) {
     var document_uri: Uri = document_uri
         private set
 
     init {
-        assert(file != null || parent_file != null) {
+        assert(file != null || parent_docfile != null) {
             "PlatformFile must be created with file or parent_file ($document_uri)"
         }
 
@@ -140,9 +126,9 @@ actual class PlatformFile(
                 "File does not exist ($document_uri)"
             }
         }
-        if (parent_file != null) {
-            assert(parent_file!!.isDirectory) {
-                "Parent file is not a directory (${parent_file!!.getAbsolutePath(context)} | $document_uri)"
+        if (parent_docfile != null) {
+            assert(parent_docfile!!.isDirectory) {
+                "Parent file is not a directory (${parent_docfile!!.getAbsolutePath(context)} | $document_uri)"
             }
         }
     }
@@ -155,6 +141,11 @@ actual class PlatformFile(
         get() = document_uri.clean_path
     actual val absolute_path: String
         get() = path
+    actual val parent_file: PlatformFile
+        get() {
+            val parent: DocumentFile = parent_docfile ?: file!!.parentFile!!
+            return PlatformFile(parent.uri, parent, null, context)
+        }
 
     actual val exists: Boolean
         get() = file?.exists() == true
@@ -206,7 +197,7 @@ actual class PlatformFile(
             var existing_file: DocumentFile = file!!
 
             for (part in relative_path.split('/')) {
-                val child = existing_file.findFile(part)
+                val child: DocumentFile? = existing_file.findFile(part)
                 if (child == null) {
                     return PlatformFile(uri, null, existing_file, context)
                 }
@@ -216,7 +207,7 @@ actual class PlatformFile(
             return PlatformFile(uri, existing_file, null, context)
         }
         else {
-            return PlatformFile(uri, null, parent_file, context)
+            return PlatformFile(uri, null, parent_docfile, context)
         }
     }
 
@@ -231,7 +222,7 @@ actual class PlatformFile(
             return PlatformFile(sibling_uri, null, file!!.findParent(context, true)!!, context)
         }
         else {
-            return PlatformFile(sibling_uri, null, parent_file!!, context)
+            return PlatformFile(sibling_uri, null, parent_docfile!!, context)
         }
     }
 
@@ -246,19 +237,19 @@ actual class PlatformFile(
         if (is_file) {
             return true
         }
-        else if (file != null || parent_file == null) {
+        else if (file != null || parent_docfile == null) {
             return false
         }
 
-        val parts: List<String> = document_uri.split_path.drop(parent_file!!.uri.split_path.size).dropLast(1)
+        val parts: List<String> = document_uri.split_path.drop(parent_docfile!!.uri.split_path.size).dropLast(1)
         for (part in parts) {
-            parent_file = parent_file!!.makeFolder(context, part) ?: return false
+            parent_docfile = parent_docfile!!.makeFolder(context, part) ?: return false
         }
 
         try {
             val filename: String = name
             val new_file: DocumentFile =
-                parent_file!!.createFile("application/octet-stream", filename) ?: return false
+                parent_docfile!!.createFile("application/octet-stream", filename) ?: return false
 
             if (new_file.name != name) {
                 new_file.renameTo(filename)
@@ -266,7 +257,7 @@ actual class PlatformFile(
 
             document_uri = new_file.uri
             file = new_file
-            parent_file = null
+            parent_docfile = null
 
             return true
         }
@@ -280,13 +271,13 @@ actual class PlatformFile(
             return true
         }
 
-        val parts: List<String> = document_uri.split_path.drop(parent_file!!.uri.split_path.size)
+        val parts: List<String> = document_uri.split_path.drop(parent_docfile!!.uri.split_path.size)
         for (part in parts) {
-            parent_file = parent_file!!.makeFolder(context, part) ?: return false
+            parent_docfile = parent_docfile!!.makeFolder(context, part) ?: return false
         }
 
-        file = parent_file
-        parent_file = null
+        file = parent_docfile
+        parent_docfile = null
 
         return true
     }
@@ -410,7 +401,7 @@ actual class PlatformFile(
     }
 
     override fun toString(): String =
-        "PlatformFile(uri=${document_uri.clean_path}, file=${file?.uri?.clean_path}, parent_file=${parent_file?.uri?.clean_path})"
+        "PlatformFile(uri=${document_uri.clean_path}, file=${file?.uri?.clean_path}, parent_file=${parent_docfile?.uri?.clean_path})"
 
     actual companion object {
         actual fun fromFile(file: File, context: PlatformContext): PlatformFile =
