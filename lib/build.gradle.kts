@@ -44,9 +44,7 @@ kotlin {
                 implementation(compose.desktop.common)
                 implementation("com.github.ltttttttttttt:load-the-image:1.0.5")
                 implementation("com.sshtools:two-slices:0.9.1")
-
-                val file_chooser_version: String = "325fa2a"
-                implementation("com.github.toasterofbread:gdx-nativefilechooser:$file_chooser_version")
+                implementation("com.github.toasterofbread:gdx-nativefilechooser:325fa2a")
             }
         }
     }

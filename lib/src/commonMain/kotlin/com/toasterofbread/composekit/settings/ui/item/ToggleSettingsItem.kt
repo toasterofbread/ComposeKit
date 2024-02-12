@@ -27,7 +27,7 @@ class ToggleSettingsItem(
     val state: BasicSettingsValueState<Boolean>,
     val title: String?,
     val subtitle: String?,
-    val title_max_lines: Int = 1,
+    val title_max_lines: Int = 2,
     val getEnabled: @Composable () -> Boolean = { true },
     val getValueOverride: @Composable () -> Boolean? = { null },
     val getSubtitleOverride: @Composable () -> String? = { null },

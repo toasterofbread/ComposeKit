@@ -31,7 +31,7 @@ class SettingsInterface(
     private val getPage: (Int, Any?) -> SettingsPage,
     private val onPageChanged: ((page: Int?) -> Unit)? = null,
     private val onCloseRequested: (() -> Unit)? = null,
-    val footer_modifier: Modifier = Modifier
+    val getFooterModifier: @Composable () -> Modifier = { Modifier }
 ) {
     val theme: Theme get() = themeProvider()
     var current_page: SettingsPage by mutableStateOf(getUserPage(root_page, null))

@@ -185,7 +185,7 @@ actual open class PlatformContext(
         file_chooser.chooseFile(
             configuration,
             createFileChooserCallback(callback),
-            { dir, file ->
+            { dir: File, file: String ->
                 dir.resolve(file).isDirectory
             }
         )

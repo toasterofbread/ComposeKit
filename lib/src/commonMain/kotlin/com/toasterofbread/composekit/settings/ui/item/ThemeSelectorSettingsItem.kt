@@ -366,7 +366,7 @@ private fun getEditPage(
                 }
 
                 Row(
-                    settings_interface.footer_modifier
+                    settings_interface.getFooterModifier()
                         .fillMaxWidth()
                         .height(IntrinsicSize.Max)
                         .align(Alignment.BottomCenter)

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -127,20 +126,20 @@ fun <T> SidebarButtonSelector(
 
                     AnimatedVisibility(
                         showButton(button),
-                        Modifier.onGloballyPositioned {
-                            button_positions[button] = it.positionInParent().y
-                        }
+                        Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .onGloballyPositioned {
+                                button_positions[button] = it.positionInParent().y
+                            }
                     ) {
-                        Box(Modifier.requiredSize(0.dp)) {
-                            CurrentButtonIndicator(
-                                indicator_colour,
-                                Modifier
-                                    .offset(25.dp, 25.dp)
-                                    .graphicsLayer { alpha = (button == previous_button && !running).toFloat() }
-                            )
-                        }
+                        CurrentButtonIndicator(
+                            indicator_colour,
+                            Modifier
+                                .graphicsLayer { alpha = (button == previous_button && !running).toFloat() }
+                        )
 
-                        IconButton(
+                        ShapedIconButton(
                             { onButtonSelected(button) }
                         ) {
                             buttonContent(button)
