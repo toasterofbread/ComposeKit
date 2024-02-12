@@ -23,13 +23,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
@@ -41,6 +38,7 @@ import com.github.krottv.compose.sliders.SliderValueHorizontal
 import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
+import com.toasterofbread.composekit.settings.ui.Theme
 import com.toasterofbread.composekit.utils.common.getContrasted
 import com.toasterofbread.composekit.utils.common.roundTo
 import com.toasterofbread.composekit.utils.composable.MeasureUnconstrainedView
@@ -64,7 +62,7 @@ class SliderSettingsItem(
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
     private var is_int: Boolean = false
-    private var value_state by mutableStateOf(0f)
+    private var value_state: Float by mutableStateOf(0f)
 
     @Suppress("UNCHECKED_CAST")
     fun setValue(value: Float) {
@@ -123,12 +121,12 @@ class SliderSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme = settings_interface.theme
+        val theme: Theme = settings_interface.theme
         var show_edit_dialog by remember { mutableStateOf(false) }
 
         if (show_edit_dialog) {
-            var text by remember { mutableStateOf((if (is_int) getValue().roundToInt() else getValue()).toString()) }
-            var error by remember { mutableStateOf<String?>(null) }
+            var text: String by remember { mutableStateOf((if (is_int) getValue().roundToInt() else getValue()).toString()) }
+            var error: String? by remember { mutableStateOf(null) }
 
             AlertDialog(
                 {
@@ -185,12 +183,13 @@ class SliderSettingsItem(
         }
 
         Column(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
-            if (title != null) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    ItemTitleText(title, theme)
-                    IconButton({ show_edit_dialog = true }, Modifier.size(25.dp)) {
-                        Icon(Icons.Filled.Edit, null)
-                    }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                if (title != null) {
+                    ItemTitleText(title, theme, Modifier.fillMaxWidth().weight(1f))
+                }
+
+                IconButton({ show_edit_dialog = true }, Modifier.size(25.dp)) {
+                    Icon(Icons.Filled.Edit, null)
                 }
             }
 
@@ -224,14 +223,13 @@ class SliderSettingsItem(
                         )
                     },
                     thumb = { modifier, offset, interaction_source, enabled, thumb_size ->
-                        val colour = theme.vibrant_accent
-                        val scale_on_press = 1.15f
-                        val animation_spec = SpringSpec<Float>(0.65f)
-                        val value_text = getValueText?.invoke(getTypedValue())
+                        val colour: Color = theme.vibrant_accent
+                        val scale_on_press: Float = 1.15f
+                        val animation_spec: SpringSpec<Float> = SpringSpec(0.65f)
+                        val value_text: String? by remember { derivedStateOf { getValueText?.invoke(getTypedValue()) } }
 
                         if (value_text != null) {
                             MeasureUnconstrainedView({ ItemText(value_text, theme) }) { size ->
-
                                 var is_pressed by remember { mutableStateOf(false) }
                                 interaction_source.ListenOnPressed { is_pressed = it }
                                 val scale: Float by animateFloatAsState(
@@ -255,7 +253,7 @@ class SliderSettingsItem(
                                                     colour.copy(alpha = 0.6f), CircleShape
                                             )
                                     )
-                                    ItemText(value_text, theme)
+                                    ItemText(value_text, theme, linkify = false)
                                 }
                             }
                         }

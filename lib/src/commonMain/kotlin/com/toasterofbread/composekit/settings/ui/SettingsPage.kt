@@ -55,7 +55,12 @@ abstract class SettingsPage {
     }
 
     @Composable
-    open fun TitleBar(is_root: Boolean, modifier: Modifier = Modifier, titleFooter: (@Composable () -> Unit)? = null) {
+    fun TitleBar(is_root: Boolean, modifier: Modifier = Modifier) {
+        TitleBar(is_root, modifier, null)
+    }
+
+    @Composable
+    open fun TitleBar(is_root: Boolean, modifier: Modifier, titleFooter: (@Composable () -> Unit)?) {
         val coroutine_scope = rememberCoroutineScope()
 
         Crossfade(title, modifier) { title ->

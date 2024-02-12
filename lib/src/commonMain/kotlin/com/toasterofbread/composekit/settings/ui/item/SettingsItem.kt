@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.*
 import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.platform.PlatformPreferencesListener
@@ -59,16 +60,19 @@ abstract class SettingsItem {
                 )
             }
         }
-            
-        @Composable
-        fun ItemText(text: String?, theme: Theme) {
-            ItemText(text, theme.on_background.copy(alpha = 0.75f), theme)
-        }
 
         @Composable
-        fun ItemText(text: String?, colour: Color, theme: Theme) {
+        fun ItemText(
+            text: String?,
+            theme: Theme,
+            colour: Color =
+            theme.on_background.copy(alpha = 0.75f),
+            linkify: Boolean = true
+        ) {
             if (text?.isNotBlank() == true) {
-                LinkifyText(text, theme.accent, style = MaterialTheme.typography.bodySmall.copy(color = colour))
+                val style: TextStyle = MaterialTheme.typography.bodySmall.copy(color = colour)
+                if (linkify) LinkifyText(text, theme.accent, style = style)
+                else Text(text, style = style)
             }
         }
     }
