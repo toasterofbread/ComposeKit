@@ -39,10 +39,6 @@ abstract class Theme(
     val on_accent: Color get() = accent.getContrasted()
     val vibrant_accent: Color get() = makeVibrant(accent)
 
-    val background_provider: () -> Color = { background_state.value }
-    val on_background_provider: () -> Color = { on_background_state.value }
-    val accent_provider: () -> Color = { accent_state.value }
-
     private var current_theme_idx: Int = 0
     fun setCurrentThemeIdx(idx: Int, update_colours: Boolean = true) {
         current_theme_idx = idx

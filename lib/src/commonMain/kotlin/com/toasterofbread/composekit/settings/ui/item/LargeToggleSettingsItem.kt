@@ -192,7 +192,7 @@ class LargeToggleSettingsItem(
                             Column(
                                 Modifier
                                     .padding(vertical = 5.dp)
-                                    .background(shape, theme.background_provider)
+                                    .background(shape) { theme.background }
                                     .padding(horizontal = 10.dp, vertical = 20.dp),
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
