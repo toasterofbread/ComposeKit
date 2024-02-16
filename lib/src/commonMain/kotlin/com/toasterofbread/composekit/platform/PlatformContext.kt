@@ -16,7 +16,7 @@ expect open class PlatformContext {
     fun promptUserForDirectory(persist: Boolean = false, callback: (uri: String?) -> Unit)
     fun promptUserForFile(mime_types: Set<String>, persist: Boolean = false, callback: (uri: String?) -> Unit)
     fun promptUserForFileCreation(mime_type: String, filename_suggestion: String?, persist: Boolean = false, callback: (uri: String?) -> Unit)
-    fun getUserDirectoryFile(uri: String): PlatformFile
+    fun getUserDirectoryFile(uri: String): PlatformFile?
 
     fun isAppInForeground(): Boolean
 

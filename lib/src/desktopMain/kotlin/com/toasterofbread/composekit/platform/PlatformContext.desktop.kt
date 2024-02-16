@@ -205,7 +205,7 @@ actual open class PlatformContext(
         file_chooser.chooseFile(configuration, createFileChooserCallback(callback))
     }
 
-    actual fun getUserDirectoryFile(uri: String): PlatformFile {
+    actual fun getUserDirectoryFile(uri: String): PlatformFile? {
         return PlatformFile(File(uri))
     }
 

@@ -457,10 +457,16 @@ actual open class PlatformContext(
         }
     }
 
-    actual fun getUserDirectoryFile(uri: String): PlatformFile {
+    actual fun getUserDirectoryFile(uri: String): PlatformFile? {
         val document_uri: Uri = Uri.parse(uri)
         val file: DocumentFile = DocumentFileCompat.fromUri(ctx, document_uri)!!
-        return PlatformFile(document_uri, file, null, ctx)
+
+        try {
+            return PlatformFile(document_uri, file, null, ctx)
+        }
+        catch (_: AssertionError) {
+            return null
+        }
     }
 
     actual fun isAppInForeground(): Boolean = ctx.isAppInForeground()
