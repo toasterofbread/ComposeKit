@@ -91,7 +91,9 @@ actual open class PlatformContext(
 
     actual fun sendNotification(throwable: Throwable) {
         throwable.printStackTrace()
-        TODO(throwable.toString())
+
+        // TODO
+        sendNotification(throwable::class.simpleName ?: "Exception", throwable.stackTraceToString())
     }
 
     actual fun sendToast(text: String, long: Boolean) {
