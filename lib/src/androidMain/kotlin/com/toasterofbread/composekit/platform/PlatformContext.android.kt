@@ -301,8 +301,12 @@ actual class PlatformFile(
 
     @SuppressLint("NewApi")
     actual fun moveTo(destination: PlatformFile) {
-        check(is_file)
-        check(destination.createFile())
+        if (matches(destination)) {
+            return
+        }
+
+        check(is_file) { "File $this does not exist" }
+        check(destination.createFile()) { "Could not create destination file $destination" }
 
         runBlocking {
             val result_channel: Channel<Result<Unit>> = Channel()
@@ -323,7 +327,9 @@ actual class PlatformFile(
                                 result_channel.send(Result.success(Unit))
                             }
                             else {
-                                result_channel.send(Result.failure(IOException(errorCode.name)))
+                                result_channel.send(Result.failure(
+                                    IOException("Moving $this to $destination failed (${errorCode.name})")
+                                ))
                             }
                         }
                     }
