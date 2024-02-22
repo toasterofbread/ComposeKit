@@ -60,7 +60,8 @@ class SettingsInterface(
         return false
     }
 
-    fun openPage(target_page: SettingsPage) {
+    fun openPage(page: SettingsPage?) {
+        val target_page: SettingsPage = page ?: getUserPage(root_page, null)
         if (target_page != current_page) {
             target_page.settings_interface = this@SettingsInterface
             page_stack.add(current_page)
