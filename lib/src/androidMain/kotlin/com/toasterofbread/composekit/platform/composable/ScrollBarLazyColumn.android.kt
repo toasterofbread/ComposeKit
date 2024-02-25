@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 actual fun ScrollBarLazyColumn(
     modifier: Modifier,
     state: LazyListState,
+    show_scrollbar: Boolean,
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     verticalArrangement: Arrangement.Vertical,
@@ -22,7 +23,8 @@ actual fun ScrollBarLazyColumn(
     flingBehavior: FlingBehavior,
     userScrollEnabled: Boolean,
     scrollBarColour: Color,
-    reverse: Boolean,
+    verticalAlignment: Alignment.Vertical,
+    reverseScrollBarLayout: Boolean,
     content: LazyListScope.() -> Unit
 ) {
     LazyColumn(

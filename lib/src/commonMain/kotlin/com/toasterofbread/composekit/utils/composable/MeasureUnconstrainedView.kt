@@ -13,10 +13,14 @@ fun MeasureUnconstrainedView(
     content: @Composable (IntSize) -> Unit
 ) {
     SubcomposeLayout { constraints ->
-        val measurement: Placeable = subcompose("viewToMeasure", view_to_measure)[0].measure(view_constraints)
+        val measurement: Placeable? = subcompose("viewToMeasure", view_to_measure).firstOrNull()?.measure(view_constraints)
 
         val content_placeable: Placeable? = subcompose("content") {
-            content(IntSize(measurement.width, measurement.height))
+            content(
+                measurement?.let {
+                    IntSize(it.width, it.height)
+                } ?: IntSize.Zero
+            )
         }.firstOrNull()?.measure(constraints)
 
         layout(content_placeable?.width ?: 0, content_placeable?.height ?: 0) {

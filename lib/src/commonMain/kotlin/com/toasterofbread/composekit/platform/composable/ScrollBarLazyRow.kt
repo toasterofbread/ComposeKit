@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 
 @Composable
 expect fun ScrollBarLazyRow(
@@ -24,6 +25,8 @@ expect fun ScrollBarLazyRow(
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
+    scrollBarColour: Color = Color.Unspecified,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    reverseScrollBarLayout: Boolean = false,
     content: LazyListScope.() -> Unit
 )

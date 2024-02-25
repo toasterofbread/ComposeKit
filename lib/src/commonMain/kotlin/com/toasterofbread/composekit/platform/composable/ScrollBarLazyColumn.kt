@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 expect fun ScrollBarLazyColumn(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
+    show_scrollbar: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     reverseLayout: Boolean = false,
     verticalArrangement: Arrangement.Vertical =
@@ -25,6 +26,7 @@ expect fun ScrollBarLazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     scrollBarColour: Color = Color.Unspecified,
-    reverse: Boolean = false,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    reverseScrollBarLayout: Boolean = false,
     content: LazyListScope.() -> Unit
 )

@@ -21,7 +21,9 @@ actual fun ScrollBarLazyRow(
     verticalAlignment: Alignment.Vertical,
     flingBehavior: FlingBehavior,
     userScrollEnabled: Boolean,
+    scrollBarColour: Color,
     horizontalAlignment: Alignment.Horizontal,
+    reverseScrollBarLayout: Boolean,
     content: LazyListScope.() -> Unit
 ) {
     LazyRow(modifier, state, contentPadding, reverseLayout, horizontalArrangement, verticalAlignment, flingBehavior, userScrollEnabled, content)

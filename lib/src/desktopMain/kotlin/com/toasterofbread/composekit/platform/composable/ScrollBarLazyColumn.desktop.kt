@@ -29,6 +29,7 @@ private const val ARROW_KEY_SCROLL_AMOUNT: Float = 75f
 actual fun ScrollBarLazyColumn(
     modifier: Modifier,
     state: LazyListState,
+    show_scrollbar: Boolean,
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     verticalArrangement: Arrangement.Vertical,
@@ -36,7 +37,8 @@ actual fun ScrollBarLazyColumn(
     flingBehavior: FlingBehavior,
     userScrollEnabled: Boolean,
     scrollBarColour: Color,
-    reverse: Boolean,
+    verticalAlignment: Alignment.Vertical,
+    reverseScrollBarLayout: Boolean,
     content: LazyListScope.() -> Unit
 ) {
     val focus_requester: FocusRequester = remember { FocusRequester() }
@@ -83,7 +85,8 @@ actual fun ScrollBarLazyColumn(
             }
             .focusRequester(focus_requester)
             .focusable(),
-        horizontalArrangement = Arrangement.aligned(horizontalAlignment)
+        horizontalArrangement = Arrangement.aligned(horizontalAlignment),
+        verticalAlignment = verticalAlignment
     ) {
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
@@ -93,7 +96,7 @@ actual fun ScrollBarLazyColumn(
         val scrollbar_adapter: ScrollbarAdapter = rememberScrollbarAdapter(state)
         val scrollbar_modifier: Modifier = Modifier.padding(contentPadding)
 
-        if (reverse) {
+        if (reverseScrollBarLayout && show_scrollbar) {
             VerticalScrollbar(
                 scrollbar_adapter,
                 scrollbar_modifier,
@@ -105,7 +108,7 @@ actual fun ScrollBarLazyColumn(
             Modifier.weight(1f, false), state, contentPadding, reverseLayout, verticalArrangement, horizontalAlignment, flingBehavior, userScrollEnabled, content
         )
 
-        if (!reverse) {
+        if (!reverseScrollBarLayout && show_scrollbar) {
             VerticalScrollbar(
                 scrollbar_adapter,
                 scrollbar_modifier,
