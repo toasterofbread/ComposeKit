@@ -8,7 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.IconButtonColors
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
+import com.toasterofbread.composekit.utils.common.thenIf
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -32,6 +34,7 @@ fun ShapedIconButton(
     modifier: Modifier = Modifier,
     shape: Shape = CircleShape,
     enabled: Boolean = true,
+    applyWidth: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     indication: Indication? = rememberRipple(
         bounded = false,
@@ -42,7 +45,10 @@ fun ShapedIconButton(
 ) {
     Box(
         modifier = modifier
-            .size(IconButtonTokens.StateLayerSize)
+            .height(IconButtonTokens.StateLayerSize)
+            .thenIf(applyWidth) {
+                width(IconButtonTokens.StateLayerSize)
+            }
             .background(color = colours.containerColor(enabled).value, shape = shape)
             .combinedClickable(
                 onClick = onClick,

@@ -28,6 +28,21 @@ const val VIBRANT_ACCENT_CONTRAST: Float = 0.2f
 abstract class Theme(
     system_theme_default_name: String,
 ): ThemeData {
+    enum class Colour {
+        BACKGROUND,
+        CARD,
+        ACCENT,
+        VIBRANT_ACCENT;
+
+        fun get(theme: Theme): Color =
+            when (this) {
+                BACKGROUND -> theme.background
+                CARD -> theme.card
+                ACCENT -> theme.accent
+                VIBRANT_ACCENT -> theme.vibrant_accent
+            }
+    }
+
     private lateinit var coroutine_scope: CoroutineScope
     val preview_active: Boolean get() = preview_theme_data != null
     override val name: String get() = getCurrentTheme().name
@@ -216,10 +231,10 @@ abstract class Theme(
                     if (accent.key == target_accent) {
                         return StaticThemeData(
                             "Catppuccin ${flavour.name.replaceFirstChar { it.uppercaseChar() }} (${accent.key})",
-                            Color(flavour.base.rgb),
-                            Color(flavour.text.rgb),
-                            Color(flavour.crust.rgb),
-                            Color(accent.value.rgb)
+                            background = Color(flavour.base.rgb),
+                            on_background = Color(flavour.text.rgb),
+                            card = Color(flavour.mantle.rgb),
+                            accent = Color(accent.value.rgb)
                         )
                     }
                 }

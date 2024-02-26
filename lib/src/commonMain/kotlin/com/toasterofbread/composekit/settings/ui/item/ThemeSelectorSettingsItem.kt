@@ -41,8 +41,12 @@ import com.toasterofbread.composekit.utils.common.sorted
 import com.toasterofbread.composekit.utils.composable.OnChangedEffect
 import com.toasterofbread.composekit.utils.composable.ShapedIconButton
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
+import com.toasterofbread.composekit.utils.composable.ColourPicker
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.graphics.Shape
 
 class ThemeSelectorSettingsItem(
     val state: SettingsValueState<Int>,
@@ -519,54 +523,38 @@ private fun ColourField(
             }
         }
 
-        val shape = RoundedCornerShape(13.dp)
+        val shape: Shape = RoundedCornerShape(13.dp)
 
-        Column(Modifier
-            .align(Alignment.End)
-            .fillMaxWidth()
-            .animateContentSize()
-            .background(current, shape)
-            .border(Dp.Hairline, current.contrastAgainst(ui_theme.background), shape)
-            .padding(10.dp),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+        Box(
+            Modifier
+                .align(Alignment.End)
+                .fillMaxWidth()
+                .animateContentSize()
+                .background(current, shape)
+                .border(Dp.Hairline, current.contrastAgainst(ui_theme.background), shape)
+                .padding(10.dp)
         ) {
-            val spacing = 10.dp
+            val max_size: Dp = 400.dp
+            val arrangement = Arrangement.spacedBy(10.dp)
 
             Crossfade(show_picker) { picker ->
                 if (picker) {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(spacing)
+                    ColourPicker(
+                        current,
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredSizeIn(
+                                maxWidth = max_size,
+                                maxHeight = max_size
+                            ),
+                        arrangement, 
+                        presets
                     ) {
-                        var height by remember { mutableStateOf(0) }
-                        LazyColumn(
-                            Modifier.height( with(LocalDensity.current) { height.toDp() } ),
-                            verticalArrangement = Arrangement.spacedBy(spacing)
-                        ) {
-                            items(presets) { colour ->
-                                colour.presetItem()
-                            }
-                        }
-                        Crossfade(instance) {
-                            ClassicColorPicker(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .onSizeChanged {
-                                        height = it.height
-                                    },
-                                HsvColor.from(current),
-                                showAlphaBar = false
-                            ) { colour ->
-                                current = colour.toColor()
-                            }
-                        }
+                        current = it
                     }
                 }
                 else {
-                    LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                    LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = arrangement) {
                         items(presets) { colour ->
                             colour.presetItem()
                         }

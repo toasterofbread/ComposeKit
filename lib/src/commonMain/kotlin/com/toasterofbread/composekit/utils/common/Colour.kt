@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import java.util.Random
 import kotlin.math.absoluteValue
+import androidx.compose.ui.graphics.toArgb
 
 fun Color.Companion.red(argb: Int): Int = argb shr 16 and 0xFF
 fun Color.Companion.green(argb: Int): Int = argb shr 8 and 0xFF
@@ -153,7 +154,7 @@ fun Color.getContrasted(keep_alpha: Boolean = false): Color {
 }
 
 fun Color.getNeutral(): Color {
-    if (isDark()) 
+    if (isDark())
         return Color.Black
     else
         return Color.White
@@ -202,3 +203,9 @@ fun Color.Companion.generatePalette(size: Int): List<Color> {
         random(rnd = rnd)
     }
 }
+
+fun Color.Companion.fromHexString(string: String): Color =
+    Color(string.removePrefix("#").toLong(16) or 0x00000000FF000000)
+
+fun Color.toHexString(): String =
+    String.format("#%06X", (0xFFFFFF and this.toArgb()))
