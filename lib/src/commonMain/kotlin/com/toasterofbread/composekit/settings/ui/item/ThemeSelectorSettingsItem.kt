@@ -44,9 +44,10 @@ import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 import com.toasterofbread.composekit.utils.composable.ColourPicker
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
-import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.graphics.Shape
+import com.toasterofbread.composekit.utils.composable.AlignableCrossfade
 
 class ThemeSelectorSettingsItem(
     val state: SettingsValueState<Int>,
@@ -524,40 +525,35 @@ private fun ColourField(
         }
 
         val shape: Shape = RoundedCornerShape(13.dp)
+        val arrangement = Arrangement.spacedBy(10.dp)
 
-        Box(
+        AlignableCrossfade(
+            show_picker,
             Modifier
                 .align(Alignment.End)
                 .fillMaxWidth()
                 .animateContentSize()
                 .background(current, shape)
                 .border(Dp.Hairline, current.contrastAgainst(ui_theme.background), shape)
-                .padding(10.dp)
-        ) {
-            val max_size: Dp = 400.dp
-            val arrangement = Arrangement.spacedBy(10.dp)
-
-            Crossfade(show_picker) { picker ->
-                if (picker) {
-                    ColourPicker(
-                        current,
-                        Modifier
-                            .fillMaxWidth()
-                            .requiredSizeIn(
-                                maxWidth = max_size,
-                                maxHeight = max_size
-                            ),
-                        arrangement, 
-                        presets
-                    ) {
-                        current = it
-                    }
+                .padding(10.dp),
+            contentAlignment = Alignment.Center
+        ) { picker ->
+            if (picker) {
+                ColourPicker(
+                    current,
+                    Modifier
+                        .widthIn(max = 400.dp)
+                        .fillMaxWidth(),
+                    arrangement,
+                    presets
+                ) {
+                    current = it
                 }
-                else {
-                    LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = arrangement) {
-                        items(presets) { colour ->
-                            colour.presetItem()
-                        }
+            }
+            else {
+                LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = arrangement) {
+                    items(presets) { colour ->
+                        colour.presetItem()
                     }
                 }
             }
