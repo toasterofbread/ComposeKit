@@ -14,7 +14,7 @@ import com.toasterofbread.composekit.platform.composable.*
 import kotlin.math.sign
 
 abstract class RowOrColumnScope {
-    abstract fun Modifier.weight(weight: Float): Modifier
+    abstract fun Modifier.weight(weight: Float, fill: Boolean = false): Modifier
 
     @Composable
     fun AnimatedVisibility(
@@ -135,9 +135,9 @@ private fun Int.toHorizontalAlignment(): Alignment.Horizontal =
     }
 
 private class RowScopeRowOrColumnScope(val row_scope: RowScope): RowOrColumnScope() {
-    override fun Modifier.weight(weight: Float): Modifier =
+    override fun Modifier.weight(weight: Float, fill: Boolean): Modifier =
         with (row_scope) {
-            weight(weight)
+            weight(weight, fill)
         }
 
     @Composable
@@ -154,9 +154,9 @@ private class RowScopeRowOrColumnScope(val row_scope: RowScope): RowOrColumnScop
 }
 
 private class ColumnScopeRowOrColumnScope(val column_scope: ColumnScope): RowOrColumnScope() {
-    override fun Modifier.weight(weight: Float): Modifier =
+    override fun Modifier.weight(weight: Float, fill: Boolean): Modifier =
         with (column_scope) {
-            weight(weight)
+            weight(weight, fill)
         }
 
     @Composable
