@@ -1,36 +1,43 @@
 package com.toasterofbread.composekit.utils.composable
 
-import androidx.compose.ui.Modifier
+import androidx.compose.animation.*
+import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.layout.Column
-import kotlin.math.sign
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.LazyListScope
-import com.toasterofbread.composekit.platform.composable.ScrollBarLazyRow
-import com.toasterofbread.composekit.platform.composable.ScrollBarLazyColumn
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.toasterofbread.composekit.platform.composable.*
+import kotlin.math.sign
 
-private fun Int.toVerticalAlignment(): Alignment.Vertical =
-    when (sign) {
-        -1 -> Alignment.Top
-        0 -> Alignment.CenterVertically
-        else -> Alignment.Bottom
+abstract class RowOrColumnScope {
+    abstract fun Modifier.weight(weight: Float): Modifier
+
+    @Composable
+    fun AnimatedVisibility(
+        visible: Boolean,
+        modifier: Modifier = Modifier,
+        enter: EnterTransition = fadeIn(),
+        exit: ExitTransition = fadeOut(),
+        label: String = "AnimatedVisibility",
+        content: @Composable AnimatedVisibilityScope.() -> Unit
+    ) {
+        AnimatedVisibilityImpl(visible, modifier, enter, exit, label, content)
     }
 
-private fun Int.toHorizontalAlignment(): Alignment.Horizontal =
-    when (sign) {
-        -1 -> Alignment.Start
-        0 -> Alignment.CenterHorizontally
-        else -> Alignment.End
-    }
+    @Composable
+    protected abstract fun AnimatedVisibilityImpl(
+        visible: Boolean,
+        modifier: Modifier,
+        enter: EnterTransition,
+        exit: ExitTransition,
+        label: String,
+        content: @Composable AnimatedVisibilityScope.() -> Unit
+    )
+}
 
 @Composable
 fun RowOrColumn(
@@ -38,21 +45,25 @@ fun RowOrColumn(
     modifier: Modifier = Modifier,
     arrangement: Arrangement.HorizontalOrVertical = Arrangement.SpaceEvenly,
     alignment: Int = 0,
-    content: @Composable (getWeightModifier: (Float) -> Modifier) -> Unit,
+    content: @Composable RowOrColumnScope.() -> Unit
 ) {
     if (row) {
         Row(
             modifier,
             horizontalArrangement = arrangement,
             verticalAlignment = alignment.toVerticalAlignment()
-        ) { content { Modifier.weight(it) } }
+        ) {
+            content(RowScopeRowOrColumnScope(this@Row))
+        }
     }
     else {
         Column(
             modifier,
             verticalArrangement = arrangement,
             horizontalAlignment = alignment.toHorizontalAlignment()
-        ) { content { Modifier.weight(it) } }
+        ) {
+            content(ColumnScopeRowOrColumnScope(this@Column))
+        }
     }
 }
 
@@ -106,5 +117,57 @@ fun ScrollBarLazyRowOrColumn(
             reverseScrollBarLayout,
             content = content
         )
+    }
+}
+
+private fun Int.toVerticalAlignment(): Alignment.Vertical =
+    when (sign) {
+        -1 -> Alignment.Top
+        0 -> Alignment.CenterVertically
+        else -> Alignment.Bottom
+    }
+
+private fun Int.toHorizontalAlignment(): Alignment.Horizontal =
+    when (sign) {
+        -1 -> Alignment.Start
+        0 -> Alignment.CenterHorizontally
+        else -> Alignment.End
+    }
+
+private class RowScopeRowOrColumnScope(val row_scope: RowScope): RowOrColumnScope() {
+    override fun Modifier.weight(weight: Float): Modifier =
+        with (row_scope) {
+            weight(weight)
+        }
+
+    @Composable
+    override fun AnimatedVisibilityImpl(
+        visible: Boolean,
+        modifier: Modifier,
+        enter: EnterTransition,
+        exit: ExitTransition,
+        label: String,
+        content: @Composable AnimatedVisibilityScope.() -> Unit
+    ) {
+        row_scope.AnimatedVisibility(visible, modifier, enter, exit, label, content)
+    }
+}
+
+private class ColumnScopeRowOrColumnScope(val column_scope: ColumnScope): RowOrColumnScope() {
+    override fun Modifier.weight(weight: Float): Modifier =
+        with (column_scope) {
+            weight(weight)
+        }
+
+    @Composable
+    override fun AnimatedVisibilityImpl(
+        visible: Boolean,
+        modifier: Modifier,
+        enter: EnterTransition,
+        exit: ExitTransition,
+        label: String,
+        content: @Composable AnimatedVisibilityScope.() -> Unit
+    ) {
+        column_scope.AnimatedVisibility(visible, modifier, enter, exit, label, content)
     }
 }

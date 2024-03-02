@@ -35,10 +35,13 @@ actual fun ScrollBarLazyRow(
     Column(modifier.scrollWheelScrollable(state), horizontalAlignment = horizontalAlignment) {
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
-            else copy(hoverColor = scrollBarColour)
+            else copy(
+                hoverColor = scrollBarColour,
+                unhoverColor = scrollBarColour.copy(alpha = scrollBarColour.alpha * 0.25f)
+            )
         }
 
-        if (reverseScrollBarLayout) {
+        if (reverseScrollBarLayout && show_scrollbar) {
             HorizontalScrollbar(
                 rememberScrollbarAdapter(state),
                 Modifier.padding(bottom = 5.dp),
@@ -47,7 +50,7 @@ actual fun ScrollBarLazyRow(
         }
 
         LazyRow(
-            Modifier, state, contentPadding, reverseLayout, horizontalArrangement, verticalAlignment, flingBehavior, userScrollEnabled, content
+            Modifier.weight(1f), state, contentPadding, reverseLayout, horizontalArrangement, verticalAlignment, flingBehavior, userScrollEnabled, content
         )
 
         if (!reverseScrollBarLayout && show_scrollbar) {

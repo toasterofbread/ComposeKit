@@ -90,7 +90,10 @@ actual fun ScrollBarLazyColumn(
     ) {
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
-            else copy(hoverColor = scrollBarColour)
+            else copy(
+                hoverColor = scrollBarColour, 
+                unhoverColor = scrollBarColour.copy(alpha = scrollBarColour.alpha * 0.25f)
+            )
         }
 
         val scrollbar_adapter: ScrollbarAdapter = rememberScrollbarAdapter(state)

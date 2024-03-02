@@ -1,25 +1,17 @@
 package com.toasterofbread.composekit.utils.composable
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.*
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import com.toasterofbread.composekit.utils.common.thenIf
-import com.toasterofbread.composekit.utils.common.toFloat
+import androidx.compose.ui.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.layout.*
+import androidx.compose.ui.unit.*
+import com.toasterofbread.composekit.utils.common.*
+import com.toasterofbread.composekit.utils.composable.*
 import kotlin.math.roundToInt
 
 @Composable
@@ -31,10 +23,12 @@ fun <T> SidebarButtonSelector(
     modifier: Modifier = Modifier,
     bottom_padding: Dp = 0.dp,
     scrolling: Boolean = true,
-    vertical_arrangement: Arrangement.Vertical = Arrangement.Top,
+    vertical: Boolean = true,
+    alignment: Int = -1,
+    arrangement: Arrangement.HorizontalOrVertical = Arrangement.SpaceEvenly,
     showButton: @Composable (T) -> Boolean = { true },
     isSpacing: (T) -> Boolean = { false },
-    extraContent: @Composable ColumnScope.(T) -> Unit = {},
+    extraContent: @Composable RowOrColumnScope.(T) -> Unit = {},
     buttonContent: @Composable (T) -> Unit
 ) {
     val button_positions: MutableMap<T, Float> = remember { mutableStateMapOf() }
@@ -98,28 +92,31 @@ fun <T> SidebarButtonSelector(
     ) {
         Box(
             Modifier.thenIf(scrolling) {
-                verticalScroll(rememberScrollState())
+                if (vertical) verticalScroll(rememberScrollState())
+                else horizontalScroll(rememberScrollState())
             }
         ) {
             CurrentButtonIndicator(
                 indicator_colour,
                 Modifier
                     .offset {
-                        IntOffset(
-                            0,
-                            button_indicator_position.value.roundToInt()
-                        )
+                        val position: Int = button_indicator_position.value.roundToInt()
+                        if (vertical) IntOffset(0, position)
+                        else IntOffset(position, 0)
                     }
                     .graphicsLayer {
                         alpha = if (!running) 0f else button_indicator_alpha.value
                     }
             )
 
-            Column(
+            RowOrColumn(
+                !vertical,
                 Modifier.thenIf(scrolling) {
-                    heightIn(min = this@BoxWithConstraints.maxHeight)
+                    if (vertical) heightIn(min = this@BoxWithConstraints.maxHeight)
+                    else widthIn(min = this@BoxWithConstraints.maxWidth)
                 },
-                verticalArrangement = vertical_arrangement
+                alignment = alignment,
+                arrangement = arrangement
             ) {
                 for (button in buttons) {
                     extraContent(button)
@@ -127,11 +124,23 @@ fun <T> SidebarButtonSelector(
                     AnimatedVisibility(
                         showButton(button),
                         Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
+                            .size(50.dp)
+                            // .then(
+                            //     if (vertical) Modifier.width(this@BoxWithConstraints.maxWidth)
+                            //     else Modifier.height(this@BoxWithConstraints.maxHeight)
+                            // )
+                            // .aspectRatio(1f)
                             .onGloballyPositioned {
-                                button_positions[button] = it.positionInParent().y
-                            }
+                                button_positions[button] =
+                                    if (vertical) it.positionInParent().y
+                                    else it.positionInParent().x
+                            },
+                        enter =
+                            if (vertical) expandVertically()
+                            else expandHorizontally(),
+                        exit =
+                            if (vertical) shrinkVertically()
+                            else shrinkHorizontally()
                     ) {
                         CurrentButtonIndicator(
                             indicator_colour,
@@ -146,7 +155,7 @@ fun <T> SidebarButtonSelector(
                         }
                     }
                 }
-                
+
                 Spacer(Modifier.height(bottom_padding))
             }
         }
