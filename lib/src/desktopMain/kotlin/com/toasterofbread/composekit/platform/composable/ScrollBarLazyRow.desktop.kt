@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.alpha
+import com.toasterofbread.composekit.utils.common.thenIf
 
 @Composable
 actual fun ScrollBarLazyRow(
@@ -64,7 +65,9 @@ actual fun ScrollBarLazyRow(
         LazyRow(
             Modifier
                 .weight(1f)
-                .offset(y = (scrollbar_height / 2) * (1f - scrollbar_alpha)),
+                .thenIf(show_scrollbar) {
+                    offset(y = (scrollbar_height / 2) * (1f - scrollbar_alpha))
+                },
             state,
             contentPadding,
             reverseLayout,
