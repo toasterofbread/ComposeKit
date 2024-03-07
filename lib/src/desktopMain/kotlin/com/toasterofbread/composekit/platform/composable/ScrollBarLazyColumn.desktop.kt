@@ -1,27 +1,19 @@
 package com.toasterofbread.composekit.platform.composable
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.v2.ScrollbarAdapter
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.*
+import androidx.compose.ui.focus.*
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import kotlinx.coroutines.*
 
 private const val ARROW_KEY_SCROLL_AMOUNT: Float = 75f
 
@@ -41,6 +33,7 @@ actual fun ScrollBarLazyColumn(
     reverseScrollBarLayout: Boolean,
     content: LazyListScope.() -> Unit
 ) {
+    val density: Density = LocalDensity.current
     val focus_requester: FocusRequester = remember { FocusRequester() }
     val coroutine_scope: CoroutineScope = rememberCoroutineScope()
 
@@ -91,13 +84,16 @@ actual fun ScrollBarLazyColumn(
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
             else copy(
-                hoverColor = scrollBarColour, 
+                hoverColor = scrollBarColour,
                 unhoverColor = scrollBarColour.copy(alpha = scrollBarColour.alpha * 0.25f)
             )
         }
 
         val scrollbar_adapter: ScrollbarAdapter = rememberScrollbarAdapter(state)
-        val scrollbar_modifier: Modifier = Modifier.padding(contentPadding)
+        val scrollbar_modifier: Modifier =
+            Modifier
+                .padding(contentPadding)
+                .height(with (density) { height.toDp() })
 
         if (reverseScrollBarLayout && show_scrollbar) {
             VerticalScrollbar(
@@ -108,7 +104,15 @@ actual fun ScrollBarLazyColumn(
         }
 
         LazyColumn(
-            Modifier.weight(1f, false), state, contentPadding, reverseLayout, verticalArrangement, horizontalAlignment, flingBehavior, userScrollEnabled, content
+            Modifier.weight(1f, false),
+            state,
+            contentPadding,
+            reverseLayout,
+            verticalArrangement,
+            horizontalAlignment,
+            flingBehavior,
+            userScrollEnabled,
+            content
         )
 
         if (!reverseScrollBarLayout && show_scrollbar) {
