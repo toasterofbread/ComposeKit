@@ -9,16 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.*
-import androidx.compose.ui.unit.*
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.*
 import com.toasterofbread.composekit.utils.common.*
 import com.toasterofbread.composekit.utils.composable.*
 import kotlin.math.roundToInt
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 @Composable
 fun <T> SidebarButtonSelector(
@@ -34,6 +30,7 @@ fun <T> SidebarButtonSelector(
     showButton: @Composable (T) -> Boolean = { true },
     isSpacing: (T) -> Boolean = { false },
     extraContent: @Composable RowOrColumnScope.(Int, T) -> Unit = { _, _ -> },
+    getButtonModifier: @Composable RowOrColumnScope.(Int, T) -> Modifier = { _, _ -> Modifier },
     buttonContent: @Composable (Int, T) -> Unit
 ) {
     val density: Density = LocalDensity.current
@@ -171,7 +168,7 @@ fun <T> SidebarButtonSelector(
 
                     AnimatedVisibility(
                         showButton(button),
-                        Modifier
+                        getButtonModifier(index, button)
                             .sizeIn(minWidth = 50.dp, minHeight = 50.dp)
                             .width(IntrinsicSize.Min)
                             .height(IntrinsicSize.Min)
@@ -192,11 +189,15 @@ fun <T> SidebarButtonSelector(
                             if (vertical) shrinkVertically()
                             else shrinkHorizontally()
                     ) {
-                        if (index == target_button && !running) {
-                            CurrentButtonIndicator(
-                                indicator_colour,
-                                Modifier.fillMaxSize()
-                            )
+                        Box(contentAlignment = Alignment.Center) {
+                            if (index == target_button && !running) {
+                                CurrentButtonIndicator(
+                                    indicator_colour,
+                                    Modifier.fillMaxSize()
+                                )
+                            }
+
+                            buttonContent(index, button)
                         }
 
                         buttonContent(index, button)
