@@ -63,6 +63,8 @@ fun <T: Any> NullCrossfade(
 fun <T: Any> NullableValueAnimatedVisibility(
     value: T?,
     modifier: Modifier = Modifier,
+    enter: EnterTransition = fadeIn(),
+    exit: ExitTransition = fadeOut(),
     content: @Composable (value: T?) -> Unit
 ) {
     var current_value: T? by remember { mutableStateOf(value) }
@@ -73,10 +75,10 @@ fun <T: Any> NullableValueAnimatedVisibility(
     }
 
     AnimatedVisibility(
-        value != null, 
+        value != null,
         modifier,
-        enter = fadeIn(),
-        exit = fadeOut()
+        enter = enter,
+        exit = exit
     ) {
         content(current_value)
     }

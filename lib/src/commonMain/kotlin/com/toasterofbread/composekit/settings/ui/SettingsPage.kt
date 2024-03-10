@@ -30,6 +30,7 @@ import com.toasterofbread.composekit.settings.ui.item.GroupSettingsItem
 import com.toasterofbread.composekit.settings.ui.item.SettingsItem
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
 
 abstract class SettingsPage {
     var id: Int? = null
@@ -61,8 +62,6 @@ abstract class SettingsPage {
 
     @Composable
     open fun TitleBar(is_root: Boolean, modifier: Modifier, titleFooter: (@Composable () -> Unit)?) {
-        val coroutine_scope = rememberCoroutineScope()
-
         Crossfade(title, modifier) { title ->
             Column(Modifier.fillMaxWidth()) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -86,17 +85,24 @@ abstract class SettingsPage {
                         )
                     }
 
-                    IconButton({
-                        coroutine_scope.launch {
-                            resetKeys()
-                        }
-                    }) {
-                        Icon(Icons.Default.Refresh, null)
-                    }
+                    TitleBarEndContent()
                 }
 
                 titleFooter?.invoke()
             }
+        }
+    }
+
+    @Composable
+    open fun TitleBarEndContent() {
+        val coroutine_scope: CoroutineScope = rememberCoroutineScope()
+
+        IconButton({
+            coroutine_scope.launch {
+                resetKeys()
+            }
+        }) {
+            Icon(Icons.Default.Refresh, null)
         }
     }
 
@@ -109,7 +115,7 @@ abstract class SettingsPage {
 
 private const val SETTINGS_PAGE_WITH_ITEMS_SPACING = 20f
 
-class SettingsPageWithItems(
+open class SettingsPageWithItems(
     val getTitle: () -> String?,
     val getItems: () -> List<SettingsItem>,
     val modifier: Modifier = Modifier,
