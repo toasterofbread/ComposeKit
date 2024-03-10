@@ -199,8 +199,6 @@ fun <T> SidebarButtonSelector(
 
                             buttonContent(index, button)
                         }
-
-                        buttonContent(index, button)
                     }
                 }
 
