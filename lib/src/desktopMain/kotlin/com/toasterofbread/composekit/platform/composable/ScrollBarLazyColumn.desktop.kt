@@ -14,6 +14,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.*
+import com.toasterofbread.composekit.utils.modifier.horizontal
+import com.toasterofbread.composekit.utils.modifier.vertical
 
 private const val ARROW_KEY_SCROLL_AMOUNT: Float = 75f
 
@@ -77,10 +79,12 @@ actual fun ScrollBarLazyColumn(
                 return@onKeyEvent false
             }
             .focusRequester(focus_requester)
-            .focusable(),
+            .focusable()
+            .padding(contentPadding.horizontal),
         horizontalArrangement = Arrangement.aligned(horizontalAlignment),
         verticalAlignment = verticalAlignment
     ) {
+        val vertical_padding: PaddingValues = contentPadding.vertical
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
             else copy(
@@ -92,7 +96,7 @@ actual fun ScrollBarLazyColumn(
         val scrollbar_adapter: ScrollbarAdapter = rememberScrollbarAdapter(state)
         val scrollbar_modifier: Modifier =
             Modifier
-                .padding(contentPadding)
+                .padding(vertical_padding)
                 .height(with (density) { height.toDp() })
 
         if (reverseScrollBarLayout && show_scrollbar) {
@@ -106,7 +110,7 @@ actual fun ScrollBarLazyColumn(
         LazyColumn(
             Modifier.weight(1f, false),
             state,
-            contentPadding,
+            vertical_padding,
             reverseLayout,
             verticalArrangement,
             horizontalAlignment,
