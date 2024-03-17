@@ -1,11 +1,19 @@
 package com.toasterofbread.composekit.platform
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 
 open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPreferences {
-    private val data: MutableMap<String, Any> by lazy {
+    private val data: MutableMap<String, JsonElement> by lazy {
         loadData()
     }
     private var listeners: MutableList<PlatformPreferencesListener> = mutableListOf()
@@ -15,21 +23,20 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
             listener.onChanged(this, key)
         }
     }
-    
-    protected open fun loadData(): MutableMap<String, Any> {
+
+    protected open fun loadData(): MutableMap<String, JsonElement> {
         if (!file.exists) {
             return mutableMapOf()
         }
 
-        return file.inputStream().reader().use { reader ->
-            val type: Type = object : TypeToken<Map<String, Any>>() {}.type
-            Gson().fromJson(reader, type) ?: mutableMapOf()
+        return file.inputStream().use { stream ->
+            Json.decodeFromStream(stream)
         }
     }
     private fun saveData() {
         file.createFile()
         file.outputStream().writer().use { writer ->
-            writer.write(Gson().toJson(data))
+            writer.write(Json.encodeToString(data))
             writer.flush()
         }
     }
@@ -44,23 +51,23 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
     }
 
     override fun getString(key: String, defValue: String?): String? =
-        data.getOrDefault(key, defValue) as String?
+        data.get(key)?.jsonPrimitive?.takeIf { it.isString }?.content ?: defValue
 
     @Suppress("UNCHECKED_CAST")
     override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? =
-        (data.getOrDefault(key, defValues) as Iterable<String>).toSet()
+        data.get(key)?.jsonArray?.map { it.jsonPrimitive.content }?.toSet() ?: defValues
 
     override fun getInt(key: String, defValue: Int?): Int? =
-        (data.getOrDefault(key, defValue) as Number?)?.toInt()
+        data.get(key)?.jsonPrimitive?.int ?: defValue
 
     override fun getLong(key: String, defValue: Long?): Long? =
-        data.getOrDefault(key, defValue) as Long?
+        data.get(key)?.jsonPrimitive?.long ?: defValue
 
     override fun getFloat(key: String, defValue: Float?): Float? =
-        (data.getOrDefault(key, defValue) as Number?)?.toFloat()
+        data.get(key)?.jsonPrimitive?.float ?: defValue
 
     override fun getBoolean(key: String, defValue: Boolean?): Boolean? =
-        data.getOrDefault(key, defValue) as Boolean?
+        data.get(key)?.jsonPrimitive?.boolean ?: defValue
 
     override operator fun contains(key: String): Boolean =
         data.containsKey(key)
@@ -76,9 +83,9 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
         }
     }
 
-    open class EditorImpl(private val data: MutableMap<String, Any>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
+    open class EditorImpl(private val data: MutableMap<String, JsonElement>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
         override fun putString(key: String, value: String): PlatformPreferences.Editor {
-            data[key] = value
+            data[key] = Json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
@@ -87,31 +94,31 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
             key: String,
             values: Set<String>,
         ): PlatformPreferences.Editor {
-            data[key] = values
+            data[key] = Json.encodeToJsonElement(values)
             changed.add(key)
             return this
         }
 
         override fun putInt(key: String, value: Int): PlatformPreferences.Editor {
-            data[key] = value
+            data[key] = Json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
 
         override fun putLong(key: String, value: Long): PlatformPreferences.Editor {
-            data[key] = value
+            data[key] = Json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
 
         override fun putFloat(key: String, value: Float): PlatformPreferences.Editor {
-            data[key] = value
+            data[key] = Json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
 
         override fun putBoolean(key: String, value: Boolean): PlatformPreferences.Editor {
-            data[key] = value
+            data[key] = Json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
