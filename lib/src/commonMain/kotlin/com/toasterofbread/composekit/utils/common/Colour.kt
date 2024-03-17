@@ -4,9 +4,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import java.util.Random
 import kotlin.math.absoluteValue
-import androidx.compose.ui.graphics.toArgb
 
 fun Color.Companion.red(argb: Int): Int = argb shr 16 and 0xFF
 fun Color.Companion.green(argb: Int): Int = argb shr 8 and 0xFF

@@ -5,11 +5,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.isPrimary
-import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.isSecondary
-import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.isTertiary
-import androidx.compose.ui.input.pointer.isTertiaryPressed
 import com.toasterofbread.composekit.utils.common.thenWith
 
 @OptIn(ExperimentalComposeUiApi::class)

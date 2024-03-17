@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("org.jetbrains.compose")
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 kotlin {
@@ -22,9 +23,9 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
 
-                implementation("com.google.code.gson:gson:2.10.1")
                 implementation("com.github.catppuccin:java:v1.0.0")
                 implementation("com.godaddy.android.colorpicker:compose-color-picker:0.7.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             }
         }
 
