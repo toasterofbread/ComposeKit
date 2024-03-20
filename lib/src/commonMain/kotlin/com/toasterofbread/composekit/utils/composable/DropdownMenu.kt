@@ -11,8 +11,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -25,7 +27,7 @@ fun LargeDropdownMenu(
     onDismissRequest: () -> Unit,
     item_count: Int,
     selected: Int,
-    getItem: @Composable (Int) -> String,
+    itemContent: @Composable (Int) -> Unit,
     modifier: Modifier = Modifier,
     container_colour: Color = MaterialTheme.colorScheme.surface,
     selected_border_colour: Color = MaterialTheme.colorScheme.outlineVariant,
@@ -38,7 +40,7 @@ fun LargeDropdownMenu(
     if (!expanded) {
         return
     }
-    
+
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
@@ -52,26 +54,25 @@ fun LargeDropdownMenu(
                 list_state.scrollToItem(index = selected)
             }
 
-            LazyColumn(modifier = Modifier.fillMaxWidth(), state = list_state) {
-                items(item_count) { index ->
-                    Box(
-                        Modifier
-                            .clickable { onSelected(index) }
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .thenIf(index == selected) {
-                                border(1.dp, selected_border_colour, RoundedCornerShape(16.dp))
-                            }
-                            .padding(8.dp)
-                    ) {
-                        WidthShrinkText(
-                            text = getItem(index),
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    }
+            CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.titleSmall) {
+                LazyColumn(modifier = Modifier.fillMaxWidth(), state = list_state) {
+                    items(item_count) { index ->
+                        Box(
+                            Modifier
+                                .clickable { onSelected(index) }
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .thenIf(index == selected) {
+                                    border(1.dp, selected_border_colour, RoundedCornerShape(16.dp))
+                                }
+                                .padding(8.dp)
+                        ) {
+                            itemContent(index)
+                        }
 
-                    if (index + 1 < item_count) {
-                        Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                        if (index + 1 < item_count) {
+                            Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                        }
                     }
                 }
             }
