@@ -99,6 +99,10 @@ class ApplicationContext(private val activity: ComponentActivity) {
 
         launcher.launch(input)
     }
+
+    fun simulateBackPress() {
+        activity.onBackPressed()
+    }
 }
 
 private val Uri.clean_path: String
