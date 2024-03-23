@@ -6,6 +6,8 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.app.Notification
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_APPEND
@@ -574,6 +576,14 @@ actual open class PlatformContext(
         val open_intent: Intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         checkNotNull(open_intent.resolveActivity(ctx.packageManager))
         ctx.startActivity(open_intent)
+    }
+
+    actual fun canCopyText(): Boolean = true
+    actual fun copyText(text: String) {
+        val clipboard_manager: ClipboardManager =
+            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        clipboard_manager.setPrimaryClip(ClipData.newPlainText("", text))
     }
 
     actual fun sendToast(text: String, long: Boolean) {

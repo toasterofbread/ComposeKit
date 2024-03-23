@@ -16,6 +16,9 @@ import games.spooky.gdx.nativefilechooser.desktop.DesktopFileChooser
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 import java.awt.Desktop
+import java.awt.Toolkit
+import java.awt.datatransfer.Clipboard
+import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -80,6 +83,12 @@ actual open class PlatformContext(
     actual fun openUrl(url: String) {
         check(canOpenUrl())
         Desktop.getDesktop().browse(URI(url))
+    }
+
+    actual fun canCopyText(): Boolean = true
+    actual fun copyText(text: String) {
+        val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+        clipboard.setContents(StringSelection(text), null)
     }
 
     actual fun canSendNotifications(): Boolean = true
