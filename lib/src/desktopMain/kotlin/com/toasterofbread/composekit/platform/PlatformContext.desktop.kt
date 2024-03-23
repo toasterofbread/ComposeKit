@@ -170,11 +170,16 @@ actual open class PlatformContext(
     }
 
     actual fun loadFontFromFile(path: String): Font {
-        val resource_path: String = getResourceDir().resolve(path).path
-        val bytes: ByteArray = resource_class.getResourceAsStream(resource_path)!!.use { stream ->
-            stream.readBytes()
+        val resource_path: String = getResourceDir().resolve(path).path.replace("\\", "/")
+        try {
+            val bytes: ByteArray = resource_class.getResourceAsStream(resource_path)!!.use { stream ->
+                stream.readBytes()
+            }
+            return Font(path, bytes)
         }
-        return Font(path, bytes)
+        catch (e: Throwable) {
+            throw RuntimeException("Loading font from JAR at $resource_path failed", e)
+        }
     }
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
