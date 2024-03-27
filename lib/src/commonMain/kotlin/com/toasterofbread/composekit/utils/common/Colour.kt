@@ -46,7 +46,7 @@ fun Color.offsetRGB(offset: Float, clip: Boolean = true): Color {
     )
 }
 
-fun Color.amplify(by: Float, opposite: Float = by): Color {
+fun Color.amplify(by: Float): Color {
     return offsetRGB(if (isDark()) -by else by, false)
 }
 

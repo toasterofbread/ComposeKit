@@ -2,7 +2,6 @@ package com.toasterofbread.composekit.platform
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -48,8 +47,6 @@ expect open class PlatformContext {
 
     fun openResourceFile(path: String): InputStream
     fun listResourceFiles(path: String): List<String>?
-
-    fun loadFontFromFile(path: String): Font
 
     fun isConnectionMetered(): Boolean
 }

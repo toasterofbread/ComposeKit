@@ -1,5 +1,6 @@
 package com.toasterofbread.composekit.platform
 
+@Suppress("UNCHECKED_CAST")
 fun PlatformPreferences.Editor.putAny(key: String, value: Any?, default: Any): PlatformPreferences.Editor {
     val set_value: Any = value ?: default
     return when (default) {

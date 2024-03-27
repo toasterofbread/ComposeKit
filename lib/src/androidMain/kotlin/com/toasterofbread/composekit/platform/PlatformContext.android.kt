@@ -32,7 +32,6 @@ import androidx.compose.material3.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.Font
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -601,8 +600,6 @@ actual open class PlatformContext(
 
     actual fun openResourceFile(path: String): InputStream = ctx.resources.assets.open(path)
     actual fun listResourceFiles(path: String): List<String>? = ctx.resources.assets.list(path)?.toList()
-
-    actual fun loadFontFromFile(path: String): Font = Font(path, ctx.resources.assets)
 
     actual fun canSendNotifications(): Boolean = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
     @SuppressLint("MissingPermission")

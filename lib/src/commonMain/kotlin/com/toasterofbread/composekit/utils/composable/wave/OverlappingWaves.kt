@@ -28,7 +28,6 @@ fun getDefaultOverlappingWavesLayers(
     listOf(
         WaveLayer(
             time_period = time_period_multiplier * 300,
-            start_time = 0,
             height = height_multiplier * 0.7f,
             base = height_multiplier * 0.2f,
             wavelength = 800.dp,
@@ -36,7 +35,6 @@ fun getDefaultOverlappingWavesLayers(
         ),
         WaveLayer(
             time_period = time_period_multiplier * 500,
-            start_time = 200,
             height = height_multiplier * 0.7f,
             base = height_multiplier * 0.1f,
             wavelength = 650.dp,
@@ -44,7 +42,6 @@ fun getDefaultOverlappingWavesLayers(
         ),
         WaveLayer(
             time_period = time_period_multiplier * 650,
-            start_time = 700,
             height = 0.5f,
             base = 0.0f,
             wavelength = 1600.dp,
@@ -52,7 +49,6 @@ fun getDefaultOverlappingWavesLayers(
         ),
         WaveLayer(
             time_period = time_period_multiplier * 700,
-            start_time = 0,
             height = 0.7f,
             base = 0.2f,
             wavelength = 1200.dp,
@@ -60,7 +56,6 @@ fun getDefaultOverlappingWavesLayers(
         ),
         WaveLayer(
             time_period = time_period_multiplier * 350,
-            start_time = 700,
             height = 0.6f,
             base = 0.1f,
             wavelength = 1000.dp,

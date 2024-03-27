@@ -69,7 +69,6 @@ fun DrawScope.drawRepeatableWave(
 
 class WaveLayer(
     val time_period: Long,
-    start_time: Long,
     val height: Float,
     val base: Float,
     val wavelength: Dp,
@@ -102,7 +101,7 @@ class WaveLayer(
         }
 
         val total_period: Float = time_period * (actual_waves / 2f)
-        
+
         time_progress = (time_progress + (by / total_period)) % 1f
         if (time_progress < 0f) {
             time_progress += 1 - time_progress.toInt()

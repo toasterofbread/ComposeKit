@@ -1,5 +1,4 @@
 @file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-
 package com.toasterofbread.composekit.utils.common
 
 import androidx.compose.animation.core.Animatable
@@ -8,8 +7,7 @@ import androidx.compose.animation.core.AnimationVector
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeableState
+import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -30,13 +28,6 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.isSyncResourceLoadingSupported
-import org.jetbrains.compose.resources.orEmpty
-import org.jetbrains.compose.resources.readBytesSync
-import org.jetbrains.compose.resources.rememberImageBitmap
-import org.jetbrains.compose.resources.resource
-import org.jetbrains.compose.resources.toImageBitmap
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -117,11 +108,6 @@ fun <T> MutableList<T>.toggleItemPresence(item: T) {
 	}
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-fun <T> SwipeableState<T>.init(anchors: Map<Float, T>) {
-	ensureInit(anchors)
-}
-
 operator fun IntSize.times(other: Float): IntSize =
 	IntSize(width = (width * other).toInt(), height = (height * other).toInt())
 
@@ -194,18 +180,6 @@ fun String.substringBetween(start: String, end: String, ignore_case: Boolean = f
 
 	return substring(start_index, end_index)
 }
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-fun bitmapResource(res: String): ImageBitmap =
-	if (isSyncResourceLoadingSupported()) {
-		remember(res) {
-			resource(res).readBytesSync().toImageBitmap()
-		}
-	}
-	else {
-		resource(res).rememberImageBitmap().orEmpty()
-	}
 
 fun Throwable.anyCauseIs(cls: KClass<out Throwable>): Boolean {
 	var checking: Throwable? = this

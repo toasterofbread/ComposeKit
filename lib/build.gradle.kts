@@ -2,7 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("org.jetbrains.compose")
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.23"
 }
 
 kotlin {
@@ -11,6 +11,20 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
+        all {
+            languageSettings.apply {
+                optIn("kotlinx.serialization.ExperimentalSerializationApi")
+                
+                optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
+                optIn("androidx.compose.foundation.ExperimentalFoundationApi")
+                optIn("androidx.compose.material3.ExperimentalMaterial3Api")
+                optIn("androidx.compose.material.ExperimentalMaterialApi")
+                optIn("androidx.compose.ui.ExperimentalComposeUiApi")
+
+                enableLanguageFeature("ExpectActualClasses")
+            }
+        }
+
         commonMain {
             dependencies {
                 implementation(compose.runtime)

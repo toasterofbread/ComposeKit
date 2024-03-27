@@ -1,6 +1,5 @@
 package com.toasterofbread.composekit.platform.composable
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 
-@OptIn(ExperimentalFoundationApi::class)
 actual fun Modifier.platformClickable(
     enabled: Boolean,
     onClick: ((Offset) -> Unit)?,
