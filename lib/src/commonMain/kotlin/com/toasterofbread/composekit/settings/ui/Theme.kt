@@ -81,11 +81,12 @@ abstract class Theme(
             return it
         }
 
-        if (current_theme_idx == 0) {
+        val themes: List<ThemeData> = getLoadedThemes()
+        if ((current_theme_idx - 1) !in themes.indices) {
             return getCurrentSystemTheme()
         }
         else {
-            return getLoadedThemes()[current_theme_idx - 1]
+            return themes[current_theme_idx - 1]
         }
     }
 
@@ -110,7 +111,7 @@ abstract class Theme(
 
     private val default_themes: List<ThemeData> = getDefaultThemes()
     private val default_system_theme: ColourSchemeThemeData = ColourSchemeThemeData(system_theme_default_name)
-    private var loaded_themes: List<ThemeData>? = null
+    private var loaded_themes: List<ThemeData>? by mutableStateOf(null)
 
     private var preview_theme_data: ThemeData? by mutableStateOf(null)
     private var thumbnail_colour: Color? = null
@@ -136,6 +137,8 @@ abstract class Theme(
             card_state.targetValue,
             accent_state.targetValue
         )
+
+    override fun serialise(): String = toStaticThemeData(name).serialise()
 
     fun getThemes(): List<ThemeData> {
         return listOf(getCurrentSystemTheme()) + getLoadedThemes()
@@ -206,17 +209,16 @@ abstract class Theme(
     }
 
     fun removeTheme(index: Int) {
-        if (index <= 1) {
-            return
-        }
-
-        if (getLoadedThemes().size == 1) {
-            loaded_themes = default_themes
+        var themes: List<ThemeData> = getLoadedThemes()
+        if (index <= 0 || themes.size == 1) {
+            themes = default_themes
         }
         else {
-            loaded_themes = getLoadedThemes().toMutableList().also { it.removeAt(index - 1) }
+            themes = themes.toMutableList().also { it.removeAt(index - 1) }
         }
-        saveThemes(getLoadedThemes())
+
+        loaded_themes = themes
+        saveThemes(themes)
     }
 
     fun reloadThemes() {
@@ -274,6 +276,7 @@ interface ThemeData {
     val accent: Color
 
     fun isEditable(): Boolean = false
+    fun serialise(): String
     fun toStaticThemeData(name: String): StaticThemeData
 }
 
@@ -284,9 +287,8 @@ data class StaticThemeData(
     override val card: Color,
     override val accent: Color
 ): ThemeData {
-    fun serialise(): String {
-        return "${background.toArgb()},${on_background.toArgb()},${card.toArgb()},${accent.toArgb()},$name"
-    }
+    override fun serialise(): String =
+        "${background.toArgb()},${on_background.toArgb()},${card.toArgb()},${accent.toArgb()},$name"
 
     override fun isEditable(): Boolean = true
     override fun toStaticThemeData(name: String): StaticThemeData = copy(name = name)
@@ -327,4 +329,6 @@ class ColourSchemeThemeData(
             card,
             accent
         )
+
+    override fun serialise() = toStaticThemeData(name).serialise()
 }

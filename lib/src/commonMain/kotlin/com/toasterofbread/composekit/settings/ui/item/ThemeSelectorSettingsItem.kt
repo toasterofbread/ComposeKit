@@ -198,9 +198,14 @@ class ThemeSelectorSettingsItem(
                 }
             }
 
-            Crossfade(state.get()) { theme_index ->
-                val theme_data: ThemeData = getTheme(theme_index) ?: return@Crossfade
+            Crossfade(state.get().let { Pair(getTheme(it), it) }) {
+                val (theme_data, theme_index) = it
+                if (theme_data == null) {
+                    return@Crossfade
+                }
+
                 val height: Dp = 40.dp
+
                 Row(
                     Modifier.height(height),
                     verticalAlignment = Alignment.CenterVertically,
@@ -250,7 +255,9 @@ class ThemeSelectorSettingsItem(
                     ShapedIconButton(
                         {
                             removeTheme(theme_index)
-                            state.set(maxOf(0, theme_index - 1))
+                            if (getThemeCount() <= theme_index) {
+                                state.set(theme_index - 1)
+                            }
                         },
                         icon_button_colours,
                         Modifier.size(height),
