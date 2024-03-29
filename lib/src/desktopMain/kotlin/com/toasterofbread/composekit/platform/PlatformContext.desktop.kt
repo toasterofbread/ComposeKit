@@ -29,14 +29,16 @@ import java.nio.file.Path
 import java.security.CodeSource
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import kotlinx.coroutines.runBlocking
 
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
 
 actual open class PlatformContext(
     private val app_name: String,
-    private val icon_resource_path: String,
     private val resource_class: Class<*>
 ) {
+    open suspend fun getIconImageData(): ByteArray? = null
+
     private val file_chooser: DesktopFileChooser = DesktopFileChooser()
     private fun getFileChooserConfiguration(): NativeFileChooserConfiguration =
         NativeFileChooserConfiguration().apply {
@@ -219,15 +221,13 @@ actual open class PlatformContext(
 
     @Suppress("NewApi")
     private fun getIconFile(): File? {
-        val slash_index: Int = icon_resource_path.lastIndexOf('/')
-        val file_name: String = if (slash_index == -1) icon_resource_path else icon_resource_path.substring(slash_index + 1)
-
-        val file: File = getTempDir().resolve(file_name)
+        val file: File = getTempDir().resolve("ic_spmp.png")
         if (!file.isFile) {
+            val image_data: ByteArray =
+                runBlocking { getIconImageData() } ?: return null
+
             file.parentFile.mkdirs()
-            openResourceFile(icon_resource_path).use { icon ->
-                Files.copy(icon, Path.of(file.toURI()))
-            }
+            file.writeBytes(image_data)
         }
         return file
     }
