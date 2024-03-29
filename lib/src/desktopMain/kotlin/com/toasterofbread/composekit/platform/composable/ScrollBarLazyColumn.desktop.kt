@@ -35,6 +35,7 @@ actual fun ScrollBarLazyColumn(
     reverseScrollBarLayout: Boolean,
     content: LazyListScope.() -> Unit
 ) {
+    val density: Density = LocalDensity.current
     val focus_requester: FocusRequester = remember { FocusRequester() }
     val coroutine_scope: CoroutineScope = rememberCoroutineScope()
 
@@ -78,17 +79,25 @@ actual fun ScrollBarLazyColumn(
                 return@onKeyEvent false
             }
             .focusRequester(focus_requester)
-            .focusable(),
+            .focusable()
+            .padding(contentPadding.horizontal),
         horizontalArrangement = Arrangement.aligned(horizontalAlignment),
         verticalAlignment = verticalAlignment
     ) {
+        val vertical_padding: PaddingValues = contentPadding.vertical
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
-            else copy(hoverColor = scrollBarColour)
+            else copy(
+                hoverColor = scrollBarColour,
+                unhoverColor = scrollBarColour.copy(alpha = scrollBarColour.alpha * 0.25f)
+            )
         }
 
         val scrollbar_adapter: ScrollbarAdapter = rememberScrollbarAdapter(state)
-        val scrollbar_modifier: Modifier = Modifier.padding(contentPadding)
+        val scrollbar_modifier: Modifier =
+            Modifier
+                .padding(vertical_padding)
+                .height(with (density) { height.toDp() })
 
         if (reverseScrollBarLayout && show_scrollbar) {
             VerticalScrollbar(
@@ -99,7 +108,15 @@ actual fun ScrollBarLazyColumn(
         }
 
         LazyColumn(
-            Modifier.weight(1f, false), state, contentPadding, reverseLayout, verticalArrangement, horizontalAlignment, flingBehavior, userScrollEnabled, content
+            Modifier.weight(1f, false),
+            state,
+            vertical_padding,
+            reverseLayout,
+            verticalArrangement,
+            horizontalAlignment,
+            flingBehavior,
+            userScrollEnabled,
+            content
         )
 
         if (!reverseScrollBarLayout && show_scrollbar) {

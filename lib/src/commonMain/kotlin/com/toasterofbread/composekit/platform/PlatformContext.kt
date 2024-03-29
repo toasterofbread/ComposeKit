@@ -33,6 +33,9 @@ expect open class PlatformContext {
     fun canOpenUrl(): Boolean
     fun openUrl(url: String)
 
+    fun canCopyText(): Boolean
+    fun copyText(text: String)
+
     fun canSendNotifications(): Boolean
     fun sendNotification(title: String, body: String)
     fun sendNotification(throwable: Throwable)

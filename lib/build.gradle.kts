@@ -14,7 +14,7 @@ kotlin {
         all {
             languageSettings.apply {
                 optIn("kotlinx.serialization.ExperimentalSerializationApi")
-                
+
                 optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
                 optIn("androidx.compose.foundation.ExperimentalFoundationApi")
                 optIn("androidx.compose.material3.ExperimentalMaterial3Api")

@@ -24,6 +24,7 @@ import com.toasterofbread.composekit.platform.PlatformPreferences
 import com.toasterofbread.composekit.settings.ui.SettingsInterface
 import com.toasterofbread.composekit.settings.ui.SettingsPage
 import com.toasterofbread.composekit.utils.composable.LargeDropdownMenu
+import com.toasterofbread.composekit.utils.composable.WidthShrinkText
 
 class DropdownSettingsItem(
     val state: BasicSettingsValueState<Int>,
@@ -101,7 +102,9 @@ class DropdownSettingsItem(
                         { open = false },
                         item_count,
                         state.get(),
-                        getItem
+                        {
+                            WidthShrinkText(getItem(it))
+                        }
                     ) {
                         state.set(it)
                         open = false

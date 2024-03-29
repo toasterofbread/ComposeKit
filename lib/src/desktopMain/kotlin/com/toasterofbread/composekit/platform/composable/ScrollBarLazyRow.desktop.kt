@@ -29,29 +29,59 @@ actual fun ScrollBarLazyRow(
     content: LazyListScope.() -> Unit
 ) {
     Column(modifier.scrollWheelScrollable(state), horizontalAlignment = horizontalAlignment) {
+        val scrollbar_alpha: Float by animateFloatAsState(if (state.isContentOverflowing()) 1f else 0f)
+
+        val scrollbar_height: Dp = 10.dp
+        val scrollbar_padding: Dp = 5.dp
+        val scrollbar_modifier: Modifier = Modifier.padding(bottom = scrollbar_padding).height(scrollbar_height - scrollbar_padding).alpha(scrollbar_alpha)
+
         val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
             if (scrollBarColour.isUnspecified) this
-            else copy(hoverColor = scrollBarColour)
+            else copy(
+                hoverColor = scrollBarColour,
+                unhoverColor = scrollBarColour.copy(alpha = scrollBarColour.alpha * 0.25f)
+            )
         }
 
-        if (reverseScrollBarLayout) {
+        if (reverseScrollBarLayout && show_scrollbar) {
             HorizontalScrollbar(
                 rememberScrollbarAdapter(state),
-                Modifier.padding(bottom = 5.dp),
+                scrollbar_modifier,
                 style = scrollbar_style
             )
         }
 
         LazyRow(
-            Modifier, state, contentPadding, reverseLayout, horizontalArrangement, verticalAlignment, flingBehavior, userScrollEnabled, content
-        )
+            Modifier
+                .weight(1f)
+                .thenIf(show_scrollbar) {
+                    offset(y = (scrollbar_height / 2) * (1f - scrollbar_alpha))
+                },
+            state,
+            contentPadding,
+            reverseLayout,
+            horizontalArrangement,
+            verticalAlignment,
+            flingBehavior,
+            userScrollEnabled
+        ) {
+            content()
+        }
 
         if (!reverseScrollBarLayout && show_scrollbar) {
             HorizontalScrollbar(
                 rememberScrollbarAdapter(state),
-                Modifier.padding(bottom = 5.dp),
+                scrollbar_modifier,
                 style = scrollbar_style
             )
         }
     }
+}
+
+private fun LazyListState.isContentOverflowing(): Boolean {
+    val last_item: LazyListItemInfo? = layoutInfo.visibleItemsInfo.lastOrNull()
+    return last_item != null && (
+        last_item.index < layoutInfo.totalItemsCount - 1
+        || (last_item.offset + last_item.size) > layoutInfo.viewportEndOffset
+    )
 }

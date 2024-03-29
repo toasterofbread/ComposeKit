@@ -1,13 +1,7 @@
 package com.toasterofbread.composekit.utils.composable
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.animation.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 
 @Composable
@@ -69,6 +63,8 @@ fun <T: Any> NullCrossfade(
 fun <T: Any> NullableValueAnimatedVisibility(
     value: T?,
     modifier: Modifier = Modifier,
+    enter: EnterTransition = fadeIn(),
+    exit: ExitTransition = fadeOut(),
     content: @Composable (value: T?) -> Unit
 ) {
     var current_value: T? by remember { mutableStateOf(value) }
@@ -78,7 +74,12 @@ fun <T: Any> NullableValueAnimatedVisibility(
         }
     }
 
-    AnimatedVisibility(value != null, modifier) {
+    AnimatedVisibility(
+        value != null,
+        modifier,
+        enter = enter,
+        exit = exit
+    ) {
         content(current_value)
     }
 }

@@ -1,29 +1,19 @@
 package com.toasterofbread.composekit.utils.composable
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.*
+import androidx.compose.ui.unit.*
 
 @Composable
 fun WidthShrinkText(
@@ -34,55 +24,58 @@ fun WidthShrinkText(
     alignment: TextAlign? = null,
     max_lines: Int = 1
 ) {
-	var text_style by remember(style) { mutableStateOf(style) }
-	var text_style_large: TextStyle? by remember(style) { mutableStateOf(null) }
-	var ready_to_draw by remember { mutableStateOf(false) }
+    val density: Density = LocalDensity.current
+    val delta: Float = 0.075f
 
-	val delta = 0.05
+    var current_style: TextStyle by remember(style) { mutableStateOf(style) }
+    var draw_content: Boolean by remember(style) { mutableStateOf(false) }
 
-    Box(modifier, contentAlignment = Alignment.CenterStart) {
-        Text(
-            string,
-            Modifier.fillMaxWidth().drawWithContent { if (ready_to_draw) drawContent() },
-            maxLines = max_lines,
-            style = text_style,
-            inlineContent = inline_content,
-            textAlign = alignment,
-            overflow = TextOverflow.Clip,
-            onTextLayout = { layout_result ->
-                if (layout_result.didOverflowWidth || layout_result.didOverflowHeight) {
-                    text_style = text_style.copy(
-                        fontSize = text_style.fontSize * (1.0 - delta),
-                        lineHeight = text_style.lineHeight * (1.0 - delta)
-                    )
-                }
-                else {
-                    ready_to_draw = true
-                    text_style_large = text_style
-                }
+    var box_size: DpSize by remember { mutableStateOf(DpSize.Zero) }
+
+    Box(
+        modifier.onSizeChanged {
+            box_size = with (density) {
+                DpSize(it.width.toDp(), it.height.toDp())
             }
-        )
+        }
+    ) {
+        Box(Modifier.requiredSize(0.dp)) {
+            val large_style: TextStyle = current_style.shiftSize(delta)
 
-        text_style_large?.also {
             Text(
                 string,
-                Modifier.fillMaxWidth().drawWithContent {}.requiredHeight(1.dp),
+                Modifier.requiredSize(box_size).drawWithContent {},
+                color = Color.Green,
                 maxLines = max_lines,
-                style = it,
+                style = large_style,
                 inlineContent = inline_content,
                 textAlign = alignment,
                 overflow = TextOverflow.Clip,
                 onTextLayout = { layout_result ->
                     if (!layout_result.didOverflowWidth && !layout_result.didOverflowHeight) {
-                        text_style_large = it.copy(
-                            fontSize = minOf(style.fontSize.value, it.fontSize.value * (1.0f + delta.toFloat())).sp,
-                            lineHeight = minOf(style.lineHeight.value, it.lineHeight.value * (1.0f + delta.toFloat())).sp
-                        )
-                        text_style = it
+                        current_style = large_style
                     }
                 }
             )
         }
+
+        Text(
+            string,
+            Modifier.drawWithContent { if (draw_content) drawContent() },
+            maxLines = max_lines,
+            style = current_style,
+            inlineContent = inline_content,
+            textAlign = alignment,
+            overflow = TextOverflow.Clip,
+            onTextLayout = { layout_result ->
+                if (layout_result.didOverflowWidth || layout_result.didOverflowHeight) {
+                    current_style = current_style.shiftSize(-delta)
+                }
+                else {
+                    draw_content = true
+                }
+            }
+        )
     }
 }
 
@@ -119,3 +112,8 @@ fun WidthShrinkText(
         alignment
     )
 }
+
+private fun TextStyle.shiftSize(by: Float): TextStyle =
+    copy(
+        fontSize = fontSize * (1.0 + by)
+    )
