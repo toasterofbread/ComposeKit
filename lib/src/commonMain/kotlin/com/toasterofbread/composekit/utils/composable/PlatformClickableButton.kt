@@ -21,7 +21,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -31,9 +30,9 @@ import com.toasterofbread.composekit.platform.composable.platformClickable
 
 @Composable
 fun PlatformClickableButton(
-    onClick: ((Offset) -> Unit)? = null,
-    onAltClick: ((Offset) -> Unit)? = null,
-    onAlt2Click: ((Offset) -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+    onAltClick: (() -> Unit)? = null,
+    onAlt2Click: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.shape,

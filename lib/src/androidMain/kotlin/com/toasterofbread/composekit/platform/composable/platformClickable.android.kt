@@ -10,6 +10,24 @@ import androidx.compose.ui.geometry.Offset
 
 actual fun Modifier.platformClickable(
     enabled: Boolean,
+    onClick: (() -> Unit)?,
+    onAltClick: (() -> Unit)?,
+    onAlt2Click: (() -> Unit)?,
+    indication: Indication?
+): Modifier =
+    composed {
+        combinedClickable(
+            enabled = enabled,
+            interactionSource = remember { MutableInteractionSource() },
+            indication = indication,
+            onClick = onClick,
+            onLongClick = onAltClick,
+            onDoubleClick = onAlt2Click
+        )
+    }
+
+actual fun Modifier.platformClickableWithOffset(
+    enabled: Boolean,
     onClick: ((Offset) -> Unit)?,
     onAltClick: ((Offset) -> Unit)?,
     onAlt2Click: ((Offset) -> Unit)?,
@@ -26,3 +44,4 @@ actual fun Modifier.platformClickable(
             onDoubleClick = onAlt2Click?.let {{ it(Offset.Zero) }}
         )
     }
+

@@ -36,13 +36,13 @@ fun TextOrIconButton(
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     border: BorderStroke? = null,
-    onAltClick: ((Offset) -> Unit)? = null,
-    onAlt2Click: ((Offset) -> Unit)? = null,
-    onClick: ((Offset) -> Unit)? = null
+    onAltClick: (() -> Unit)? = null,
+    onAlt2Click: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null
 ) {
     var show_text: Boolean by remember { mutableStateOf(false) }
     val icon_alpha: Float by animateFloatAsState((!show_text).toFloat())
-    
+
     BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
         MeasureUnconstrainedView({
             Text(
@@ -54,7 +54,7 @@ fun TextOrIconButton(
                 }
             )
         }) {}
-        
+
         PlatformClickableButton(
             onClick = onClick,
             onAltClick = onAltClick,
@@ -69,7 +69,7 @@ fun TextOrIconButton(
                 this@PlatformClickableButton.AnimatedVisibility(show_text) {
                     Text(text, softWrap = false)
                 }
-                
+
                 Icon(icon, null, Modifier.graphicsLayer { alpha = icon_alpha })
             }
         }
