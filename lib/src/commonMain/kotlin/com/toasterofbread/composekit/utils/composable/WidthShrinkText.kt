@@ -14,6 +14,7 @@ import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun WidthShrinkText(
@@ -40,7 +41,7 @@ fun WidthShrinkText(
         }
     ) {
         Box(Modifier.requiredSize(0.dp)) {
-            val large_style: TextStyle = current_style.shiftSize(delta)
+            val large_style: TextStyle = current_style.shiftSize(delta, style.fontSize)
 
             Text(
                 string,
@@ -69,7 +70,7 @@ fun WidthShrinkText(
             overflow = TextOverflow.Clip,
             onTextLayout = { layout_result ->
                 if (layout_result.didOverflowWidth || layout_result.didOverflowHeight) {
-                    current_style = current_style.shiftSize(-delta)
+                    current_style = current_style.shiftSize(-delta, style.fontSize)
                 }
                 else {
                     draw_content = true
@@ -113,7 +114,10 @@ fun WidthShrinkText(
     )
 }
 
-private fun TextStyle.shiftSize(by: Float): TextStyle =
+private fun TextStyle.shiftSize(by: Float, max: TextUnit): TextStyle =
     copy(
-        fontSize = fontSize * (1.0 + by)
+        fontSize = (fontSize * (1.0 + by)).let { new ->
+            if (new > max) max
+            else new
+        }
     )
