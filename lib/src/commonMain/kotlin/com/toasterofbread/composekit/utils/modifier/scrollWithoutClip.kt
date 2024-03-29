@@ -1,8 +1,8 @@
 @file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 package com.toasterofbread.composekit.utils.modifier
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.ScrollingLayoutNode
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -33,7 +33,6 @@ import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.scrollWithoutClip(
     state: ScrollState,
     is_vertical: Boolean,
@@ -142,89 +141,5 @@ private class ScrollingLayoutElement(
         properties["state"] = scrollState
         properties["isReversed"] = isReversed
         properties["isVertical"] = isVertical
-    }
-}
-
-private class ScrollingLayoutNode(
-    var scrollerState: ScrollState,
-    var isReversed: Boolean,
-    var isVertical: Boolean
-) : LayoutModifierNode, Modifier.Node() {
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        checkScrollableContainerConstraints(
-            constraints,
-            if (isVertical) Orientation.Vertical else Orientation.Horizontal
-        )
-
-        val childConstraints = constraints.copy(
-            maxHeight = if (isVertical) Constraints.Infinity else constraints.maxHeight,
-            maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity
-        )
-        val placeable = measurable.measure(childConstraints)
-        val width = placeable.width.coerceAtMost(constraints.maxWidth)
-        val height = placeable.height.coerceAtMost(constraints.maxHeight)
-        val scrollHeight = placeable.height - height
-        val scrollWidth = placeable.width - width
-        val side = if (isVertical) scrollHeight else scrollWidth
-        // The max value must be updated before returning from the measure block so that any other
-        // chained RemeasurementModifiers that try to perform scrolling based on the new
-        // measurements inside onRemeasured are able to scroll to the new max based on the newly-
-        // measured size.
-        //        scrollerState.maxValue = side
-        scrollerState.viewportSize = if (isVertical) height else width
-        return layout(width, height) {
-            val scroll = scrollerState.value.coerceIn(0, side)
-            val absScroll = if (isReversed) scroll - side else -scroll
-            val xOffset = if (isVertical) 0 else absScroll
-            val yOffset = if (isVertical) absScroll else 0
-            placeable.placeRelativeWithLayer(xOffset, yOffset)
-        }
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int
-    ): Int {
-        return if (isVertical) {
-            measurable.minIntrinsicWidth(Constraints.Infinity)
-        } else {
-            measurable.minIntrinsicWidth(height)
-        }
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int
-    ): Int {
-        return if (isVertical) {
-            measurable.minIntrinsicHeight(width)
-        } else {
-            measurable.minIntrinsicHeight(Constraints.Infinity)
-        }
-    }
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int
-    ): Int {
-        return if (isVertical) {
-            measurable.maxIntrinsicWidth(Constraints.Infinity)
-        } else {
-            measurable.maxIntrinsicWidth(height)
-        }
-    }
-
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int
-    ): Int {
-        return if (isVertical) {
-            measurable.maxIntrinsicHeight(width)
-        } else {
-            measurable.maxIntrinsicHeight(Constraints.Infinity)
-        }
     }
 }

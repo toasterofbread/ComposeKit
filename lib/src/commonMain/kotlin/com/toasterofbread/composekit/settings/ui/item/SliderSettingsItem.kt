@@ -29,11 +29,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.github.krottv.compose.sliders.DefaultThumb
@@ -209,76 +212,94 @@ class SliderSettingsItem(
                 if (min_label != null) {
                     ItemText(min_label, theme)
                 }
-                SliderValueHorizontal(
-                    value = getValue(),
-                    onValueChange = { setValue(it) },
-                    onValueChangeFinished = {
-                        settings_interface.prefs.edit {
-                            with (state) {
-                                save()
-                            }
+
+                val view_configuration: ViewConfiguration = LocalViewConfiguration.current
+                CompositionLocalProvider(
+                    LocalViewConfiguration provides remember {
+                        object : ViewConfiguration {
+                            override val doubleTapMinTimeMillis get() = view_configuration.doubleTapMinTimeMillis
+                            override val doubleTapTimeoutMillis get() = view_configuration.doubleTapTimeoutMillis
+                            override val longPressTimeoutMillis get() = view_configuration.longPressTimeoutMillis
+
+                            override val touchSlop: Float
+                                get() {
+                                    return view_configuration.touchSlop * 2f
+                                }
                         }
-                    },
-                    thumbSizeInDp = DpSize(12.dp, 12.dp),
-                    track = { a, b, c, d, e ->
-                        DefaultTrack(a, b, c, d, e,
-                            theme.vibrant_accent.copy(alpha = 0.5f),
-                            theme.vibrant_accent,
-                            colorTickProgress = theme.vibrant_accent.getContrasted().copy(alpha = 0.5f)
-                        )
-                    },
-                    thumb = { modifier, offset, interaction_source, enabled, thumb_size ->
-                        val colour: Color = theme.vibrant_accent
-                        val scale_on_press: Float = 1.15f
-                        val animation_spec: SpringSpec<Float> = SpringSpec(0.65f)
-                        val value_text: String? by remember { derivedStateOf { getValueText?.invoke(getTypedValue()) } }
-
-                        if (value_text != null) {
-                            MeasureUnconstrainedView({ ItemText(value_text, theme) }) { size ->
-                                var is_pressed by remember { mutableStateOf(false) }
-                                interaction_source.ListenOnPressed { is_pressed = it }
-                                val scale: Float by animateFloatAsState(
-                                    if (is_pressed) scale_on_press else 1f,
-                                    animationSpec = animation_spec
-                                )
-
-                                Column(
-                                    Modifier
-                                        .offset(with(LocalDensity.current) { offset - (size.width.toDp() / 2) + 12.dp })
-                                        .requiredHeight(55.dp)
-                                        .graphicsLayer(scale, scale),
-                                    verticalArrangement = Arrangement.Bottom,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Spacer(
-                                        Modifier
-                                            .size(12.dp)
-                                            .background(
-                                                if (enabled) colour else
-                                                    colour.copy(alpha = 0.6f), CircleShape
-                                            )
-                                    )
-                                    ItemText(value_text, theme, linkify = false)
+                    }
+                ) {
+                    SliderValueHorizontal(
+                        value = getValue(),
+                        onValueChange = { setValue(it) },
+                        onValueChangeFinished = {
+                            settings_interface.prefs.edit {
+                                with (state) {
+                                    save()
                                 }
                             }
-                        }
-                        else {
-                            DefaultThumb(
-                                modifier,
-                                offset,
-                                interaction_source,
-                                true,
-                                thumb_size,
-                                colour,
-                                scale_on_press,
-                                animation_spec
+                        },
+                        thumbSizeInDp = DpSize(12.dp, 12.dp),
+                        track = { a, b, c, d, e ->
+                            DefaultTrack(a, b, c, d, e,
+                                theme.vibrant_accent.copy(alpha = 0.5f),
+                                theme.vibrant_accent,
+                                colorTickProgress = theme.vibrant_accent.getContrasted().copy(alpha = 0.5f)
                             )
-                        }
-                    },
-                    steps = steps,
-                    modifier = Modifier.weight(1f),
-                    valueRange = range
-                )
+                        },
+                        thumb = { modifier, offset, interaction_source, enabled, thumb_size ->
+                            val colour: Color = theme.vibrant_accent
+                            val scale_on_press: Float = 1.15f
+                            val animation_spec: SpringSpec<Float> = SpringSpec(0.65f)
+                            val value_text: String? by remember { derivedStateOf { getValueText?.invoke(getTypedValue()) } }
+
+                            if (value_text != null) {
+                                MeasureUnconstrainedView({ ItemText(value_text, theme) }) { size ->
+                                    var is_pressed by remember { mutableStateOf(false) }
+                                    interaction_source.ListenOnPressed { is_pressed = it }
+                                    val scale: Float by animateFloatAsState(
+                                        if (is_pressed) scale_on_press else 1f,
+                                        animationSpec = animation_spec
+                                    )
+
+                                    Column(
+                                        Modifier
+                                            .offset(with(LocalDensity.current) { offset - (size.width.toDp() / 2) + 12.dp })
+                                            .requiredHeight(55.dp)
+                                            .graphicsLayer(scale, scale),
+                                        verticalArrangement = Arrangement.Bottom,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Spacer(
+                                            Modifier
+                                                .size(12.dp)
+                                                .background(
+                                                    if (enabled) colour else
+                                                        colour.copy(alpha = 0.6f), CircleShape
+                                                )
+                                        )
+                                        ItemText(value_text, theme, linkify = false)
+                                    }
+                                }
+                            }
+                            else {
+                                DefaultThumb(
+                                    modifier,
+                                    offset,
+                                    interaction_source,
+                                    true,
+                                    thumb_size,
+                                    colour,
+                                    scale_on_press,
+                                    animation_spec
+                                )
+                            }
+                        },
+                        steps = steps,
+                        modifier = Modifier.weight(1f),
+                        valueRange = range
+                    )
+                }
+
                 if (max_label != null) {
                     ItemText(max_label, theme)
                 }

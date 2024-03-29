@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
@@ -102,7 +102,7 @@ fun RowScope.ScrollabilityIndicator(
 ) {
     val coroutine_scope: CoroutineScope = rememberCoroutineScope()
     val show: Boolean = if (left) list_state.canScrollBackward else list_state.canScrollForward
-    val icon: ImageVector = if (left) Icons.Default.KeyboardArrowLeft else Icons.Default.KeyboardArrowRight
+    val icon: ImageVector = if (left) Icons.AutoMirrored.Default.KeyboardArrowLeft else Icons.AutoMirrored.Default.KeyboardArrowRight
 
     Box(
         Modifier

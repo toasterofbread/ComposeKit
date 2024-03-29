@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.LocalTextStyle
@@ -71,7 +71,7 @@ fun LargeDropdownMenu(
                         }
 
                         if (index + 1 < item_count) {
-                            Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         }
                     }
                 }

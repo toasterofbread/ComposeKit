@@ -1,6 +1,5 @@
 package com.toasterofbread.composekit.utils.composable
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.IntOffset
 import com.toasterofbread.composekit.utils.modifier.background
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.stickyHeaderWithTopPadding(
     list_state: LazyListState,
     top_padding: Dp,

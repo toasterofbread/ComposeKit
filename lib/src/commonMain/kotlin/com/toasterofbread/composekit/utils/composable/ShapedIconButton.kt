@@ -2,7 +2,6 @@
 
 package com.toasterofbread.composekit.utils.composable
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -26,7 +25,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import com.toasterofbread.composekit.utils.common.thenIf
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShapedIconButton(
     onClick: () -> Unit,
@@ -49,7 +47,7 @@ fun ShapedIconButton(
             .thenIf(applyWidth) {
                 width(IconButtonTokens.StateLayerSize)
             }
-            .background(color = colours.containerColor(enabled).value, shape = shape)
+            .background(color = colours.containerColor(enabled), shape = shape)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
@@ -60,7 +58,7 @@ fun ShapedIconButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        val content_colour: Color = colours.contentColor(enabled).value
+        val content_colour: Color = colours.contentColor(enabled)
         CompositionLocalProvider(LocalContentColor provides content_colour, content = content)
     }
 }

@@ -4,8 +4,6 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.platform.Font
 import com.badlogic.gdx.files.FileHandle
 import com.sshtools.twoslices.Toast
 import com.sshtools.twoslices.ToastType
@@ -176,19 +174,6 @@ actual open class PlatformContext(
         }
 
         return paths
-    }
-
-    actual fun loadFontFromFile(path: String): Font {
-        val resource_path: String = getResourceDir().resolve(path).path.replace("\\", "/")
-        try {
-            val bytes: ByteArray = resource_class.getResourceAsStream(resource_path)!!.use { stream ->
-                stream.readBytes()
-            }
-            return Font(path, bytes)
-        }
-        catch (e: Throwable) {
-            throw RuntimeException("Loading font from JAR at $resource_path failed", e)
-        }
     }
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {

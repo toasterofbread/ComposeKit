@@ -7,7 +7,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextFieldColors
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.toasterofbread.composekit.utils.common.thenIf
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResizableOutlinedTextField(
     value: String,
@@ -51,7 +49,7 @@ fun ResizableOutlinedTextField(
     maxLines: Int = Int.MAX_VALUE,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled, isError, interactionSource).value
@@ -90,7 +88,7 @@ fun ResizableOutlinedTextField(
             singleLine = singleLine,
             maxLines = maxLines,
             decorationBox = @Composable { innerTextField ->
-                TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                OutlinedTextFieldDefaults.DecorationBox(
                     value = value,
                     visualTransformation = visualTransformation,
                     innerTextField = innerTextField,
@@ -105,7 +103,7 @@ fun ResizableOutlinedTextField(
                     interactionSource = interactionSource,
                     colors = colors,
                     container = {
-                        TextFieldDefaults.OutlinedBorderContainerBox(
+                        OutlinedTextFieldDefaults.ContainerBox(
                             enabled,
                             isError,
                             interactionSource,
@@ -113,7 +111,7 @@ fun ResizableOutlinedTextField(
                             shape
                         )
                     },
-                    contentPadding = TextFieldDefaults.outlinedTextFieldPadding(
+                    contentPadding = OutlinedTextFieldDefaults.contentPadding(
                         top = 0.dp, bottom = 0.dp
                     )
                 )

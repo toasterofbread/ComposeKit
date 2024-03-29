@@ -32,8 +32,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -83,8 +83,8 @@ import com.toasterofbread.composekit.utils.composable.ColourPicker
 import com.toasterofbread.composekit.utils.composable.OnChangedEffect
 import com.toasterofbread.composekit.utils.composable.ShapedIconButton
 import com.toasterofbread.composekit.utils.composable.WidthShrinkText
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import spmp.composekit.lib.generated.resources.*
 
 class ThemeSelectorSettingsItem(
     val state: SettingsValueState<Int>,
@@ -174,7 +174,7 @@ class ThemeSelectorSettingsItem(
                     },
                     enabled = state.get() > 0
                 ) {
-                    Icon(Icons.Filled.KeyboardArrowLeft, null)
+                    Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, null)
                 }
 
                 ShapedIconButton(
@@ -186,7 +186,7 @@ class ThemeSelectorSettingsItem(
                     },
                     enabled = state.get() + 1 < getThemeCount()
                 ) {
-                    Icon(Icons.Filled.KeyboardArrowRight, null)
+                    Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, null)
                 }
 
                 IconButton({
@@ -198,9 +198,14 @@ class ThemeSelectorSettingsItem(
                 }
             }
 
-            Crossfade(state.get()) { theme_index ->
-                val theme_data: ThemeData = getTheme(theme_index) ?: return@Crossfade
+            Crossfade(state.get().let { Pair(getTheme(it), it) }) {
+                val (theme_data, theme_index) = it
+                if (theme_data == null) {
+                    return@Crossfade
+                }
+
                 val height: Dp = 40.dp
+
                 Row(
                     Modifier.height(height),
                     verticalAlignment = Alignment.CenterVertically,
@@ -250,7 +255,9 @@ class ThemeSelectorSettingsItem(
                     ShapedIconButton(
                         {
                             removeTheme(theme_index)
-                            state.set(maxOf(0, theme_index - 1))
+                            if (getThemeCount() <= theme_index) {
+                                state.set(theme_index - 1)
+                            }
                         },
                         icon_button_colours,
                         Modifier.size(height),
@@ -264,7 +271,6 @@ class ThemeSelectorSettingsItem(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 private fun getEditPage(
     editor_title: String?,
     str_field_name: String,
@@ -450,7 +456,7 @@ private fun getEditPage(
                         Modifier.fillMaxHeight().aspectRatio(1f)
                     ) {
                         Icon(
-                            painterResource("assets/drawable/ic_die.xml"),
+                            painterResource(Res.drawable.ic_die),
                             null,
                             Modifier.size(25.dp)
                         )
@@ -492,7 +498,6 @@ private fun getEditPage(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun ColourField(
     name: String,
@@ -551,7 +556,7 @@ private fun ColourField(
                 current = Color.random()
                 instance = !instance
             }, colors = button_colours) {
-                Icon(painterResource("assets/drawable/ic_die.xml"), null, Modifier.size(22.dp))
+                Icon(painterResource(Res.drawable.ic_die), null, Modifier.size(22.dp))
             }
             FilledIconButton({
                 current = default_colour

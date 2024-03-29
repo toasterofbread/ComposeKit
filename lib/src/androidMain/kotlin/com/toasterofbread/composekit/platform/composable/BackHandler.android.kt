@@ -13,5 +13,6 @@ actual fun BackHandler(
 }
 
 actual fun onWindowBackPressed(context: PlatformContext): Boolean {
-    context.application_context.simulateBackPress()
+    context.application_context?.simulateBackPress()
+    return true
 }
