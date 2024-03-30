@@ -20,9 +20,9 @@ actual fun Modifier.platformClickable(
             enabled = enabled,
             interactionSource = remember { MutableInteractionSource() },
             indication = indication,
-            onClick = onClick,
-            onLongClick = onAltClick,
-            onDoubleClick = onAlt2Click
+            onClick = { onClick?.invoke() },
+            onLongClick = { onAltClick?.invoke() },
+            onDoubleClick = { onAlt2Click?.invoke() }
         )
     }
 
