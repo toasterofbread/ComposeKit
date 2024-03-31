@@ -15,6 +15,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.toasterofbread.composekit.utils.modifier.*
+import com.toasterofbread.composekit.utils.common.thenIf
 import kotlinx.coroutines.*
 
 private const val ARROW_KEY_SCROLL_AMOUNT: Float = 75f
@@ -50,7 +51,9 @@ actual fun ScrollBarLazyColumn(
             .onSizeChanged {
                 height = it.height
             }
-            .scrollWheelScrollable(state)
+            .thenIf(userScrollEnabled) {
+                scrollWheelScrollable(state)
+            }
             .onKeyEvent {
                 if (it.type == KeyEventType.KeyDown) {
                     when (it.key) {
@@ -115,7 +118,7 @@ actual fun ScrollBarLazyColumn(
             verticalArrangement,
             horizontalAlignment,
             flingBehavior,
-            userScrollEnabled,
+            false,
             content
         )
 
