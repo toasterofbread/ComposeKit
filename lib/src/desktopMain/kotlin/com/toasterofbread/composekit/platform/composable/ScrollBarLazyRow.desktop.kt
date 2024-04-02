@@ -53,7 +53,7 @@ actual fun ScrollBarLazyRow(
 
         LazyRow(
             Modifier
-                .weight(1f)
+                .weight(1f, false)
                 .thenIf(show_scrollbar) {
                     offset(y = (scrollbar_height / 2) * (1f - scrollbar_alpha))
                 },
@@ -82,6 +82,6 @@ private fun LazyListState.isContentOverflowing(): Boolean {
     val last_item: LazyListItemInfo? = layoutInfo.visibleItemsInfo.lastOrNull()
     return last_item != null && (
         last_item.index < layoutInfo.totalItemsCount - 1
-        || (last_item.offset + last_item.size) > layoutInfo.viewportEndOffset
+        || (last_item.offset + last_item.size) + 5 >= layoutInfo.viewportEndOffset
     )
 }
