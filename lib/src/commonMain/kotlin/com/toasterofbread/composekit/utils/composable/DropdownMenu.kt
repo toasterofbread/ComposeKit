@@ -26,14 +26,14 @@ fun LargeDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     item_count: Int,
-    selected: Int,
+    selected: Int?,
     itemContent: @Composable (Int) -> Unit,
     modifier: Modifier = Modifier,
     container_colour: Color = MaterialTheme.colorScheme.surface,
     selected_border_colour: Color = MaterialTheme.colorScheme.outlineVariant,
     onSelected: (index: Int) -> Unit
 ) {
-    require(selected in 0 until item_count) {
+    require(selected == null || selected in 0 until item_count) {
         "selected=$selected, item_count=$item_count"
     }
 
@@ -51,7 +51,9 @@ fun LargeDropdownMenu(
         ) {
             val list_state = rememberLazyListState()
             LaunchedEffect(Unit) {
-                list_state.scrollToItem(index = selected)
+                if (selected != null) {
+                    list_state.scrollToItem(index = selected)
+                }
             }
 
             CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.titleSmall) {
