@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.*
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.platform.LocalDensity
 import com.toasterofbread.composekit.utils.common.*
+import com.toasterofbread.composekit.utils.common.thenWith
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope
@@ -131,10 +132,11 @@ fun <T> SidebarButtonSelector(
         running = false
     }
 
-    BoxWithConstraints(
+    BoxWithOptionalConstraints(
+        scrolling,
         modifier,
         contentAlignment = Alignment.Center
-    ) {
+    ) { constraints ->
         Box(
             Modifier.thenIf(scrolling) {
                 if (vertical) verticalScroll(rememberScrollState())
@@ -157,9 +159,9 @@ fun <T> SidebarButtonSelector(
 
             RowOrColumn(
                 !vertical,
-                Modifier.thenIf(scrolling) {
-                    if (vertical) heightIn(min = this@BoxWithConstraints.maxHeight)
-                    else widthIn(min = this@BoxWithConstraints.maxWidth)
+                Modifier.thenWith(constraints) {
+                    if (vertical) heightIn(min = it.maxHeight)
+                    else widthIn(min = it.maxWidth)
                 },
                 alignment = alignment,
                 arrangement = arrangement

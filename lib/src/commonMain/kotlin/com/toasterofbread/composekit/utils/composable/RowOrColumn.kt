@@ -1,14 +1,19 @@
 package com.toasterofbread.composekit.utils.composable
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.animation.*
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.*
 import com.toasterofbread.composekit.platform.composable.*
+import com.toasterofbread.composekit.utils.common.thenIf
+import com.toasterofbread.composekit.utils.modifier.horizontal
+import com.toasterofbread.composekit.utils.modifier.vertical
 import kotlin.math.sign
 
 abstract class RowOrColumnScope {
@@ -43,24 +48,83 @@ fun RowOrColumn(
     modifier: Modifier = Modifier,
     arrangement: Arrangement.HorizontalOrVertical = Arrangement.SpaceEvenly,
     alignment: Int = 0,
+    scrollable: Boolean = false,
+    content_padding: PaddingValues = PaddingValues(),
     content: @Composable RowOrColumnScope.() -> Unit
 ) {
     if (row) {
         Row(
-            modifier,
+            modifier
+                .padding(content_padding.vertical)
+                .thenIf(scrollable) {
+                    horizontalScroll(rememberScrollState())
+                },
             horizontalArrangement = arrangement,
             verticalAlignment = alignment.toVerticalAlignment()
         ) {
+            val layout_direction: LayoutDirection = LocalLayoutDirection.current
+            Spacer(Modifier.width(content_padding.calculateStartPadding(layout_direction)))
             content(RowScopeRowOrColumnScope(this@Row))
+            Spacer(Modifier.width(content_padding.calculateEndPadding(layout_direction)))
         }
     }
     else {
         Column(
-            modifier,
+            modifier
+                .padding(content_padding.horizontal)
+                .thenIf(scrollable) {
+                    verticalScroll(rememberScrollState())
+                },
             verticalArrangement = arrangement,
             horizontalAlignment = alignment.toHorizontalAlignment()
         ) {
+            Spacer(Modifier.height(content_padding.calculateTopPadding()))
             content(ColumnScopeRowOrColumnScope(this@Column))
+            Spacer(Modifier.height(content_padding.calculateBottomPadding()))
+        }
+    }
+}
+
+@Composable
+fun ScrollableRowOrColumn(
+    row: Boolean,
+    lazy: Boolean,
+    item_count: Int,
+    modifier: Modifier = Modifier,
+    arrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(0.dp),
+    alignment: Int = 0,
+    content_padding: PaddingValues = PaddingValues(),
+    reverse_scroll_bar_layout: Boolean = false,
+    scroll_bar_colour: Color = Color.Unspecified,
+    itemContent: @Composable (Int) -> Unit
+) {
+    if (lazy) {
+        ScrollBarLazyRowOrColumn(
+            row = row,
+            modifier = modifier,
+            arrangement = arrangement,
+            alignment = alignment,
+            contentPadding = content_padding,
+            reverseScrollBarLayout = reverse_scroll_bar_layout,
+            scrollBarColour = scroll_bar_colour
+        ) {
+            items(item_count) {
+                itemContent(it)
+            }
+        }
+    }
+    else {
+        RowOrColumn(
+            row = row,
+            modifier = modifier,
+            arrangement = arrangement,
+            alignment = alignment,
+            scrollable = true,
+            content_padding = content_padding
+        ) {
+            for (i in 0 until item_count) {
+                itemContent(i)
+            }
         }
     }
 }
