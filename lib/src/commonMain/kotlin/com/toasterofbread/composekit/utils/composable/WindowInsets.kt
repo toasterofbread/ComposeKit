@@ -31,6 +31,9 @@ fun WindowInsets.getBottom(): Dp = with (LocalDensity.current) {
 fun WindowInsets.Companion.getTop(): Dp = systemBars.getTop()
 
 @Composable
+fun WindowInsets.Companion.getBottom(): Dp = systemBars.getBottom()
+
+@Composable
 fun WindowInsets.Companion.getStart(): Dp = systemBars.getStart()
 
 @Composable
