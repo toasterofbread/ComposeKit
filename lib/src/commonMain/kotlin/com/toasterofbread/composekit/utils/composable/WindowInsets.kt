@@ -2,10 +2,12 @@ package com.toasterofbread.composekit.utils.composable
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun WindowInsets.getStart(): Dp = with (LocalDensity.current) {
@@ -31,7 +33,15 @@ fun WindowInsets.getBottom(): Dp = with (LocalDensity.current) {
 fun WindowInsets.Companion.getTop(): Dp = systemBars.getTop()
 
 @Composable
-fun WindowInsets.Companion.getBottom(): Dp = systemBars.getBottom()
+fun WindowInsets.Companion.getBottom(): Dp {
+    val ime: Dp = WindowInsets.ime.getBottom()
+    if (ime > 0.dp) {
+        return ime
+    }
+    else {
+        return systemBars.getBottom()
+    }
+}
 
 @Composable
 fun WindowInsets.Companion.getStart(): Dp = systemBars.getStart()
