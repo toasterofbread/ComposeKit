@@ -33,14 +33,14 @@ fun WindowInsets.getBottom(): Dp = with (LocalDensity.current) {
 fun WindowInsets.Companion.getTop(): Dp = systemBars.getTop()
 
 @Composable
-fun WindowInsets.Companion.getBottom(): Dp {
-    val ime: Dp = WindowInsets.ime.getBottom()
-    if (ime > 0.dp) {
-        return ime
+fun WindowInsets.Companion.getBottom(include_ime: Boolean = true): Dp {
+    if (include_ime) {
+        val ime: Dp = WindowInsets.ime.getBottom()
+        if (ime > 0.dp) {
+            return ime
+        }
     }
-    else {
-        return systemBars.getBottom()
-    }
+    return systemBars.getBottom()
 }
 
 @Composable
