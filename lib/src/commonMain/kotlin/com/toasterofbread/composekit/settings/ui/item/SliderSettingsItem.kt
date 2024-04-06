@@ -263,7 +263,10 @@ class SliderSettingsItem(
 
                                     Column(
                                         Modifier
-                                            .offset(with(LocalDensity.current) { offset - (size.width.toDp() / 2) + 12.dp })
+                                            .offset(
+                                                x = with(LocalDensity.current) { offset - (size.width.toDp() / 2) + 12.dp },
+                                                y = (-5).dp
+                                            )
                                             .requiredHeight(55.dp)
                                             .graphicsLayer(scale, scale),
                                         verticalArrangement = Arrangement.Bottom,
