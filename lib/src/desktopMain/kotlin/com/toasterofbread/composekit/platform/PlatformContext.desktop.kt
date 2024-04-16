@@ -221,7 +221,7 @@ actual open class PlatformContext(
 
     @Suppress("NewApi")
     private fun getIconFile(): File? {
-        val file: File = getTempDir().resolve("ic_spmp.png")
+        val file: File = getTempDir().resolve("ic_$app_name.png")
         if (!file.isFile) {
             val image_data: ByteArray =
                 runBlocking { getIconImageData() } ?: return null
