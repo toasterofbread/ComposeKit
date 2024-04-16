@@ -100,7 +100,7 @@ android {
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
+    // signAllPublications()
 
     configure(KotlinMultiplatform(
         sourcesJar = true,
