@@ -1,2 +1,5 @@
 jdk:
   - openjdk17
+install:
+  - git submodule update --init --recursive
+  - ./gradlew publishToMavenLocal
