@@ -153,11 +153,44 @@ actual class PlatformFile(
         }
 
     actual val exists: Boolean
-        get() = file?.exists() == true
+        get() {
+            if (file?.exists() == true) {
+                return true
+            }
+
+            try {
+                return File(absolute_path).exists()
+            }
+            catch (_: Throwable) {
+                return false
+            }
+        }
     actual val is_directory: Boolean
-        get() = file?.isDirectory == true
+        get() {
+            if (file?.isDirectory == true) {
+                return true
+            }
+
+            try {
+                return File(absolute_path).isDirectory()
+            }
+            catch (_: Throwable) {
+                return false
+            }
+        }
     actual val is_file: Boolean
-        get() = file?.isFile == true
+        get() {
+            if (file?.isFile == true) {
+                return true
+            }
+
+            try {
+                return File(absolute_path).isFile()
+            }
+            catch (_: Throwable) {
+                return false
+            }
+        }
 
     actual fun getRelativePath(relative_to: PlatformFile): String {
         require(relative_to.is_directory)
@@ -180,14 +213,36 @@ actual class PlatformFile(
         return path_split.joinToString("/")
     }
 
-    actual fun inputStream(): InputStream =
-        context.contentResolver.openInputStream(file!!.uri)!!
+    actual fun inputStream(): InputStream {
+        try {
+            return context.contentResolver.openInputStream(file!!.uri)!!
+        }
+        catch (e: Throwable) {
+            try {
+                return File(absolute_path).inputStream()
+            }
+            catch (_: Throwable) {}
+
+            throw IOException("Could not open input stream for file '$this'", e)
+        }
+    }
 
     actual fun outputStream(append: Boolean): OutputStream {
         if (!is_file) {
-            check(createFile()) { "Could not create file for writing $this" }
+            createFile()
         }
-        return context.contentResolver.openOutputStream(file!!.uri, if (append) "wa" else "wt")!!
+
+        try {
+            return context.contentResolver.openOutputStream(file!!.uri, if (append) "wa" else "wt")!!
+        }
+        catch (e: Throwable) {
+            try {
+                return File(absolute_path).outputStream()
+            }
+            catch (_: Throwable) {}
+
+            throw IOException("Could not open output stream for file '$this'", e)
+        }
     }
 
     actual fun listFiles(): List<PlatformFile>? =
@@ -232,10 +287,20 @@ actual class PlatformFile(
     }
 
     actual fun delete(): Boolean {
-        if (file == null) {
+        if (!exists) {
             return true
         }
-        return file!!.delete()
+
+        if (file?.delete() == true) {
+            return true
+        }
+
+        try {
+            return File(absolute_path).delete()
+        }
+        catch (_: Throwable) {
+            return false
+        }
     }
 
     actual fun createFile(): Boolean {
@@ -253,8 +318,22 @@ actual class PlatformFile(
 
         try {
             val filename: String = name
-            val new_file: DocumentFile =
-                parent_docfile!!.createFile("application/octet-stream", filename) ?: return false
+            val new_file: DocumentFile? = parent_docfile!!.createFile("application/octet-stream", filename)
+
+            if (new_file == null) {
+                try {
+                    val java_file: File = File(absolute_path)
+                    val parent: File = java_file.parentFile
+                    if (!parent.exists()) {
+                        parent.mkdirs()
+                    }
+
+                    return java_file.createNewFile()
+                }
+                catch (_: Throwable) {
+                    return false
+                }
+            }
 
             if (new_file.name != name) {
                 new_file.renameTo(filename)
@@ -278,7 +357,17 @@ actual class PlatformFile(
 
         val parts: List<String> = document_uri.split_path.drop(parent_docfile!!.uri.split_path.size)
         for (part in parts) {
-            parent_docfile = parent_docfile!!.makeFolder(context, part) ?: return false
+            val new_parent: DocumentFile? = parent_docfile!!.makeFolder(context, part)
+            if (new_parent == null) {
+                try {
+                    return File(absolute_path).mkdirs()
+                }
+                catch (_: Throwable) {
+                    return false
+                }
+            }
+
+            parent_docfile = new_parent
         }
 
         file = parent_docfile
