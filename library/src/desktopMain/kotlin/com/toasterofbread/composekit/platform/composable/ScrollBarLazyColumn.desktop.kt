@@ -37,14 +37,17 @@ actual fun ScrollBarLazyColumn(
     content: LazyListScope.() -> Unit
 ) {
     val density: Density = LocalDensity.current
-    val focus_requester: FocusRequester = remember { FocusRequester() }
+    // val focus_requester: FocusRequester = remember { FocusRequester() }
     val coroutine_scope: CoroutineScope = rememberCoroutineScope()
 
     var height: Int by remember { mutableStateOf(0) }
 
-    LaunchedEffect(Unit) {
-        focus_requester.requestFocus()
-    }
+    // LaunchedEffect(Unit) {
+    //     try {
+    //         focus_requester.requestFocus()
+    //     }
+    //     catch (_: Throwable) {}
+    // }
 
     Row(
         modifier
@@ -81,8 +84,8 @@ actual fun ScrollBarLazyColumn(
                 }
                 return@onKeyEvent false
             }
-            .focusRequester(focus_requester)
-            .focusable()
+            // .focusRequester(focus_requester)
+            // .focusable()
             .padding(contentPadding.horizontal),
         horizontalArrangement = Arrangement.aligned(horizontalAlignment),
         verticalAlignment = verticalAlignment
