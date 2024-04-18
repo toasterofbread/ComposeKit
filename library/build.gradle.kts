@@ -58,7 +58,6 @@ kotlin {
 
                 implementation("com.anggrayudi:storage:1.5.5")
                 implementation("com.google.accompanist:accompanist-swiperefresh:0.21.2-beta")
-                implementation("io.coil-kt:coil-compose:2.4.0")
                 implementation("com.github.andob:android-awt:1.0.0")
             }
         }
@@ -66,7 +65,6 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.common)
-                implementation("com.github.ltttttttttttt:load-the-image:1.0.5")
                 implementation("com.sshtools:two-slices:0.9.1")
                 implementation("com.github.toasterofbread:gdx-nativefilechooser:325fa2a")
             }
