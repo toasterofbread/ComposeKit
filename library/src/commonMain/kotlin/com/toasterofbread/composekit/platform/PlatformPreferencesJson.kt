@@ -32,7 +32,10 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
         }
 
         return file.inputStream().use { stream ->
-            Json.decodeFromStream(stream)
+            Json {
+                ignoreUnknownKeys = true
+                explicitNulls = false
+            }.decodeFromStream(stream)
         }
     }
     private fun saveData() {
@@ -72,12 +75,17 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
         data.get(key)?.jsonPrimitive?.boolean ?: default_value
 
     override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
-        val value: JsonElement = data.get(key) ?: return default_value
-        if (value is JsonPrimitive) {
-            return Json.decodeFromString(serialiser, value.content)
+        val json: Json = Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
         }
 
-        return Json.decodeFromJsonElement(serialiser, value)
+        val value: JsonElement = data.get(key) ?: return default_value
+        if (value is JsonPrimitive) {
+            return json.decodeFromString(serialiser, value.content)
+        }
+
+        return json.decodeFromJsonElement(serialiser, value)
     }
 
     override operator fun contains(key: String): Boolean =

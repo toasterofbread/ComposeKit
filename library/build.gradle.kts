@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
     group = "dev.toastbits.composekit"
-    version = "test"
+    version = "0.0.2"
 }
 
 kotlin {
