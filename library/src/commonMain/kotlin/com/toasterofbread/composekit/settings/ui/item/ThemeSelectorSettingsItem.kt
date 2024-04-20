@@ -89,8 +89,6 @@ import dev.toastbits.composekit.library.generated.resources.*
 
 class ThemeSelectorSettingsItem(
     val state: PreferencesProperty<Int>,
-    val title: String?,
-    val subtitle: String?,
 
     val str_editor_title: String?,
     val str_field_name: String,
@@ -136,7 +134,7 @@ class ThemeSelectorSettingsItem(
                 )
 
                 ItemTitleText(
-                    title,
+                    state.name,
                     settings_interface.theme,
                     Modifier
                         .fillMaxWidth()

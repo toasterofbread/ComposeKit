@@ -44,8 +44,6 @@ import kotlinx.coroutines.launch
 
 class FileSettingsItem(
     val state: PreferencesProperty<String>,
-    val title: String,
-    val subtitle: String?,
     val getPathLabel: @Composable (String) -> String,
     val onSelectRequested: (
         setValue: (String) -> Unit,
@@ -159,8 +157,8 @@ class FileSettingsItem(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    ItemTitleText(title, settings_interface.theme)
-                    ItemText(subtitle, settings_interface.theme)
+                    ItemTitleText(state.name, settings_interface.theme)
+                    ItemText(state.description, settings_interface.theme)
                 }
 
                 IconButton({

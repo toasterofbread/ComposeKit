@@ -30,8 +30,6 @@ import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class MultipleChoiceSettingsItem(
     val state: PreferencesProperty<Int>,
-    val title: String?,
-    val subtitle: String?,
     val choice_amount: Int,
     val getChoiceText: (Int) -> String,
 ): SettingsItem() {
@@ -52,8 +50,8 @@ class MultipleChoiceSettingsItem(
 
         Column {
             Column(Modifier.fillMaxWidth()) {
-                ItemTitleText(title, theme, Modifier.padding(bottom = 7.dp))
-                ItemText(subtitle, theme)
+                ItemTitleText(state.name, theme, Modifier.padding(bottom = 7.dp))
+                ItemText(state.description, theme)
 
                 Spacer(Modifier.height(10.dp))
 
@@ -96,8 +94,6 @@ class MultipleChoiceSettingsItem(
 
 inline fun <reified T: Enum<T>> MultipleChoiceSettingsItem(
     state: PreferencesProperty<T>,
-    title: String?,
-    subtitle: String?,
     noinline getChoiceText: (T) -> String,
 ): MultipleChoiceSettingsItem =
     MultipleChoiceSettingsItem(
@@ -105,8 +101,6 @@ inline fun <reified T: Enum<T>> MultipleChoiceSettingsItem(
             fromProperty = { it.ordinal },
             toProperty = { enumValues<T>()[it] }
         ),
-        title = title,
-        subtitle = subtitle,
         choice_amount = enumValues<T>().size,
         getChoiceText = {
             getChoiceText(enumValues<T>()[it])

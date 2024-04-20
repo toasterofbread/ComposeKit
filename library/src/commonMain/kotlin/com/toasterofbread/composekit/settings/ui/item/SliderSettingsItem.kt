@@ -55,8 +55,6 @@ import kotlin.math.roundToInt
 
 class SliderSettingsItem(
     val state: PreferencesProperty<out Number>,
-    val title: String?,
-    val subtitle: String?,
     val getErrMsgValueOutOfRange: (range: ClosedFloatingPointRange<Float>) -> String,
     val errmsg_value_not_int: String,
     val errmsg_value_not_float: String,
@@ -141,7 +139,7 @@ class SliderSettingsItem(
                     }
                 },
                 dismissButton = { TextButton( { show_edit_dialog = false } ) { Text("Cancel") } },
-                title = { ItemTitleText(title ?: "Edit field", theme) },
+                title = { ItemTitleText(state.name ?: "Edit field", theme) },
                 text = {
                     OutlinedTextField(
                         value = text,
@@ -178,16 +176,14 @@ class SliderSettingsItem(
 
         Column(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                if (title != null) {
-                    ItemTitleText(title, theme, Modifier.fillMaxWidth().weight(1f))
-                }
+                ItemTitleText(state.name, theme, Modifier.fillMaxWidth().weight(1f))
 
                 IconButton({ show_edit_dialog = true }, Modifier.size(25.dp)) {
                     Icon(Icons.Filled.Edit, null)
                 }
             }
 
-            ItemText(subtitle, theme)
+            ItemText(state.description, theme)
 
             Spacer(Modifier.requiredHeight(10.dp))
 

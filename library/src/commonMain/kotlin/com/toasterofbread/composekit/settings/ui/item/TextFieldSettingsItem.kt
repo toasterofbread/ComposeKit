@@ -22,8 +22,6 @@ import dev.toastbits.composekit.utils.composable.ResizableOutlinedTextField
 // TODO Styling
 class TextFieldSettingsItem(
     val state: PreferencesProperty<String>,
-    val title: String?,
-    val subtitle: String?,
     val single_line: Boolean = true,
     val getStringError: (String) -> String? = { null },
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
@@ -42,8 +40,8 @@ class TextFieldSettingsItem(
         modifier: Modifier
     ) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            ItemTitleText(title, settings_interface.theme)
-            ItemText(subtitle, settings_interface.theme)
+            ItemTitleText(state.name, settings_interface.theme)
+            ItemText(state.description, settings_interface.theme)
 
             var input_error: String? by remember { mutableStateOf(null) }
             var current_value: String by remember { mutableStateOf(state.get()) }

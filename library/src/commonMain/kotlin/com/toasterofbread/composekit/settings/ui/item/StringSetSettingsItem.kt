@@ -39,8 +39,6 @@ import dev.toastbits.composekit.utils.composable.ShapedIconButton
 
 class StringSetSettingsItem(
     val state: PreferencesProperty<Set<String>>,
-    val title: String?,
-    val subtitle: String?,
     val add_dialog_title: String,
     val msg_item_already_added: String,
     val msg_set_empty: String,
@@ -126,8 +124,8 @@ class StringSetSettingsItem(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    ItemTitleText(title, theme)
-                    ItemText(subtitle, theme)
+                    ItemTitleText(state.name, theme)
+                    ItemText(state.description, theme)
                 }
 
                 ShapedIconButton(

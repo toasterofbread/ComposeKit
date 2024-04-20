@@ -29,8 +29,6 @@ import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class DropdownSettingsItem(
     val state: PreferencesProperty<Int>,
-    val title: String,
-    val subtitle: String?,
     val item_count: Int,
     val getButtonItem: ((Int) -> String)? = null,
     val getItem: @Composable (Int) -> String
@@ -54,8 +52,8 @@ class DropdownSettingsItem(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                ItemTitleText(title, settings_interface.theme)
-                ItemText(subtitle, settings_interface.theme)
+                ItemTitleText(state.name, settings_interface.theme)
+                ItemText(state.description, settings_interface.theme)
             }
 
             var open by remember { mutableStateOf(false) }
@@ -101,8 +99,6 @@ class DropdownSettingsItem(
 
 inline fun <reified T: Enum<T>> DropdownSettingsItem(
     state: PreferencesProperty<T>,
-    title: String,
-    subtitle: String?,
     noinline getButtonItem: ((T) -> String)? = null,
     noinline getItem: @Composable (T) -> String
 ): DropdownSettingsItem =
@@ -111,8 +107,6 @@ inline fun <reified T: Enum<T>> DropdownSettingsItem(
             fromProperty = { it.ordinal },
             toProperty = { enumValues<T>()[it] }
         ),
-        title = title,
-        subtitle = subtitle,
         item_count = enumValues<T>().size,
         getButtonItem = getButtonItem?.let { lambda -> { lambda(enumValues<T>()[it]) } },
         getItem = { getItem(enumValues<T>()[it]) }

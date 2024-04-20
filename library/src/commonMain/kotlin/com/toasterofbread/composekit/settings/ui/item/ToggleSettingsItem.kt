@@ -26,8 +26,6 @@ import dev.toastbits.composekit.settings.ui.Theme
 
 class ToggleSettingsItem(
     val state: PreferencesProperty<Boolean>,
-    val title: String?,
-    val subtitle: String?,
     val title_max_lines: Int = 2,
     val getEnabled: @Composable () -> Boolean = { true },
     val getValueOverride: @Composable () -> Boolean? = { null },
@@ -60,8 +58,8 @@ class ToggleSettingsItem(
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                ItemTitleText(title, theme, max_lines = title_max_lines)
-                ItemText(getSubtitleOverride() ?: subtitle, theme)
+                ItemTitleText(state.name, theme, max_lines = title_max_lines)
+                ItemText(getSubtitleOverride() ?: state.description, theme)
             }
 
             Crossfade(loading) {
