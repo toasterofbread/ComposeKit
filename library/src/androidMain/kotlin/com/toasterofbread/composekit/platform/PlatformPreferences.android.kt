@@ -58,7 +58,10 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
 
     actual override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
         val data: String = prefs.getString(key, null) ?: return default_value
-        return Json.decodeFromString(serialiser, data)
+        return Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+        }.decodeFromString(serialiser, data)
     }
 
     actual override operator fun contains(key: String): Boolean = prefs.contains(key)
