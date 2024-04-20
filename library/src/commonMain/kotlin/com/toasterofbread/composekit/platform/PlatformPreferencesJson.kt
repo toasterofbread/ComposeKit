@@ -75,10 +75,11 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
         data.get(key)?.jsonPrimitive?.boolean ?: default_value
 
     override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
-        val json: Json = Json {
-            ignoreUnknownKeys = true
-            explicitNulls = false
-        }
+        val json: Json =
+            Json {
+                ignoreUnknownKeys = true
+                explicitNulls = false
+            }
 
         val value: JsonElement = data.get(key) ?: return default_value
         if (value is JsonPrimitive) {

@@ -282,14 +282,24 @@ abstract class PreferencesGroup(
                 putSerialisable(key, value, serialiser)
             }
 
-        override fun set(data: JsonElement, editor: PlatformPreferences.Editor?) =
-            set(
+        override fun set(data: JsonElement, editor: PlatformPreferences.Editor?) {
+            val json: Json =
                 Json {
                     ignoreUnknownKeys = true
                     explicitNulls = false
-                }.decodeFromJsonElement(serialiser, data),
-                editor
-            )
+                }
+
+            val value: T
+
+            if (data is JsonPrimitive) {
+                value = json.decodeFromString(serialiser, data.content)
+            }
+            else {
+                value = json.decodeFromJsonElement(serialiser, data)
+            }
+
+            set(value, editor)
+        }
 
         override fun serialise(value: Any?): JsonElement =
             Json.encodeToJsonElement(serialiser, value as T)
