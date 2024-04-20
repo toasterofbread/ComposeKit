@@ -26,7 +26,6 @@ class SettingsInterface(
     val themeProvider: () -> Theme,
     private val root_page: Int,
     val prefs: PlatformPreferences,
-    val default_provider: (String) -> Any,
     val triggerVibration: () -> Unit,
     private val getPage: (Int, Any?) -> SettingsPage,
     private val onPageChanged: ((page: Int?) -> Unit)? = null,

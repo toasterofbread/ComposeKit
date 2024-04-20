@@ -7,9 +7,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.PreferencesProperty
 
-class GroupSettingsItem(var title: String?): EmptySettingsItem() {
-    override fun getKeys(): List<String> = emptyList()
+class GroupSettingsItem(var title: String?): SettingsItem() {
+    override fun getProperties(): List<PreferencesProperty<*>> = emptyList()
+    override fun resetValues() {}
 
     @Composable
     override fun Item(

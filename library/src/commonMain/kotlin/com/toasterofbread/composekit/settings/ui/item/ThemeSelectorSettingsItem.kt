@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.StaticThemeData
@@ -87,7 +88,7 @@ import org.jetbrains.compose.resources.painterResource
 import dev.toastbits.composekit.library.generated.resources.*
 
 class ThemeSelectorSettingsItem(
-    val state: SettingsValueState<Int>,
+    val state: PreferencesProperty<Int>,
     val title: String?,
     val subtitle: String?,
 
@@ -107,27 +108,6 @@ class ThemeSelectorSettingsItem(
 
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
-    override fun initialiseValueStates(
-        prefs: PlatformPreferences,
-        default_provider: (String) -> Any,
-    ) {
-        state.init(prefs, default_provider)
-    }
-
-    override fun releaseValueStates(prefs: PlatformPreferences) {
-        state.release(prefs)
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        state.setEnableAutosave(value)
-    }
-
-    override fun PlatformPreferences.Editor.saveItem() {
-        with (state) {
-            save()
-        }
-    }
-
     override fun resetValues() {
         state.reset()
         for (i in getThemeCount() - 1 downTo 0) {
@@ -135,7 +115,7 @@ class ThemeSelectorSettingsItem(
         }
     }
 
-    override fun getKeys(): List<String> = state.getKeys()
+    override fun getProperties(): List<PreferencesProperty<*>> = listOf(state)
 
     @Composable
     override fun Item(

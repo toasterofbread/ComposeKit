@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
     group = "dev.toastbits.composekit"
-    version = "0.0.2"
+    version = "test"
 }
 
 kotlin {
@@ -74,7 +74,7 @@ kotlin {
 
 android {
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
-    namespace = "dev.toastbits.composkit"
+    namespace = "dev.toastbits.composekit"
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")

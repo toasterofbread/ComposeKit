@@ -143,7 +143,6 @@ open class SettingsPageWithItems(
             ) {
                 items(items.size) { i ->
                     val item = items[i]
-                    item.initialise(settings_interface.prefs, settings_interface.default_provider)
 
                     if (i != 0 && item is GroupSettingsItem) {
                         Spacer(Modifier.height(30.dp))
@@ -157,7 +156,6 @@ open class SettingsPageWithItems(
 
     override suspend fun resetKeys() {
         for (item in getItems()) {
-            item.initialise(settings_interface.prefs, settings_interface.default_provider)
             item.resetValues()
         }
     }

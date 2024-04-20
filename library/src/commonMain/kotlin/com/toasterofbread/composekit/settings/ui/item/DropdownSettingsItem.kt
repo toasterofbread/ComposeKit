@@ -21,41 +21,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.utils.composable.LargeDropdownMenu
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class DropdownSettingsItem(
-    val state: BasicSettingsValueState<Int>,
+    val state: PreferencesProperty<Int>,
     val title: String,
     val subtitle: String?,
     val item_count: Int,
     val getButtonItem: ((Int) -> String)? = null,
-    val getItem: @Composable (Int) -> String,
+    val getItem: @Composable (Int) -> String
 ): SettingsItem() {
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
-        state.init(prefs, default_provider)
-    }
-    override fun releaseValueStates(prefs: PlatformPreferences) {
-        state.release(prefs)
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        state.setEnableAutosave(value)
-    }
-
-    override fun PlatformPreferences.Editor.saveItem() {
-        with (state) {
-            save()
-        }
-    }
-
     override fun resetValues() {
         state.reset()
     }
 
-    override fun getKeys(): List<String> = state.getKeys()
+    override fun getProperties(): List<PreferencesProperty<*>> = listOf(state)
 
     @Composable
     override fun Item(
@@ -114,3 +98,22 @@ class DropdownSettingsItem(
         }
     }
 }
+
+inline fun <reified T: Enum<T>> DropdownSettingsItem(
+    state: PreferencesProperty<T>,
+    title: String,
+    subtitle: String?,
+    noinline getButtonItem: ((T) -> String)? = null,
+    noinline getItem: @Composable (T) -> String
+): DropdownSettingsItem =
+    DropdownSettingsItem(
+        state.getConvertedProperty(
+            fromProperty = { it.ordinal },
+            toProperty = { enumValues<T>()[it] }
+        ),
+        title = title,
+        subtitle = subtitle,
+        item_count = enumValues<T>().size,
+        getButtonItem = getButtonItem?.let { lambda -> { lambda(enumValues<T>()[it]) } },
+        getItem = { getItem(enumValues<T>()[it]) }
+    )

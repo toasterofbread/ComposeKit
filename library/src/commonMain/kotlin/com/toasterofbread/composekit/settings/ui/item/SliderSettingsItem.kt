@@ -44,6 +44,7 @@ import com.github.krottv.compose.sliders.DefaultTrack
 import com.github.krottv.compose.sliders.ListenOnPressed
 import com.github.krottv.compose.sliders.SliderValueHorizontal
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.Theme
@@ -53,7 +54,7 @@ import dev.toastbits.composekit.utils.composable.MeasureUnconstrainedView
 import kotlin.math.roundToInt
 
 class SliderSettingsItem(
-    val state: BasicSettingsValueState<out Number>,
+    val state: PreferencesProperty<out Number>,
     val title: String?,
     val subtitle: String?,
     val getErrMsgValueOutOfRange: (range: ClosedFloatingPointRange<Float>) -> String,
@@ -69,50 +70,34 @@ class SliderSettingsItem(
     },
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
-    private var is_int: Boolean = false
-    private var value_state: Float by mutableStateOf(0f)
+    private val is_int: Boolean =
+        when (val default: Number = state.getDefaultValue()) {
+            is Float -> false
+            is Int -> true
+            else -> throw NotImplementedError(default::class.toString())
+        }
+    private var value_state: Float by mutableStateOf(state.get().toFloat())
 
     @Suppress("UNCHECKED_CAST")
     fun setValue(value: Float) {
         value_state = value
+    }
+
+    fun saveValue() {
         if (is_int) {
-            (state as BasicSettingsValueState<Int>).set(value.roundToInt())
+            (state as PreferencesProperty<Int>).set(value_state.roundToInt())
         }
         else {
-            (state as BasicSettingsValueState<Float>).set(value)
+            (state as PreferencesProperty<Float>).set(value_state)
         }
     }
 
-    fun getValue(): Float {
-        return value_state
-    }
+    fun getValue(): Float =
+        value_state
+
     private fun getTypedValue(): Number {
         if (is_int) return value_state.roundToInt()
         else return value_state
-    }
-
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
-        state.init(prefs, default_provider)
-        value_state = state.get().toFloat()
-        is_int = when (state.getDefault(default_provider)) {
-            is Float -> false
-            is Int -> true
-            else -> throw NotImplementedError(state.getDefault(default_provider).javaClass.name)
-        }
-    }
-
-    override fun releaseValueStates(prefs: PlatformPreferences) {
-        state.release(prefs)
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        state.setEnableAutosave(value)
-    }
-
-    override fun PlatformPreferences.Editor.saveItem() {
-        with (state) {
-            save()
-        }
     }
 
     override fun resetValues() {
@@ -120,7 +105,7 @@ class SliderSettingsItem(
         value_state = state.get().toFloat()
     }
 
-    override fun getKeys(): List<String> = state.getKeys()
+    override fun getProperties(): List<PreferencesProperty<*>> = listOf(state)
 
     @Composable
     override fun Item(
@@ -145,6 +130,7 @@ class SliderSettingsItem(
                         {
                             try {
                                 setValue(if (is_int) text.toInt().toFloat() else text.toFloat())
+                                saveValue()
                                 show_edit_dialog = false
                             }
                             catch (_: NumberFormatException) {}
@@ -205,9 +191,6 @@ class SliderSettingsItem(
 
             Spacer(Modifier.requiredHeight(10.dp))
 
-            if (state is SettingsValueState) {
-                state.autosave = false
-            }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (min_label != null) {
                     ItemText(min_label, theme)
@@ -232,11 +215,7 @@ class SliderSettingsItem(
                         value = getValue(),
                         onValueChange = { setValue(it) },
                         onValueChangeFinished = {
-                            settings_interface.prefs.edit {
-                                with (state) {
-                                    save()
-                                }
-                            }
+                            saveValue()
                         },
                         thumbSizeInDp = DpSize(12.dp, 12.dp),
                         track = { a, b, c, d, e ->

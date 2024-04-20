@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.Theme
@@ -43,14 +44,14 @@ import dev.toastbits.composekit.utils.composable.WidthShrinkText
 import dev.toastbits.composekit.utils.modifier.background
 
 class LargeToggleSettingsItem(
-    val state: BasicSettingsValueState<Boolean>,
+    val state: PreferencesProperty<Boolean>,
     val enabled_text: String? = null,
     val disabled_text: String? = null,
     val enable_button: String,
     val disable_button: String,
     val enabledContent: (@Composable (Modifier) -> Unit)? = null,
     val disabledContent: (@Composable (Modifier) -> Unit)? = null,
-    val prerequisite_value: SettingsValueState<Boolean>? = null,
+    val prerequisite_value: PreferencesProperty<Boolean>? = null,
     val warningDialog: (@Composable (dismiss: () -> Unit, openPage: (Int, Any?) -> Unit) -> Unit)? = null,
     val infoButton: (@Composable (enabled: Boolean, showing_extra_state: MutableState<Boolean>) -> Unit)? = null,
     val extra_items: List<SettingsItem> = emptyList(),
@@ -58,34 +59,6 @@ class LargeToggleSettingsItem(
     val onClicked: (target: Boolean, setEnabled: (Boolean) -> Unit, setLoading: (Boolean) -> Unit, openPage: (Int, Any?) -> Unit) -> Unit =
         { target, setEnabled, _, _ -> setEnabled(target) }
 ): SettingsItem() {
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
-        state.init(prefs, default_provider)
-        prerequisite_value?.init(prefs, default_provider)
-
-        for (item in extra_items) {
-            item.initialise(prefs, default_provider)
-        }
-    }
-
-    override fun releaseValueStates(prefs: PlatformPreferences) {
-        state.release(prefs)
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        state.setEnableAutosave(value)
-    }
-
-    override fun PlatformPreferences.Editor.saveItem() {
-        with (state) {
-            save()
-        }
-        for (item in extra_items) {
-            with(item) {
-                saveItem()
-            }
-        }
-    }
-
     override fun resetValues() {
         state.reset()
         for (item in extra_items) {
@@ -93,7 +66,7 @@ class LargeToggleSettingsItem(
         }
     }
 
-    override fun getKeys(): List<String> = state.getKeys() + extra_items.flatMap { it.getKeys() }
+    override fun getProperties(): List<PreferencesProperty<*>> = listOf(state) + extra_items.flatMap { it.getProperties() }
 
     @Composable
     override fun Item(
@@ -114,7 +87,7 @@ class LargeToggleSettingsItem(
             openPage
         )
 
-        val state_value = state.get()
+        val state_value by state.observe()
 
         LaunchedEffect(state_value) {
             if (!state_value) {

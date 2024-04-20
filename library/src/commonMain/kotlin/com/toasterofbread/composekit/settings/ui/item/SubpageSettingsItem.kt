@@ -9,14 +9,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.PreferencesProperty
 
 class SubpageSettingsItem(
     val title: String,
     val subtitle: String?,
     val target_page: Int,
     val target_page_param: Any?
-): EmptySettingsItem() {
-    override fun getKeys(): List<String> = emptyList()
+): SettingsItem() {
+    override fun getProperties(): List<PreferencesProperty<*>> = emptyList()
+    override fun resetValues() {}
 
     @Composable
     override fun Item(

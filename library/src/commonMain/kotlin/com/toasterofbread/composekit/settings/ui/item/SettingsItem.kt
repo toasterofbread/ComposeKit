@@ -17,6 +17,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PlatformPreferencesListener
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.Theme
@@ -26,23 +27,9 @@ import dev.toastbits.composekit.utils.composable.WidthShrinkText
 val SETTINGS_ITEM_ROUNDED_SHAPE = RoundedCornerShape(20.dp)
 
 abstract class SettingsItem {
-    private var initialised = false
-    fun initialise(prefs: PlatformPreferences, default_provider: (String) -> Any) {
-        if (initialised) {
-            return
-        }
-        initialiseValueStates(prefs, default_provider)
-        initialised = true
-    }
-
-    abstract fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any)
-    protected abstract fun releaseValueStates(prefs: PlatformPreferences)
-
-    abstract fun setEnableAutosave(value: Boolean)
-    abstract fun PlatformPreferences.Editor.saveItem()
     abstract fun resetValues()
 
-    abstract fun getKeys(): List<String>
+    abstract fun getProperties(): List<PreferencesProperty<*>>
 
     @Composable
     abstract fun Item(
@@ -51,7 +38,7 @@ abstract class SettingsItem {
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     )
-    
+
     companion object {
         @Composable
         fun ItemTitleText(text: String?, theme: Theme, modifier: Modifier = Modifier, max_lines: Int = 1) {
@@ -80,159 +67,4 @@ abstract class SettingsItem {
             }
         }
     }
-}
-
-interface BasicSettingsValueState<T: Any> {
-    fun get(): T
-    fun set(value: T)
-
-    fun init(prefs: PlatformPreferences, defaultProvider: (String) -> Any): BasicSettingsValueState<T>
-    fun release(prefs: PlatformPreferences)
-
-    fun setEnableAutosave(value: Boolean)
-    fun reset()
-    fun PlatformPreferences.Editor.save()
-    fun getDefault(defaultProvider: (String) -> Any): T
-
-    @Composable
-    fun onChanged(key: Any?, action: (T) -> Unit)
-
-    fun getKeys(): List<String>
-}
-
-@Suppress("UNCHECKED_CAST")
-class SettingsValueState<T: Any>(
-    val key: String,
-    private val onChanged: ((value: T) -> Unit)? = null,
-    private val getValueConverter: (Any?) -> T? = { it as T },
-    private val setValueConverter: (T) -> Any = { it }
-): BasicSettingsValueState<T>, State<T> {
-    var autosave: Boolean = true
-
-    private lateinit var defaultProvider: (String) -> Any
-    private lateinit var prefs: PlatformPreferences
-    private var pref_listener: PlatformPreferencesListener? = null
-
-    private val change_listeners: MutableList<(T) -> Unit> = mutableListOf()
-
-    private var _value: T? by mutableStateOf(null)
-    override val value: T get() = _value!!
-
-    override fun get(): T = _value!!
-    override fun set(value: T) {
-        check(_value != null) { "State has not been initialised" }
-
-        if (_value == value) {
-            return
-        }
-
-        _value = value
-        if (autosave) {
-            prefs.edit {
-                save()
-            }
-        }
-
-        onChanged?.invoke(value)
-        for (listener in change_listeners) {
-            listener(_value!!)
-        }
-    }
-
-    @Composable
-    override fun onChanged(key: Any?, action: (T) -> Unit) {
-        DisposableEffect(key) {
-            val listener: (T) -> Unit = action
-            change_listeners.add(listener)
-
-            onDispose {
-                change_listeners.remove(listener)
-            }
-        }
-    }
-
-    private fun updateValue() {
-        val default = defaultProvider(key) as T
-        _value = getValueConverter(when (default) {
-            is Boolean -> prefs.getBoolean(key, default as Boolean)
-            is Float -> prefs.getFloat(key, default as Float)
-            is Int -> prefs.getInt(key, default as Int)
-            is Long -> prefs.getLong(key, default as Long)
-            is String -> prefs.getString(key, default as String)
-            is Set<*> -> prefs.getStringSet(key, default as Set<String>)
-            else -> throw ClassCastException()
-        })
-    }
-
-    override fun init(prefs: PlatformPreferences, defaultProvider: (String) -> Any): SettingsValueState<T> {
-        this.prefs = prefs
-        this.defaultProvider = defaultProvider
-
-        if (_value != null) {
-            return this
-        }
-
-        updateValue()
-
-        pref_listener =
-            object : PlatformPreferencesListener {
-                override fun onChanged(prefs: PlatformPreferences, key: String) {
-                    if (key == this@SettingsValueState.key) {
-                        updateValue()
-                    }
-                }
-            }
-            .also {
-                prefs.addListener(it)
-            }
-
-        return this
-    }
-
-    override fun release(prefs: PlatformPreferences) {
-        pref_listener?.also {
-            prefs.removeListener(it)
-        }
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        autosave = value
-    }
-
-    override fun reset() {
-        _value = getValueConverter(defaultProvider(key) as T)!!
-        prefs.edit {
-            save()
-        }
-        onChanged?.invoke(_value!!)
-        for (listener in change_listeners) {
-            listener(_value!!)
-        }
-    }
-
-    override fun PlatformPreferences.Editor.save() {
-        val value: Any = this@SettingsValueState.setValueConverter(get())
-        when (value) {
-            defaultProvider(key) -> remove(key)
-            is Boolean -> putBoolean(key, value)
-            is Float -> putFloat(key, value)
-            is Int -> putInt(key, value)
-            is Long -> putLong(key, value)
-            is String -> putString(key, value)
-            is Set<*> -> putStringSet(key, value as Set<String>)
-            else -> throw ClassCastException(value::class.toString())
-        }
-    }
-
-    override fun getDefault(defaultProvider: (String) -> Any): T = defaultProvider(key) as T
-
-    override fun getKeys(): List<String> = listOf(key)
-}
-
-abstract class EmptySettingsItem(): SettingsItem() {
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {}
-    override fun releaseValueStates(prefs: PlatformPreferences) {}
-    override fun setEnableAutosave(value: Boolean) {}
-    override fun PlatformPreferences.Editor.saveItem() {}
-    override fun resetValues() {}
 }

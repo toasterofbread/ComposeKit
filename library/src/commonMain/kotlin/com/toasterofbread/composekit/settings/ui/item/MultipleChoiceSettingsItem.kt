@@ -23,40 +23,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class MultipleChoiceSettingsItem(
-    val state: BasicSettingsValueState<Int>,
+    val state: PreferencesProperty<Int>,
     val title: String?,
     val subtitle: String?,
     val choice_amount: Int,
     val getChoiceText: (Int) -> String,
 ): SettingsItem() {
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
-        state.init(prefs, default_provider)
-    }
-
-    override fun releaseValueStates(prefs: PlatformPreferences) {
-        state.release(prefs)
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        state.setEnableAutosave(value)
-    }
-
-    override fun PlatformPreferences.Editor.saveItem() {
-        with (state) {
-            save()
-        }
-    }
-
     override fun resetValues() {
         state.reset()
     }
 
-    override fun getKeys(): List<String> = state.getKeys()
+    override fun getProperties(): List<PreferencesProperty<*>> = listOf(state)
 
     @Composable
     override fun Item(
@@ -66,7 +49,7 @@ class MultipleChoiceSettingsItem(
         modifier: Modifier
     ) {
         val theme = settings_interface.theme
-        
+
         Column {
             Column(Modifier.fillMaxWidth()) {
                 ItemTitleText(title, theme, Modifier.padding(bottom = 7.dp))
@@ -110,3 +93,22 @@ class MultipleChoiceSettingsItem(
         }
     }
 }
+
+inline fun <reified T: Enum<T>> MultipleChoiceSettingsItem(
+    state: PreferencesProperty<T>,
+    title: String?,
+    subtitle: String?,
+    noinline getChoiceText: (T) -> String,
+): MultipleChoiceSettingsItem =
+    MultipleChoiceSettingsItem(
+        state.getConvertedProperty(
+            fromProperty = { it.ordinal },
+            toProperty = { enumValues<T>()[it] }
+        ),
+        title = title,
+        subtitle = subtitle,
+        choice_amount = enumValues<T>().size,
+        getChoiceText = {
+            getChoiceText(enumValues<T>()[it])
+        }
+    )

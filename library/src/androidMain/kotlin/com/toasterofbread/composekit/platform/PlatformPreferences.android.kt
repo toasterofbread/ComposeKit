@@ -3,6 +3,9 @@ package dev.toastbits.composekit.platform
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.encodeToString
 
 actual class PlatformPreferencesImpl private constructor(private val prefs: SharedPreferences): PlatformPreferences {
     companion object {
@@ -19,32 +22,45 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
         }
     }
 
-    actual override fun getString(key: String, defValue: String?): String? = prefs.getString(key, defValue)
-    actual override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? = prefs.getStringSet(key, defValues)
-    actual override fun getInt(key: String, defValue: Int?): Int? {
+    actual override fun getString(key: String, default_value: String?): String? =
+        prefs.getString(key, default_value)
+
+    actual override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? =
+        prefs.getStringSet(key, defValues)
+
+    actual override fun getInt(key: String, default_value: Int?): Int? {
         if (!prefs.contains(key)) {
-            return defValue
+            return default_value
         }
         return prefs.getInt(key, 0)
     }
-    actual override fun getLong(key: String, defValue: Long?): Long? {
+
+    actual override fun getLong(key: String, default_value: Long?): Long? {
         if (!prefs.contains(key)) {
-            return defValue
+            return default_value
         }
         return prefs.getLong(key, 0)
     }
-    actual override fun getFloat(key: String, defValue: Float?): Float? {
+
+    actual override fun getFloat(key: String, default_value: Float?): Float? {
         if (!prefs.contains(key)) {
-            return defValue
+            return default_value
         }
         return prefs.getFloat(key, 0f)
     }
-    actual override fun getBoolean(key: String, defValue: Boolean?): Boolean? {
+
+    actual override fun getBoolean(key: String, default_value: Boolean?): Boolean? {
         if (!prefs.contains(key)) {
-            return defValue
+            return default_value
         }
         return prefs.getBoolean(key, false)
     }
+
+    actual override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
+        val data: String = prefs.getString(key, null) ?: return default_value
+        return Json.decodeFromString(serialiser, data)
+    }
+
     actual override operator fun contains(key: String): Boolean = prefs.contains(key)
 
     actual override fun addListener(listener: PlatformPreferencesListener): PlatformPreferencesListener {
@@ -96,6 +112,11 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
             return this
         }
 
+        actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
+            upstream.putString(key, Json.encodeToString(serialiser, value))
+            return this
+        }
+
         actual override fun remove(key: String): PlatformPreferences.Editor {
             upstream.remove(key)
             return this
@@ -108,7 +129,7 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
     }
 }
 
-actual interface PlatformPreferencesListener: SharedPreferences.OnSharedPreferenceChangeListener {
+actual fun interface PlatformPreferencesListener: SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
         if (key != null) {
             onChanged(PlatformPreferencesImpl.getInstance(prefs), key)

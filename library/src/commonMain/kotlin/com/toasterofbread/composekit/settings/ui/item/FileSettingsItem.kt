@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.utils.common.toFloat
@@ -42,7 +43,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
 class FileSettingsItem(
-    val state: BasicSettingsValueState<String>,
+    val state: PreferencesProperty<String>,
     val title: String,
     val subtitle: String?,
     val getPathLabel: @Composable (String) -> String,
@@ -50,7 +51,7 @@ class FileSettingsItem(
         setValue: (String) -> Unit,
         showDialog: (Dialog) -> Unit,
     ) -> Unit,
-    val extraContent: (@Composable (BasicSettingsValueState<String>) -> Unit)? = null
+    val extraContent: (@Composable (PreferencesProperty<String>) -> Unit)? = null
 ): SettingsItem() {
     data class Dialog(
         val title: String,
@@ -60,29 +61,11 @@ class FileSettingsItem(
         val onSelected: suspend (accepted: Boolean) -> Unit
     )
 
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
-        state.init(prefs, default_provider)
-    }
-
-    override fun releaseValueStates(prefs: PlatformPreferences) {
-        state.release(prefs)
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        state.setEnableAutosave(value)
-    }
-
-    override fun PlatformPreferences.Editor.saveItem() {
-        with (state) {
-            save()
-        }
-    }
-
     override fun resetValues() {
         state.reset()
     }
 
-    override fun getKeys(): List<String> = state.getKeys()
+    override fun getProperties(): List<PreferencesProperty<*>> = listOf(state)
 
     private var current_dialog: Dialog? by mutableStateOf(null)
     private val coroutine_scope = CoroutineScope(Job())

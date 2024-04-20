@@ -5,9 +5,11 @@ import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.utils.composable.LinkifyText
+import dev.toastbits.composekit.platform.PreferencesProperty
 
-class InfoTextSettingsItem(val text: String): EmptySettingsItem() {
-    override fun getKeys(): List<String> = emptyList()
+class InfoTextSettingsItem(val text: String): SettingsItem() {
+    override fun getProperties(): List<PreferencesProperty<*>> = emptyList()
+    override fun resetValues() {}
 
     @Composable
     override fun Item(

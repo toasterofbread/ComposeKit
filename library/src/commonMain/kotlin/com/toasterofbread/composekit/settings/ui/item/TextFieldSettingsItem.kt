@@ -14,42 +14,25 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.utils.composable.ResizableOutlinedTextField
 
 // TODO Styling
 class TextFieldSettingsItem(
-    val state: BasicSettingsValueState<String>,
+    val state: PreferencesProperty<String>,
     val title: String?,
     val subtitle: String?,
     val single_line: Boolean = true,
     val getStringError: (String) -> String? = { null },
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
-    override fun initialiseValueStates(prefs: PlatformPreferences, default_provider: (String) -> Any) {
-        state.init(prefs, default_provider)
-    }
-
-    override fun releaseValueStates(prefs: PlatformPreferences) {
-        state.release(prefs)
-    }
-
-    override fun setEnableAutosave(value: Boolean) {
-        state.setEnableAutosave(value)
-    }
-
-    override fun PlatformPreferences.Editor.saveItem() {
-        with (state) {
-            save()
-        }
-    }
-
     override fun resetValues() {
         state.reset()
     }
 
-    override fun getKeys(): List<String> = state.getKeys()
+    override fun getProperties(): List<PreferencesProperty<*>> = listOf(state)
 
     @Composable
     override fun Item(
@@ -65,17 +48,12 @@ class TextFieldSettingsItem(
             var input_error: String? by remember { mutableStateOf(null) }
             var current_value: String by remember { mutableStateOf(state.get()) }
 
-            state.onChanged(Unit) {
-                current_value = it
-                input_error = getStringError(it)
-            }
-
             ResizableOutlinedTextField(
                 current_value,
                 { text ->
                     current_value = text
-                    input_error = getStringError(text)
 
+                    input_error = getStringError(text)
                     if (input_error == null) {
                         state.set(text)
                     }

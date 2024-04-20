@@ -4,16 +4,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.PreferencesProperty
 
 class ComposableSettingsItem(
-    val settings_keys: List<String> = emptyList(),
+    val settings_properties: List<PreferencesProperty<*>> = emptyList(),
     val resetSettingsValues: () -> Unit = {},
     val composable: @Composable SettingsInterface.(Modifier) -> Unit
-): EmptySettingsItem() {
-    override fun getKeys(): List<String> = settings_keys
+): SettingsItem() {
+    override fun getProperties(): List<PreferencesProperty<*>> = settings_properties
 
     override fun resetValues() {
-        super.resetValues()
         resetSettingsValues()
     }
 

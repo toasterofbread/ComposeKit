@@ -1,6 +1,9 @@
 package dev.toastbits.composekit.platform
 
 import java.io.File
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.KSerializer
 
 actual class PlatformPreferencesImpl private constructor(file: File): PlatformPreferencesJson(PlatformFile(file)), PlatformPreferences {
     companion object {
@@ -54,6 +57,12 @@ actual class PlatformPreferencesImpl private constructor(file: File): PlatformPr
             return this
         }
 
+        actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
+            data[key] = Json.encodeToJsonElement(serialiser, value)
+            changed.add(key)
+            return this
+        }
+
         actual override fun remove(key: String): PlatformPreferences.Editor {
             data.remove(key)
             return this
@@ -67,6 +76,6 @@ actual class PlatformPreferencesImpl private constructor(file: File): PlatformPr
     }
 }
 
-actual interface PlatformPreferencesListener {
+actual fun interface PlatformPreferencesListener {
     actual fun onChanged(prefs: PlatformPreferences, key: String)
 }
