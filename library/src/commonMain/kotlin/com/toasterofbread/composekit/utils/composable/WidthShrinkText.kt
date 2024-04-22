@@ -2,6 +2,9 @@ package dev.toastbits.composekit.utils.composable
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,11 +37,13 @@ fun WidthShrinkText(
     var box_size: DpSize by remember { mutableStateOf(DpSize.Zero) }
 
     Box(
-        modifier.onSizeChanged {
-            box_size = with (density) {
-                DpSize(it.width.toDp(), it.height.toDp())
+        modifier
+            .onSizeChanged {
+                box_size = with (density) {
+                    DpSize(it.width.toDp(), it.height.toDp())
+                }
             }
-        }
+            .width(IntrinsicSize.Min)
     ) {
         Box(Modifier.requiredSize(0.dp)) {
             val large_style: TextStyle = current_style.shiftSize(delta, style.fontSize)
@@ -62,7 +67,9 @@ fun WidthShrinkText(
 
         Text(
             string,
-            Modifier.drawWithContent { if (draw_content) drawContent() },
+            Modifier
+                .drawWithContent { if (draw_content) drawContent() }
+                .fillMaxWidth(),
             maxLines = max_lines,
             style = current_style,
             inlineContent = inline_content,
