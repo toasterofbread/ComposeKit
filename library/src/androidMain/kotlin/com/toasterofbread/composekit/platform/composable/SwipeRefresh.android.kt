@@ -2,6 +2,7 @@ package dev.toastbits.composekit.platform.composable
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.PaddingValues
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -12,6 +13,7 @@ actual fun SwipeRefresh(
     modifier: Modifier,
     swipe_enabled: Boolean,
     indicator: Boolean,
+    indicator_padding: PaddingValues,
     content: @Composable () -> Unit
 ) {
     com.google.accompanist.swiperefresh.SwipeRefresh(
@@ -24,6 +26,7 @@ actual fun SwipeRefresh(
             if (indicator || s.isSwipeInProgress) {
                 SwipeRefreshIndicator(s, trigger)
             }
-        }
+        },
+        indicatorPadding = indicator_padding
     )
 }
