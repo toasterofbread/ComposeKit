@@ -56,6 +56,9 @@ abstract class SettingsPage {
     }
 
     @Composable
+    open fun hasTitleBar(): Boolean = true
+
+    @Composable
     fun TitleBar(is_root: Boolean, modifier: Modifier = Modifier) {
         TitleBar(is_root, modifier, null)
     }

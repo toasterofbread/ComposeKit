@@ -83,17 +83,19 @@ class SettingsInterface(
                     .fillMaxSize()
                     .onSizeChanged { width = it.width }
             ) {
-                page.TitleBar(
-                    page.id == root_page,
-                    Modifier.zIndex(10f).padding(content_padding.copy(bottom = 0.dp)),
-                    titleFooter
-                )
+                if (page.hasTitleBar()) {
+                    page.TitleBar(
+                        page.id == root_page,
+                        Modifier.zIndex(10f).padding(content_padding.copy(bottom = 0.dp)),
+                        titleFooter
+                    )
+                }
 
                 Box(
                     contentAlignment = Alignment.TopCenter
                 ) {
                     page.Page(
-                        if (page_top_padding != null) content_padding.copy(top = page_top_padding)
+                        if (page_top_padding != null && page.hasTitleBar()) content_padding.copy(top = page_top_padding)
                         else content_padding,
                         { target_page_id, param ->
                             if (current_page.id != target_page_id) {
