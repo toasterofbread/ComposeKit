@@ -7,8 +7,11 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import kotlinx.coroutines.CoroutineScope
 
 expect open class PlatformContext {
+    val coroutine_scope: CoroutineScope
+
     fun getFilesDir(): File
     fun getCacheDir(): File
 

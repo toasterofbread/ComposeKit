@@ -30,12 +30,14 @@ import java.security.CodeSource
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
 
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
 
 actual open class PlatformContext(
     private val app_name: String,
-    private val resource_class: Class<*>
+    private val resource_class: Class<*>,
+    actual val coroutine_scope: CoroutineScope
 ) {
     open suspend fun getIconImageData(): ByteArray? = null
 

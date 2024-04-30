@@ -6,7 +6,7 @@ plugins {
     id("com.vanniktech.maven.publish")
     id("org.jetbrains.compose")
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.9.23"
+    kotlin("plugin.serialization")
 }
 
 allprojects {

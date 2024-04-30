@@ -516,7 +516,7 @@ actual class PlatformFile(
 
 actual open class PlatformContext(
     private val context: Context,
-    private val coroutine_scope: CoroutineScope,
+    actual val coroutine_scope: CoroutineScope,
     val application_context: ApplicationContext? = null,
 ) {
     val ctx: Context get() = context
