@@ -3,6 +3,7 @@
 package dev.toastbits.composekit.settings.ui.item
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +46,7 @@ abstract class SettingsItem {
             if (text?.isNotBlank() == true) {
                 WidthShrinkText(
                     text,
-                    modifier,
+                    modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleMedium.copy(color = theme.on_background),
                     max_lines = max_lines
                 )

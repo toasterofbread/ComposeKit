@@ -45,6 +45,7 @@ import com.github.krottv.compose.sliders.ListenOnPressed
 import com.github.krottv.compose.sliders.SliderValueHorizontal
 import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.Platform
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.Theme
@@ -221,6 +222,7 @@ class SliderSettingsItem(
                                 colorTickProgress = theme.vibrant_accent.getContrasted().copy(alpha = 0.5f)
                             )
                         },
+                        track_press_enabled = !Platform.ANDROID.isCurrent(),
                         thumb = { modifier, offset, interaction_source, enabled, thumb_size ->
                             val colour: Color = theme.vibrant_accent
                             val scale_on_press: Float = 1.15f

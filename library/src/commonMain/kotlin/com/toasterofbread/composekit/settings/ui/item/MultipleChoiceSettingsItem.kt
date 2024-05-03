@@ -1,6 +1,7 @@
 package dev.toastbits.composekit.settings.ui.item
 
 import androidx.compose.animation.Animatable
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +18,8 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,12 +29,13 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.settings.ui.Theme
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class MultipleChoiceSettingsItem(
     val state: PreferencesProperty<Int>,
     val choice_amount: Int,
-    val getChoiceText: (Int) -> String,
+    val getChoiceText: (Int) -> String
 ): SettingsItem() {
     override fun resetValues() {
         state.reset()
@@ -46,7 +50,8 @@ class MultipleChoiceSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme = settings_interface.theme
+        val theme: Theme = settings_interface.theme
+        val current_value: Int by state.observe()
 
         Column {
             Column(Modifier.fillMaxWidth()) {
@@ -57,11 +62,7 @@ class MultipleChoiceSettingsItem(
 
                 Column(Modifier.padding(start = 15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     for (i in 0 until choice_amount) {
-
-                        val colour = remember(i) { Animatable(if (state.get() == i) theme.vibrant_accent else Color.Transparent) }
-                        LaunchedEffect(state.get(), theme.vibrant_accent) {
-                            colour.animateTo(if (state.get() == i) theme.vibrant_accent else Color.Transparent, TweenSpec(150))
-                        }
+                        val colour: Color by animateColorAsState(if (current_value == i) theme.vibrant_accent else Color.Transparent)
 
                         Box(
                             contentAlignment = Alignment.CenterStart,
@@ -76,12 +77,13 @@ class MultipleChoiceSettingsItem(
                                 .clickable(remember { MutableInteractionSource() }, null) {
                                     state.set(i)
                                 }
-                                .background(colour.value, SETTINGS_ITEM_ROUNDED_SHAPE)
+                                .background(colour, SETTINGS_ITEM_ROUNDED_SHAPE)
                         ) {
                             Box(Modifier.padding(horizontal = 10.dp)) {
                                 WidthShrinkText(
                                     getChoiceText(i),
-                                    style = LocalTextStyle.current.copy(color = if (state.get() == i) theme.on_accent else theme.on_background)
+                                    style = LocalTextStyle.current.copy(color = if (state.get() == i) theme.on_accent else theme.on_background),
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                         }
