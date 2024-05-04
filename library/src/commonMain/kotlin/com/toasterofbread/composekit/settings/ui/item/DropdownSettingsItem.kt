@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +47,8 @@ class DropdownSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
+        var current_value: Int by state.observe()
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 Modifier
@@ -67,7 +70,7 @@ class DropdownSettingsItem(
                     contentColor = settings_interface.theme.on_accent
                 )
             ) {
-                Text(getButtonItem?.invoke(state.get()) ?: getItem(state.get()))
+                Text(getButtonItem?.invoke(current_value) ?: getItem(current_value))
                 Icon(
                     Icons.Filled.ArrowDropDown,
                     null,
@@ -83,12 +86,12 @@ class DropdownSettingsItem(
                         open,
                         { open = false },
                         item_count,
-                        state.get(),
+                        current_value,
                         {
-                            WidthShrinkText(getItem(it))
+                            WidthShrinkText(getItem(it), Modifier.fillMaxWidth())
                         }
                     ) {
-                        state.set(it)
+                        current_value = it
                         open = false
                     }
                 }
