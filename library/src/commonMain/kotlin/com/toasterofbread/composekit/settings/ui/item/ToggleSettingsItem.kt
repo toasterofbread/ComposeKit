@@ -12,6 +12,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,6 +51,7 @@ class ToggleSettingsItem(
         val theme: Theme = settings_interface.theme
         val enabled: Boolean = getEnabled()
         val value_override: Boolean? = getValueOverride()
+        var current_value: Boolean by state.observe()
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             Column(
@@ -68,7 +70,7 @@ class ToggleSettingsItem(
                 }
                 else {
                     Switch(
-                        value_override ?: state.get(),
+                        value_override ?: current_value,
                         onCheckedChange = null,
                         enabled = enabled,
                         modifier =
@@ -78,18 +80,18 @@ class ToggleSettingsItem(
                                 enabled = enabled
                             ) {
                                 if (checker == null) {
-                                    state.set(!state.get())
+                                    current_value = !current_value
                                     return@clickable
                                 }
 
                                 checker.invoke(
-                                    !state.get(),
+                                    !current_value,
                                     { l ->
                                         loading = l
                                     }
                                 ) { allow_change ->
                                     if (allow_change) {
-                                        state.set(!state.get())
+                                        current_value = !current_value
                                     }
                                     loading = false
                                 }
