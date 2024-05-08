@@ -88,7 +88,8 @@ inline fun Modifier.thenIf(condition: Boolean, action: Modifier.() -> Modifier):
 inline fun Modifier.thenIf(condition: Boolean, elseAction: Modifier.() -> Modifier, action: Modifier.() -> Modifier): Modifier = if (condition) action() else elseAction()
 inline fun <T> T.thenIf(condition: Boolean, action: T.() -> T): T = if (condition) action() else this
 
-inline fun <T: Any> Modifier.thenWith(value: T?, action: Modifier.(T) -> Modifier): Modifier = if (value != null) action(value) else this
+inline fun <T: Any> Modifier.thenWith(value: T?, nullAction: Modifier.() -> Modifier = { this }, action: Modifier.(T) -> Modifier): Modifier =
+	if (value != null) action(value) else nullAction()
 
 fun <T> MutableList<T>.addUnique(item: T): Boolean {
 	if (!contains(item)) {

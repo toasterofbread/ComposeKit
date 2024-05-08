@@ -182,21 +182,21 @@ fun ScrollBarLazyRowOrColumn(
     }
 }
 
-private fun Int.toVerticalAlignment(): Alignment.Vertical =
+fun Int.toVerticalAlignment(): Alignment.Vertical =
     when (sign) {
         -1 -> Alignment.Top
         0 -> Alignment.CenterVertically
         else -> Alignment.Bottom
     }
 
-private fun Int.toHorizontalAlignment(): Alignment.Horizontal =
+fun Int.toHorizontalAlignment(): Alignment.Horizontal =
     when (sign) {
         -1 -> Alignment.Start
         0 -> Alignment.CenterHorizontally
         else -> Alignment.End
     }
 
-private class RowScopeRowOrColumnScope(val row_scope: RowScope): RowOrColumnScope() {
+class RowScopeRowOrColumnScope(val row_scope: RowScope): RowOrColumnScope() {
     override fun Modifier.weight(weight: Float, fill: Boolean): Modifier =
         with (row_scope) {
             weight(weight, fill)
@@ -215,7 +215,7 @@ private class RowScopeRowOrColumnScope(val row_scope: RowScope): RowOrColumnScop
     }
 }
 
-private class ColumnScopeRowOrColumnScope(val column_scope: ColumnScope): RowOrColumnScope() {
+class ColumnScopeRowOrColumnScope(val column_scope: ColumnScope): RowOrColumnScope() {
     override fun Modifier.weight(weight: Float, fill: Boolean): Modifier =
         with (column_scope) {
             weight(weight, fill)

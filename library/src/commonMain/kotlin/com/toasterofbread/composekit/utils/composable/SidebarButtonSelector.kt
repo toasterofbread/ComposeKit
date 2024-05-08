@@ -167,7 +167,13 @@ fun <T> SidebarButtonSelector(
                 arrangement = arrangement
             ) {
                 for ((index, button) in buttons.withIndex()) {
-                    extraContent(index, button)
+                    StickyLengthRowOrColumn(
+                        !vertical,
+                        key = buttons,
+                        on_axis_alignment = 1
+                    ) {
+                        extraContent(index, button)
+                    }
 
                     AnimatedVisibility(
                         showButton(button),
