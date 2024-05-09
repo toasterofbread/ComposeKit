@@ -41,7 +41,7 @@ fun <T> SidebarButtonSelector(
     val button_sizes: MutableMap<Int, DpSize> = remember { mutableStateMapOf() }
 
     val button_indicator_alpha: Animatable<Float, AnimationVector1D> = remember { Animatable(0f) }
-    val button_indicator_position: Animatable<Float, AnimationVector1D> = remember { Animatable(0f) }
+    val button_indicator_progress: Animatable<Float, AnimationVector1D> = remember { Animatable(0f) }
     val button_indicator_width: Animatable<Float, AnimationVector1D> = remember { Animatable(0f) }
     val button_indicator_height: Animatable<Float, AnimationVector1D> = remember { Animatable(0f) }
 
@@ -66,7 +66,7 @@ fun <T> SidebarButtonSelector(
         if (previous_button == null) {
             coroutineScope {
                 launch {
-                    button_indicator_position.snapTo(button_position)
+                    button_indicator_progress.snapTo(1f)
                 }
                 launch {
                     button_indicator_width.snapTo(button_size.width.value)
@@ -99,7 +99,7 @@ fun <T> SidebarButtonSelector(
                 button_indicator_alpha.animateTo(0f)
                 coroutineScope {
                     launch {
-                        button_indicator_position.snapTo(button_position)
+                        button_indicator_progress.snapTo(1f)
                     }
                     launch {
                         button_indicator_width.snapTo(button_size.width.value)
@@ -114,7 +114,8 @@ fun <T> SidebarButtonSelector(
             else {
                 coroutineScope {
                     launch {
-                        button_indicator_position.animateTo(button_position)
+                        button_indicator_progress.snapTo(0f)
+                        button_indicator_progress.animateTo(1f)
                     }
                     launch {
                         button_indicator_width.snapTo(button_size.width.value)
@@ -147,7 +148,13 @@ fun <T> SidebarButtonSelector(
                 indicator_colour,
                 Modifier
                     .offset {
-                        val position: Int = button_indicator_position.value.roundToInt()
+                        val target_position: Float? = selected_button?.let { button_positions[it] }
+                        val previous_position: Float? = previous_button?.let { button_positions[it] }
+
+                        val position: Int =
+                            if (target_position == null || previous_position == null) 0
+                            else (previous_position + ((target_position - previous_position) * button_indicator_progress.value)).roundToInt()
+
                         if (vertical) IntOffset(0, position)
                         else IntOffset(position, 0)
                     }
@@ -167,13 +174,13 @@ fun <T> SidebarButtonSelector(
                 arrangement = arrangement
             ) {
                 for ((index, button) in buttons.withIndex()) {
-                    StickyLengthRowOrColumn(
-                        !vertical,
-                        key = buttons,
-                        on_axis_alignment = 1
-                    ) {
+                    // StickyLengthRowOrColumn(
+                    //     !vertical,
+                    //     key = buttons,
+                    //     on_axis_alignment = 1
+                    // ) {
                         extraContent(index, button)
-                    }
+                    // }
 
                     AnimatedVisibility(
                         showButton(button),
