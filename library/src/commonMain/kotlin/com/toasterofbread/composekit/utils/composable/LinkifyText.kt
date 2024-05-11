@@ -1,129 +1,91 @@
 package dev.toastbits.composekit.utils.composable
 
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.text.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
-import dev.toastbits.composekit.utils.common.associateNotNull
-import java.util.regex.Pattern
+import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.platform.*
+import androidx.compose.ui.text.*
+import androidx.compose.ui.text.style.*
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.geometry.Offset
+import dev.toastbits.composekit.platform.composable.platformClickableWithOffset
 
-private typealias UrlInfo = Triple<String, Int, Int>
-
-// https://stackoverflow.com/a/66235329
+// https://gist.github.com/stevdza-san/ff9dbec0e072d8090e1e6d16e6b73c91
 @Composable
 fun LinkifyText(
     text: String,
     highlight_colour: Color,
     modifier: Modifier = Modifier,
-    colour: Color = LocalContentColor.current,
     style: TextStyle = LocalTextStyle.current
 ) {
-	val uri_handler: UriHandler = LocalUriHandler.current
-    val density: Density = LocalDensity.current
-
-	val urls: List<UrlInfo> = remember(text) { text.extractURLs() }
-    val annotated_string: AnnotatedString = remember(urls) {
+    val annotated_string: AnnotatedString =
         buildAnnotatedString {
-            var prev = 0
-            for ((i, url) in urls.withIndex()) {
-                append(text.substring(prev, url.second))
-                prev = url.third + 1
-                appendInlineContent(i.toString(), url.first)
-            }
-            if (prev < text.length) {
-                append(text.substring(prev))
+            append(text)
+
+            var head: Int = 0
+            while (true) {
+                val link_start: Int = text.indexOf("https://", head)
+                if (link_start == -1) {
+                    break
+                }
+
+                val link_length: Int = text.substring(link_start).indexOfFirst { it.isWhitespace() }.takeIf { it != -1 } ?: (text.length - link_start)
+                val link_end: Int = link_start + link_length
+
+                addStyle(
+                    style = SpanStyle(color = highlight_colour),
+                    start = link_start,
+                    end = link_end
+                )
+                addStringAnnotation(
+                    tag = "URL",
+                    annotation = text.substring(link_start, link_end),
+                    start = link_start,
+                    end = link_end
+                )
+
+                head = link_end
             }
         }
-    }
 
-    val link_sizes: MutableMap<UrlInfo, IntSize> = remember(urls) { mutableStateMapOf() }
-    for (url in urls) {
-        MeasureUnconstrainedView({ Text(url.first, style = style) }) {
-            link_sizes[url] = it
-        }
-    }
+    val uri_handler: UriHandler = LocalUriHandler.current
+    var layout_result: TextLayoutResult? by remember { mutableStateOf(null) }
 
-    SelectionContainer(modifier = modifier) {
+    ObservableSelectionContainer { selection: IntRange? ->
         Text(
             text = annotated_string,
-            color = colour,
             style = style,
-            overflow = TextOverflow.Ellipsis,
-            inlineContent = urls.withIndex().associateNotNull {
-                val (i, url) = it
-                val link_size: IntSize = link_sizes[url] ?: return@associateNotNull null
-                Pair(
-                    i.toString(),
-                    InlineTextContent(
-                        with (density) {
-                            Placeholder(link_size.width.toSp(), link_size.height.toSp(), placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter)
+            onTextLayout = { layout_result = it },
+            modifier = modifier
+                .platformClickableWithOffset(
+                    onClick = { position ->
+                        if (selection != null) {
+                            return@platformClickableWithOffset
                         }
-                    ) {
-                        Text(
-                            url.first,
-                            Modifier
-                                .pointerHoverIcon(PointerIcon.Hand)
-                                .pointerInput(Unit) {
-                                    detectTapGestures {
-                                        uri_handler.openUri(url.first)
-                                    }
-                                },
-                            color = highlight_colour,
-                            textDecoration = TextDecoration.Underline
-                        )
+
+                        val offset: Int =
+                            layout_result?.getOffsetForPosition(position)
+                            ?: return@platformClickableWithOffset
+
+                        val link: String =
+                            annotated_string
+                                .getStringAnnotations(
+                                    start = offset,
+                                    end = offset,
+                                    tag = "URL"
+                                )
+                                .firstOrNull()
+                                ?.item
+                                ?: return@platformClickableWithOffset
+
+                        uri_handler.openUri(link)
+                        return@platformClickableWithOffset
                     }
                 )
-            }
         )
     }
-}
-
-private val URL_PATTERN: Pattern = Pattern.compile(
-    "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
-            + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
-            + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
-    Pattern.CASE_INSENSITIVE or Pattern.MULTILINE or Pattern.DOTALL
-)
-
-private fun String.extractURLs(): List<UrlInfo> {
-    val matcher = URL_PATTERN.matcher(this)
-    var start: Int
-    var end: Int
-    val links = arrayListOf<UrlInfo>()
-
-    while (matcher.find()) {
-        start = matcher.start(1)
-        end = matcher.end()
-
-        var url = substring(start, end)
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = "https://$url"
-        }
-
-        links.add(UrlInfo(url, start, end))
-    }
-    return links
 }
