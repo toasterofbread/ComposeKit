@@ -25,6 +25,7 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 import dev.toastbits.composekit.platform.PlatformContext
 import androidx.compose.ui.graphics.Color
+import dev.toastbits.composekit.settings.ui.item.SettingsItem
 
 class SettingsInterface(
     val context: PlatformContext,
