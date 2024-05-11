@@ -24,6 +24,7 @@ import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.Theme
 import dev.toastbits.composekit.utils.composable.LinkifyText
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
+import dev.toastbits.composekit.platform.PlatformContext
 
 val SETTINGS_ITEM_ROUNDED_SHAPE = RoundedCornerShape(20.dp)
 
@@ -55,15 +56,15 @@ abstract class SettingsItem {
 
         @Composable
         fun ItemText(
+            context: PlatformContext,
             text: String?,
             theme: Theme,
-            colour: Color =
-            theme.on_background.copy(alpha = 0.75f),
+            colour: Color = theme.on_background.copy(alpha = 0.75f),
             linkify: Boolean = true
         ) {
             if (text?.isNotBlank() == true) {
                 val style: TextStyle = MaterialTheme.typography.bodySmall.copy(color = colour)
-                if (linkify) LinkifyText(text, theme.accent, style = style)
+                if (linkify) LinkifyText(context, text, theme.accent, style = style)
                 else Text(text, style = style)
             }
         }

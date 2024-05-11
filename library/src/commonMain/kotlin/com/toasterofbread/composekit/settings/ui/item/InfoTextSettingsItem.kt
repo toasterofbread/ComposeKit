@@ -18,6 +18,6 @@ class InfoTextSettingsItem(val text: String): SettingsItem() {
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        LinkifyText(text, settings_interface.theme.vibrant_accent)
+        LinkifyText(settings_interface.context, text, settings_interface.theme.vibrant_accent)
     }
 }

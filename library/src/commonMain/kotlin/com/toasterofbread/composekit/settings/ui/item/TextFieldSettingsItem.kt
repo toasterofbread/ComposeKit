@@ -41,7 +41,7 @@ class TextFieldSettingsItem(
     ) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             ItemTitleText(state.name, settings_interface.theme)
-            ItemText(state.description, settings_interface.theme)
+            settings_interface.ItemText(state.description, settings_interface.theme)
 
             var input_error: String? by remember { mutableStateOf(null) }
             var current_value: String by remember { mutableStateOf(state.get()) }

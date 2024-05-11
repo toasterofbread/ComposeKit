@@ -56,7 +56,7 @@ class MultipleChoiceSettingsItem(
         Column {
             Column(Modifier.fillMaxWidth()) {
                 ItemTitleText(state.name, theme, Modifier.padding(bottom = 7.dp))
-                ItemText(state.description, theme)
+                settings_interface.ItemText(state.description, theme)
 
                 Spacer(Modifier.height(10.dp))
 

@@ -184,13 +184,13 @@ class SliderSettingsItem(
                 }
             }
 
-            ItemText(state.description, theme)
+            settings_interface.ItemText(state.description, theme)
 
             Spacer(Modifier.requiredHeight(10.dp))
 
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (min_label != null) {
-                    ItemText(min_label, theme)
+                    settings_interface.ItemText(min_label, theme)
                 }
 
                 val view_configuration: ViewConfiguration = LocalViewConfiguration.current
@@ -230,7 +230,7 @@ class SliderSettingsItem(
                             val value_text: String? by remember { derivedStateOf { getValueText?.invoke(getTypedValue()) } }
 
                             if (value_text != null) {
-                                MeasureUnconstrainedView({ ItemText(value_text, theme) }) { size ->
+                                MeasureUnconstrainedView({ settings_interface.ItemText(value_text, theme) }) { size ->
                                     var is_pressed by remember { mutableStateOf(false) }
                                     interaction_source.ListenOnPressed { is_pressed = it }
                                     val scale: Float by animateFloatAsState(
@@ -257,7 +257,7 @@ class SliderSettingsItem(
                                                         colour.copy(alpha = 0.6f), CircleShape
                                                 )
                                         )
-                                        ItemText(value_text, theme, linkify = false)
+                                        settings_interface.ItemText(value_text, theme, linkify = false)
                                     }
                                 }
                             }
@@ -281,7 +281,7 @@ class SliderSettingsItem(
                 }
 
                 if (max_label != null) {
-                    ItemText(max_label, theme)
+                    settings_interface.ItemText(max_label, theme)
                 }
             }
         }

@@ -56,7 +56,7 @@ class DropdownSettingsItem(
                     .weight(1f)
             ) {
                 ItemTitleText(state.name, settings_interface.theme)
-                ItemText(state.description, settings_interface.theme)
+                settings_interface.ItemText(state.description, settings_interface.theme)
             }
 
             var open by remember { mutableStateOf(false) }

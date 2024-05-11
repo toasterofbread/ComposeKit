@@ -23,8 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade
+import dev.toastbits.composekit.platform.PlatformContext
+import androidx.compose.ui.graphics.Color
 
 class SettingsInterface(
+    val context: PlatformContext,
     val themeProvider: () -> Theme,
     private val root_page: Int,
     val prefs: PlatformPreferences,
@@ -117,6 +120,16 @@ class SettingsInterface(
                 }
             }
         }
+    }
+
+    @Composable
+    fun ItemText(
+        text: String?,
+        theme: Theme,
+        colour: Color = theme.on_background.copy(alpha = 0.75f),
+        linkify: Boolean = true
+    ) {
+        SettingsItem.ItemText(context, text, theme, colour, linkify)
     }
 }
 

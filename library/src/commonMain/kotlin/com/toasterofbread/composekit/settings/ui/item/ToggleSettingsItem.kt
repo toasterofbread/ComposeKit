@@ -61,7 +61,7 @@ class ToggleSettingsItem(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 ItemTitleText(state.name, theme, max_lines = title_max_lines)
-                ItemText(getSubtitleOverride() ?: state.description, theme)
+                settings_interface.ItemText(getSubtitleOverride() ?: state.description, theme)
             }
 
             Crossfade(loading) {

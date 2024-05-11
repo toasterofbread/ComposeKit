@@ -39,7 +39,7 @@ class SubpageSettingsItem(
         ) {
             Column(Modifier.weight(1f)) {
                 Text(title, color = theme.on_accent)
-                ItemText(subtitle, theme)
+                settings_interface.ItemText(subtitle, theme)
             }
         }
     }

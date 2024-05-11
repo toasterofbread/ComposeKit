@@ -125,7 +125,7 @@ class StringSetSettingsItem(
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     ItemTitleText(state.name, theme)
-                    ItemText(state.description, theme)
+                    settings_interface.ItemText(state.description, theme)
                 }
 
                 ShapedIconButton(
