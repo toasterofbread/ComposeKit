@@ -13,18 +13,26 @@ import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.geometry.Offset
 import dev.toastbits.composekit.platform.composable.platformClickableWithOffset
+import dev.toastbits.composekit.platform.PlatformContext
 
 // https://gist.github.com/stevdza-san/ff9dbec0e072d8090e1e6d16e6b73c91
 @Composable
 fun LinkifyText(
+    context: PlatformContext,
     text: String,
     highlight_colour: Color,
     modifier: Modifier = Modifier,
     style: TextStyle = LocalTextStyle.current
 ) {
+    var layout_result: TextLayoutResult? by remember { mutableStateOf(null) }
+    
     val annotated_string: AnnotatedString =
         buildAnnotatedString {
             append(text)
+
+            if (!context.canOpenUrl()) {
+                return@buildAnnotatedString
+            }
 
             var head: Int = 0
             while (true) {
@@ -52,9 +60,6 @@ fun LinkifyText(
             }
         }
 
-    val uri_handler: UriHandler = LocalUriHandler.current
-    var layout_result: TextLayoutResult? by remember { mutableStateOf(null) }
-
     ObservableSelectionContainer { selection: IntRange? ->
         Text(
             text = annotated_string,
@@ -63,7 +68,7 @@ fun LinkifyText(
             modifier = modifier
                 .platformClickableWithOffset(
                     onClick = { position ->
-                        if (selection != null) {
+                        if (!context.canOpenUrl() || selection != null) {
                             return@platformClickableWithOffset
                         }
 
@@ -82,7 +87,7 @@ fun LinkifyText(
                                 ?.item
                                 ?: return@platformClickableWithOffset
 
-                        uri_handler.openUri(link)
+                        context.openUrl(link)
                         return@platformClickableWithOffset
                     }
                 )
