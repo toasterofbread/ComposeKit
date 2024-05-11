@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 
 class SettingsInterface(
     val themeProvider: () -> Theme,
@@ -75,11 +77,16 @@ class SettingsInterface(
 
     @Composable
     fun Interface(modifier: Modifier = Modifier, content_padding: PaddingValues = PaddingValues(0.dp), page_top_padding: Dp? = null, titleFooter: (@Composable () -> Unit)? = null) {
-        Crossfade(current_page, modifier = modifier) { page ->
+        AlignableCrossfade(
+            current_page,
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) { page ->
             var width by remember { mutableStateOf(0) }
 
             Column(
                 Modifier
+                    .widthIn(max = 800.dp)
                     .fillMaxSize()
                     .onSizeChanged { width = it.width }
             ) {

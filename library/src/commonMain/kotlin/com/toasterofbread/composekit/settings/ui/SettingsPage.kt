@@ -1,6 +1,7 @@
 package dev.toastbits.composekit.settings.ui
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -67,10 +69,14 @@ abstract class SettingsPage {
     open fun TitleBar(is_root: Boolean, modifier: Modifier, titleFooter: (@Composable () -> Unit)?) {
         Crossfade(title, modifier) { title ->
             Column(Modifier.fillMaxWidth()) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    val ic = icon
+
+                FlowRow(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    val ic: ImageVector? = icon
                     if (ic != null) {
-                        Icon(ic, null)
+                        Icon(ic, null, Modifier.align(Alignment.CenterVertically))
                     }
                     else {
                         Spacer(Modifier.width(24.dp))
@@ -79,7 +85,10 @@ abstract class SettingsPage {
                     if (title != null) {
                         WidthShrinkText(
                             title,
-                            Modifier.padding(horizontal = 30.dp).weight(1f),
+                            Modifier
+                                .padding(horizontal = 30.dp)
+                                .weight(1f)
+                                .align(Alignment.CenterVertically),
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 color = settings_interface.theme.on_background,
                                 fontWeight = FontWeight.Light,
@@ -88,7 +97,7 @@ abstract class SettingsPage {
                         )
                     }
 
-                    TitleBarEndContent()
+                    TitleBarEndContent(Modifier.align(Alignment.CenterVertically))
                 }
 
                 titleFooter?.invoke()
@@ -97,20 +106,25 @@ abstract class SettingsPage {
     }
 
     @Composable
-    open fun TitleBarEndContent() {
+    open fun TitleBarEndContent(modifier: Modifier) {
         val coroutine_scope: CoroutineScope = rememberCoroutineScope()
 
-        IconButton({
-            coroutine_scope.launch {
-                resetKeys()
+        AnimatedVisibility(canResetKeys(), modifier) {
+            IconButton({
+                coroutine_scope.launch {
+                    resetKeys()
+                }
+            }) {
+                Icon(Icons.Default.Refresh, null)
             }
-        }) {
-            Icon(Icons.Default.Refresh, null)
         }
     }
 
     @Composable
     protected abstract fun PageView(content_padding: PaddingValues, openPage: (Int, Any?) -> Unit, openCustomPage: (SettingsPage) -> Unit, goBack: () -> Unit)
+
+    @Composable
+    open fun canResetKeys(): Boolean = true
 
     abstract suspend fun resetKeys()
     open fun onClosed() {}
