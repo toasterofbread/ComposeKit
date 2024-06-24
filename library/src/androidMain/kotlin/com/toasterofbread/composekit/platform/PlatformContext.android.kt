@@ -55,7 +55,7 @@ import java.util.*
 private const val DEFAULT_NOTIFICATION_CHANNEL_ID = "default_channel"
 private const val ERROR_NOTIFICATION_CHANNEL_ID = "download_error_channel"
 
-class ApplicationContext(private val activity: ComponentActivity) {
+class ApplicationContext(internal val activity: ComponentActivity) {
     private val permission_callbacks: MutableList<(Boolean) -> Unit> = mutableListOf()
 
     private val permission_launcher: ActivityResultLauncher<String> =
@@ -675,6 +675,13 @@ actual open class PlatformContext(
     }
 
     actual fun sendToast(text: String, long: Boolean) {
+        application_context?.apply {
+            activity.runOnUiThread {
+                ctx.sendToast(text, long)
+            }
+            return
+        }
+
         ctx.sendToast(text, long)
     }
 
@@ -797,18 +804,8 @@ fun Context.sendToast(text: String, long: Boolean = false) {
     try {
         Toast.makeText(this, text, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
     }
-    catch (_: NullPointerException) {
-        Looper.prepare()
-
-        try {
-            Toast.makeText(this, text, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
-        }
-        catch (e: Throwable) {
-            RuntimeException("Sending toast failed after Looper.prepare()", e).printStackTrace()
-        }
-    }
     catch (e: Throwable) {
-        RuntimeException("Sending toast failed before or during Looper.prepare()", e).printStackTrace()
+        RuntimeException("Sending toast '$text' (long=$long) failed", e).printStackTrace()
     }
 }
 
