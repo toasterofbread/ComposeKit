@@ -799,7 +799,16 @@ fun Context.sendToast(text: String, long: Boolean = false) {
     }
     catch (_: NullPointerException) {
         Looper.prepare()
-        Toast.makeText(this, text, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
+
+        try {
+            Toast.makeText(this, text, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
+        }
+        catch (e: Throwable) {
+            RuntimeException("Sending toast failed after Looper.prepare()", e).printStackTrace()
+        }
+    }
+    catch (e: Throwable) {
+        RuntimeException("Sending toast failed before or during Looper.prepare()", e).printStackTrace()
     }
 }
 
