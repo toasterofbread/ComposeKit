@@ -17,7 +17,6 @@ import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun WidthShrinkText(
@@ -125,6 +124,7 @@ private fun TextStyle.shiftSize(by: Float, max: TextUnit): TextStyle =
     copy(
         fontSize = (fontSize * (1.0 + by)).let { new ->
             if (new > max) max
+            else if (new < 1.sp) 1.sp
             else new
         }
     )
