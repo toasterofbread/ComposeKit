@@ -209,3 +209,30 @@ fun Color.Companion.fromHexString(string: String): Color =
 
 fun Color.toHexString(): String =
     String.format("#%06X", (0xFFFFFF and this.toArgb()))
+
+fun List<Color>.sortedByHue(): List<Color> =
+    sortedBy { it.getHSV().first }
+
+// https://www.geeksforgeeks.org/program-change-rgb-color-model-hsv-color-model/
+fun Color.getHSV(): Triple<Float, Float, Float> {
+    val max: Float = maxOf(red, green, blue)
+    val min: Float = minOf(red, green, blue)
+
+    if (max == min) {
+        return Triple(360f, 0f, max)
+    }
+
+    val delta: Float = max - min
+
+    val h: Float =
+        when {
+            max == red -> ((green - blue) / delta) % 6
+            max == green -> ((blue - red) / delta) + 2
+            else -> ((red - green) / delta) + 4
+        } * 60
+
+    val s: Float = if (max == 0f) 0f else delta / max
+    val v: Float = max
+
+    return Triple(h, s, v)
+}
