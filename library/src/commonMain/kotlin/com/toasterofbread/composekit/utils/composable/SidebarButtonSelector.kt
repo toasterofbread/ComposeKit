@@ -13,7 +13,7 @@ import androidx.compose.ui.layout.*
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.platform.LocalDensity
 import dev.toastbits.composekit.utils.common.*
-import dev.toastbits.composekit.utils.common.thenWith
+import dev.toastbits.composekit.utils.modifier.scrollWithoutClip
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope
@@ -140,8 +140,7 @@ fun <T> SidebarButtonSelector(
     ) { constraints ->
         Box(
             Modifier.thenIf(scrolling) {
-                if (vertical) verticalScroll(rememberScrollState())
-                else horizontalScroll(rememberScrollState())
+                scrollWithoutClip(rememberScrollState(), is_vertical = vertical)
             }
         ) {
             CurrentButtonIndicator(
