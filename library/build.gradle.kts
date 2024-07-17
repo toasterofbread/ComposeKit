@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import com.vanniktech.maven.publish.KotlinMultiplatform
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     id("com.android.library")
@@ -18,6 +19,10 @@ kotlin {
     android()
 
     jvm("desktop")
+
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         all {
@@ -48,7 +53,7 @@ kotlin {
                 implementation(compose.components.resources)
 
                 implementation("com.github.catppuccin:java:v1.0.0")
-                implementation("com.godaddy.android.colorpicker:compose-color-picker:0.7.0")
+                implementation("com.github.toasterofbread.compose-color-picker:compose-color-picker:19c9fb4736")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             }
         }

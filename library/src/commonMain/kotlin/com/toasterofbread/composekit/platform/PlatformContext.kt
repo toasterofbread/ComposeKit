@@ -2,7 +2,6 @@ package dev.toastbits.composekit.platform
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
-import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -12,8 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 expect open class PlatformContext {
     val coroutine_scope: CoroutineScope
 
-    fun getFilesDir(): File
-    fun getCacheDir(): File
+    fun getFilesDir(): PlatformFile?
+    fun getCacheDir(): PlatformFile?
 
     fun promptUserForDirectory(persist: Boolean = false, callback: (uri: String?) -> Unit)
     fun promptUserForFile(mime_types: Set<String>, persist: Boolean = false, callback: (uri: String?) -> Unit)
@@ -85,9 +84,9 @@ expect class PlatformFile {
 
     fun matches(other: PlatformFile): Boolean
 
-    companion object {
-        fun fromFile(file: File, context: PlatformContext): PlatformFile
-    }
+    // companion object {
+    //     fun fromFile(file: File, context: PlatformContext): PlatformFile
+    // }
 }
 
 fun PlatformContext.vibrateShort() {

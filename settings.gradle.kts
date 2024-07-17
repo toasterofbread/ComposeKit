@@ -1,6 +1,7 @@
 rootProject.name = "ComposeKit"
 
 include(":library")
+include(":compose-color-picker:color-picker")
 
 pluginManagement {
     repositories {

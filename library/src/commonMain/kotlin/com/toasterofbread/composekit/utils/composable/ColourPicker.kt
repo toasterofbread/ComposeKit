@@ -32,8 +32,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.godaddy.android.colorpicker.ClassicColorPicker
-import com.godaddy.android.colorpicker.HsvColor
+import com.godaddy.colorpicker.colorpicker.ClassicColorPicker
+import com.godaddy.colorpicker.colorpicker.HsvColor
 import dev.toastbits.composekit.utils.common.contrastAgainst
 import dev.toastbits.composekit.utils.common.fromHexString
 import dev.toastbits.composekit.utils.common.generatePalette
