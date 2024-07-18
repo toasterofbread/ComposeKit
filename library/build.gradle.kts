@@ -56,7 +56,7 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
 
-                implementation("com.github.toasterofbread.catppuccin-kotlin:catppuccin-kotlin:cde14d00dd")
+                implementation("com.catppuccin:catppuccin-kotlin:1.0.3-dev")
                 implementation("com.github.toasterofbread.compose-color-picker:compose-color-picker:19c9fb4736")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
                 implementation("com.squareup.okio:okio:3.9.0")
