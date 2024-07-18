@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.encodeToString
 
 actual class PlatformPreferencesImpl private constructor(private val prefs: SharedPreferences): PlatformPreferences {
     companion object {
@@ -25,8 +24,8 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
     actual override fun getString(key: String, default_value: String?): String? =
         prefs.getString(key, default_value)
 
-    actual override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? =
-        prefs.getStringSet(key, defValues)
+    actual override fun getStringSet(key: String, default_values: Set<String>?): Set<String>? =
+        prefs.getStringSet(key, default_values)
 
     actual override fun getInt(key: String, default_value: Int?): Int? {
         if (!prefs.contains(key)) {

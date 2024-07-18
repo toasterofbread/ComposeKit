@@ -7,6 +7,7 @@ plugins {
     id("com.vanniktech.maven.publish")
     id("org.jetbrains.compose")
     kotlin("multiplatform")
+    kotlin("plugin.compose")
     kotlin("plugin.serialization")
 }
 
@@ -16,13 +17,16 @@ allprojects {
 }
 
 kotlin {
-    android()
+    androidTarget()
 
     jvm("desktop")
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }
+
+    applyDefaultHierarchyTemplate()
 
     sourceSets {
         all {
@@ -52,13 +56,26 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
 
-                implementation("com.github.catppuccin:java:v1.0.0")
+                implementation("com.github.toasterofbread.catppuccin-kotlin:catppuccin-kotlin:cde14d00dd")
                 implementation("com.github.toasterofbread.compose-color-picker:compose-color-picker:19c9fb4736")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+                implementation("com.squareup.okio:okio:3.9.0")
             }
         }
 
+        // Desktop and Android
+        val jvmMain by creating {
+            dependsOn(commonMain.get())
+        }
+
+        // Desktop and WASM
+        val cmpJbrMain by creating {
+            dependsOn(commonMain.get())
+        }
+
         val androidMain by getting {
+            dependsOn(jvmMain)
+
             dependencies {
                 api("androidx.activity:activity-compose:1.8.1")
 
@@ -69,11 +86,18 @@ kotlin {
         }
 
         val desktopMain by getting {
+            dependsOn(jvmMain)
+            dependsOn(cmpJbrMain)
+
             dependencies {
                 implementation(compose.desktop.common)
                 implementation("com.sshtools:two-slices:0.9.1")
                 implementation("com.github.toasterofbread:gdx-nativefilechooser:325fa2a")
             }
+        }
+
+        val wasmJsMain by getting {
+            dependsOn(cmpJbrMain)
         }
     }
 }

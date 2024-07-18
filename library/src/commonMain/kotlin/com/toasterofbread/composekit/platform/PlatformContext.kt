@@ -2,11 +2,10 @@ package dev.toastbits.composekit.platform
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
 import kotlinx.coroutines.CoroutineScope
+import okio.FileHandle
+import okio.Sink
+import okio.Source
 
 expect open class PlatformContext {
     val coroutine_scope: CoroutineScope
@@ -46,13 +45,6 @@ expect open class PlatformContext {
 
     fun vibrate(duration: Double)
 
-    fun deleteFile(name: String): Boolean
-    fun openFileInput(name: String): FileInputStream
-    fun openFileOutput(name: String, append: Boolean = false): FileOutputStream
-
-    fun openResourceFile(path: String): InputStream
-    fun listResourceFiles(path: String): List<String>?
-
     fun isConnectionMetered(): Boolean
 }
 
@@ -68,8 +60,8 @@ expect class PlatformFile {
     val is_file: Boolean
 
     fun getRelativePath(relative_to: PlatformFile): String
-    fun inputStream(): InputStream
-    fun outputStream(append: Boolean = false): OutputStream
+    fun inputStream(): Source
+    fun outputStream(append: Boolean = false): Sink
 
     fun listFiles(): List<PlatformFile>?
     fun resolve(relative_path: String): PlatformFile
@@ -84,9 +76,7 @@ expect class PlatformFile {
 
     fun matches(other: PlatformFile): Boolean
 
-    // companion object {
-    //     fun fromFile(file: File, context: PlatformContext): PlatformFile
-    // }
+     companion object
 }
 
 fun PlatformContext.vibrateShort() {

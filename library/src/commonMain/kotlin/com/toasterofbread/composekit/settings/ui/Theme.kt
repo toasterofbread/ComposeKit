@@ -20,7 +20,11 @@ import dev.toastbits.composekit.utils.common.contrastAgainst
 import dev.toastbits.composekit.utils.common.getContrasted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.catppuccin.Palette as Catppuccin
+import com.catppuccin.kotlin.*
+import com.catppuccin.kotlin.color.*
+import dev.toastbits.composekit.platform.Platform
+import dev.toastbits.composekit.platform.assert
+import dev.toastbits.composekit.platform.getEnv
 
 const val VIBRANT_ACCENT_CONTRAST: Float = 0.2f
 
@@ -91,7 +95,7 @@ abstract class Theme(
     }
 
     private fun getCurrentSystemTheme(): ThemeData {
-        val gtk_theme: String? = System.getenv("GTK_THEME")?.lowercase()
+        val gtk_theme: String? = getEnv("GTK_THEME")?.lowercase()
 
         if (gtk_theme?.startsWith("catppuccin-") == true) {
             val split: List<String> = gtk_theme.substring(11).split("-", limit = 4)
@@ -227,16 +231,16 @@ abstract class Theme(
     }
 
     private fun getCatppuccinTheme(target_flavour: String, target_accent: String): ThemeData? {
-        for (flavour in Catppuccin.toList()) {
-            if (flavour.name == target_flavour) {
-                for (accent in flavour.toList()) {
-                    if (accent.key == target_accent) {
+        for (flavour in allPalettes) {
+            if (flavour.name.lowercase() == target_flavour.lowercase()) {
+                for (accent in flavour.colors) {
+                    if (accent.definition.label.lowercase() == target_accent.lowercase()) {
                         return StaticThemeData(
-                            "Catppuccin ${flavour.name.replaceFirstChar { it.uppercaseChar() }} (${accent.key})",
-                            background = Color(flavour.base.rgb),
-                            on_background = Color(flavour.text.rgb),
-                            card = Color(flavour.mantle.rgb),
-                            accent = Color(accent.value.rgb)
+                            "Catppuccin ${flavour.name.replaceFirstChar { it.uppercaseChar() }} (${accent.definition.label})",
+                            background = Color(flavour.base.hex.intValue),
+                            on_background = Color(flavour.text.hex.intValue),
+                            card = Color(flavour.mantle.hex.intValue),
+                            accent = Color(accent.hex.intValue)
                         )
                     }
                 }

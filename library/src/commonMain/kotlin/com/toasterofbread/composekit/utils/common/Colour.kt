@@ -5,14 +5,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
-import java.util.Random
 import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 fun Color.Companion.red(argb: Int): Int = argb shr 16 and 0xFF
 fun Color.Companion.green(argb: Int): Int = argb shr 8 and 0xFF
 fun Color.Companion.blue(argb: Int): Int = argb and 0xFF
 
-fun Color.Companion.random(randomise_alpha: Boolean = false, rnd: Random = Random()): Color {
+fun Color.Companion.random(randomise_alpha: Boolean = false, rnd: Random = Random): Color {
     return Color(
         rnd.nextInt(256),
         rnd.nextInt(256),
@@ -166,7 +166,6 @@ fun List<Color>.sorted(descending: Boolean = false): List<Color> {
 }
 
 fun Color.generatePalette(size: Int, variance: Float = 0.2f): List<Color> {
-    val rnd = Random()
     val ret: MutableList<Color> = mutableListOf()
 
     fun isColourValid(colour: Color): Boolean {
@@ -184,7 +183,7 @@ fun Color.generatePalette(size: Int, variance: Float = 0.2f): List<Color> {
     for (i in 0 until size) {
         var tries = 5
         while (tries-- > 0) {
-            val colour = offsetRGB(rnd.nextFloat() * variance * (if (rnd.nextBoolean()) 1f else -1f), false)
+            val colour = offsetRGB(Random.nextFloat() * variance * (if (Random.nextBoolean()) 1f else -1f), false)
             if (isColourValid(colour)) {
                 ret.add(colour)
                 break
@@ -193,22 +192,20 @@ fun Color.generatePalette(size: Int, variance: Float = 0.2f): List<Color> {
     }
 
     return List(size) {
-        offsetRGB(rnd.nextFloat() * variance * (if (rnd.nextBoolean()) 1f else -1f), false)
+        offsetRGB(Random.nextFloat() * variance * (if (Random.nextBoolean()) 1f else -1f), false)
     }
 }
 
-fun Color.Companion.generatePalette(size: Int): List<Color> {
-    val rnd = Random()
-    return List(size) {
-        random(rnd = rnd)
+fun Color.Companion.generatePalette(size: Int): List<Color> =
+    List(size) {
+        random(rnd = Random)
     }
-}
 
 fun Color.Companion.fromHexString(string: String): Color =
     Color(string.removePrefix("#").toLong(16) or 0x00000000FF000000)
 
 fun Color.toHexString(): String =
-    String.format("#%06X", (0xFFFFFF and this.toArgb()))
+    '#' + (0xFFFFFF and this.toArgb()).toString().padStart(6, '0')
 
 fun List<Color>.sortedByHue(): List<Color> =
     sortedBy { it.getHSV().first }

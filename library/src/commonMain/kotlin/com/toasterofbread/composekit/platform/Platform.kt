@@ -1,7 +1,7 @@
 package dev.toastbits.composekit.platform
 
 enum class Platform {
-    ANDROID, DESKTOP;
+    ANDROID, DESKTOP, WEB;
 
     fun isCurrent(): Boolean = getPlatform() == this
 
@@ -24,3 +24,9 @@ expect fun getPlatformForbiddenFilenameCharacters(): String
 
 expect fun getPlatformOSName(): String
 expect fun getPlatformHostName(): String
+
+expect fun assert(condition: Boolean)
+
+expect inline fun lazyAssert(noinline getMessage: (() -> String)? = null, condition: () -> Boolean)
+
+expect fun getEnv(name: String): String?

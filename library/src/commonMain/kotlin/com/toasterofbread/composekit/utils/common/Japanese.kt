@@ -1,14 +1,15 @@
 package dev.toastbits.composekit.utils.common
 
-import java.lang.Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
-import java.lang.Character.UnicodeBlock.HIRAGANA
-import java.lang.Character.UnicodeBlock.KATAKANA
-import java.lang.Character.UnicodeBlock.of
+fun Char.isJa(): Boolean = isKanji() || isHiragana() || isKatakana()
 
-fun Char.isJP(): Boolean = isKanji() || isHiragana() || isKatakana()
-fun Char.isKanji(): Boolean = of(this) == CJK_UNIFIED_IDEOGRAPHS
-fun Char.isHiragana(): Boolean = of(this) == HIRAGANA
-fun Char.isKatakana(): Boolean = of(this) == KATAKANA
+fun Char.isKanji(): Boolean =
+    ('\u4e00' <= this) && (this <= '\u9faf')
+
+fun Char.isHiragana(): Boolean =
+    ('\u3040' <= this) && (this <= '\u309F')
+
+fun Char.isKatakana(): Boolean =
+    ('\u30A0' <= this) && (this <= '\u30FF')
 
 // http://kevin3sei.blog95.fc2.com/blog-entry-111.html
 fun Char.isFullWidth(): Boolean =
@@ -44,13 +45,13 @@ fun String.hasKanjiAndHiraganaOrKatakana(): Boolean {
     var has_kanji = false
     var has_hiragana_or_katakana = false
     for (char in this) {
-        when (of(char)) {
-            CJK_UNIFIED_IDEOGRAPHS -> {
+        when {
+            char.isKanji() -> {
                 if (has_hiragana_or_katakana)
                     return true
                 has_kanji = true
             }
-            HIRAGANA, KATAKANA -> {
+            char.isHiragana() || char.isKatakana() -> {
                 if (has_kanji)
                     return true
                 has_hiragana_or_katakana = true

@@ -31,6 +31,10 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
+import okio.Sink
+import okio.Source
+import okio.sink
+import okio.source
 
 private fun getHomeDir(): File = File(System.getProperty("user.home"))
 
@@ -47,22 +51,26 @@ actual open class PlatformContext(
             directory = FileHandle(getHomeDir())
         }
 
-    actual fun getFilesDir(): File {
+    actual fun getFilesDir(): PlatformFile? {
         val subdir: String = when (hostOs) {
             OS.Linux -> ".local/share"
             OS.Windows -> "AppData/Local/"
             else -> throw NotImplementedError(hostOs.name)
         }
-        return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
+
+        val file: File = getHomeDir().resolve(subdir).resolve(app_name.lowercase())
+        return PlatformFile.fromFile(file, this)
     }
 
-    actual fun getCacheDir(): File {
+    actual fun getCacheDir(): PlatformFile? {
         val subdir: String = when (hostOs) {
             OS.Linux -> ".cache"
-            OS.Windows -> return getFilesDir().resolve("cache")
+            OS.Windows -> return (getFilesDir() ?: return null).resolve("cache")
             else -> throw NotImplementedError(hostOs.name)
         }
-        return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
+
+        val file: File = getHomeDir().resolve(subdir).resolve(app_name.lowercase())
+        return PlatformFile.fromFile(file, this)
     }
 
     private fun getTempDir(): File {
@@ -107,77 +115,6 @@ actual open class PlatformContext(
 
     actual fun sendToast(text: String, long: Boolean) {
         sendNotification(app_name, text)
-    }
-
-    actual fun openFileInput(name: String): FileInputStream =
-        getFilesDir().resolve(name).inputStream()
-
-    actual fun openFileOutput(name: String, append: Boolean): FileOutputStream {
-        val path: File = getFilesDir().resolve(name)
-        path.createNewFile()
-        return path.outputStream()
-    }
-
-    actual fun deleteFile(name: String): Boolean {
-        val file: File = getFilesDir().resolve(name)
-        return file.delete()
-    }
-
-    private fun getResourceDir(): File = File("/assets")
-
-    actual fun openResourceFile(path: String): InputStream {
-        val resource_path: String = getResourceDir().resolve(path).path.replace('\\', '/')
-
-        val stream: InputStream? = resource_class.getResourceAsStream(resource_path)
-        checkNotNull(stream) { "Could not open resource at $resource_path" }
-
-        return stream
-    }
-
-    @Suppress("NewApi")
-    actual fun listResourceFiles(path: String): List<String>? {
-        val paths: MutableList<String> = mutableListOf()
-
-        val src: CodeSource = resource_class.protectionDomain.codeSource
-        val zip: ZipInputStream = ZipInputStream(src.location.openStream())
-
-        val resource_dir: File = getResourceDir()
-        val resource_path: String = resource_dir.resolve(path).path.trim('/') + '/'
-        val searching_root: Boolean = resource_dir == File(resource_path)
-
-        var ze: ZipEntry?
-        while (zip.nextEntry.also { ze = it } != null) {
-            val entry = ze!!.name.trimEnd('/')
-
-            if (searching_root) {
-                if (entry == "META-INF" || entry == "com" || entry.contains('$') || entry.endsWith(".class")) {
-                    continue
-                }
-            }
-            else if (!entry.startsWith(resource_path)) {
-                continue
-            }
-
-            if (entry.length == resource_path.length) {
-                continue
-            }
-
-            var has_slash: Boolean = false
-            for (i in resource_path.length until entry.length) {
-                if (entry[i] == '/') {
-                    has_slash = true
-                    break
-                }
-            }
-
-            if (has_slash) {
-                continue
-            }
-
-            paths.add(entry.removePrefix(resource_path))
-        }
-
-        return paths
     }
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
@@ -274,12 +211,12 @@ actual class PlatformFile(val file: File) {
         return file.relativeTo(relative_to.file).path
     }
 
-    actual fun inputStream(): InputStream {
-        return file.inputStream()
+    actual fun inputStream(): Source {
+        return file.inputStream().source()
     }
 
-    actual fun outputStream(append: Boolean): OutputStream {
-        return FileOutputStream(file, append)
+    actual fun outputStream(append: Boolean): Sink {
+        return FileOutputStream(file, append).sink()
     }
 
     actual fun listFiles(): List<PlatformFile>? {
@@ -342,19 +279,15 @@ actual class PlatformFile(val file: File) {
         TODO()
     }
 
-    actual companion object {
-        actual fun fromFile(
-            file: File,
-            context: PlatformContext
-        ): PlatformFile {
-            return PlatformFile(file)
-        }
-    }
-
     actual fun matches(other: PlatformFile): Boolean {
         return file == other.file
     }
 
     override fun toString(): String =
         "PlatformFile(file=${file.absolutePath})"
+
+    actual companion object
 }
+
+actual fun PlatformFile.Companion.fromFile(file: File, context: PlatformContext): PlatformFile =
+    PlatformFile(file)

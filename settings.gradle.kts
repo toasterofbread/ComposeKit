@@ -12,10 +12,13 @@ pluginManagement {
 
     plugins {
         val kotlin_version: String = extra["kotlin.version"] as String
-        kotlin("jvm").version(kotlin_version)
         kotlin("multiplatform").version(kotlin_version)
+        kotlin("jvm").version(kotlin_version)
         kotlin("android").version(kotlin_version)
+        kotlin("plugin.compose").version(kotlin_version)
         kotlin("plugin.serialization").version(kotlin_version)
+
+        id("org.jetbrains.kotlinx.atomicfu").version("0.25.0")
 
         val agp_version: String = extra["agp.version"] as String
         id("com.android.library").version(agp_version)
@@ -33,5 +36,8 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://jitpack.io")
+
+        // https://github.com/d1snin/catppuccin-kotlin
+        maven("https://maven.d1s.dev/releases")
     }
 }

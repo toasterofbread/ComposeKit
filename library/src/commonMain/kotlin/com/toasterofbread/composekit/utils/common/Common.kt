@@ -7,13 +7,10 @@ import androidx.compose.animation.core.AnimationVector
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -21,21 +18,14 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.time.Duration.Companion.seconds
 
 fun Boolean.toInt() = if (this) 1 else 0
 fun Boolean.toFloat() = if (this) 1f else 0f
@@ -45,12 +35,6 @@ fun getInnerSquareSizeOfCircle(radius: Float, corner_percent: Int): Float {
 	val E = (sqrt(8.0 * radius * radius) / 2.0) - radius
 	val I = radius + (E * C)
 	return sqrt(I * I * 0.5).toFloat()
-}
-
-inline fun lazyAssert(noinline getMessage: (() -> String)? = null, condition: () -> Boolean) {
-	if (_Assertions.ENABLED && !condition()) {
-		throw AssertionError(getMessage?.invoke() ?: "Assertion failed")
-	}
 }
 
 @Composable
@@ -113,14 +97,14 @@ operator fun IntSize.times(other: Float): IntSize =
 	IntSize(width = (width * other).toInt(), height = (height * other).toInt())
 
 fun formatElapsedTime(seconds: Long): String {
-	val hours = TimeUnit.SECONDS.toHours(seconds)
-	val minutes = TimeUnit.SECONDS.toMinutes(seconds) % 60
+	val hours = seconds.seconds.inWholeHours
+	val minutes = seconds.seconds.inWholeMinutes % 60
 	val remaining_seconds = seconds % 60
 	if (hours > 0) {
-		return String.format("%d:%02d:%02d", hours, minutes, remaining_seconds)
+		return "$hours:${minutes.toString().padStart(2, '0')}:${remaining_seconds.toString().padStart(2, '0')}"
 	}
 	else {
-		return String.format("%02d:%02d", minutes, remaining_seconds)
+		return "${minutes.toString().padStart(2, '0')}:${remaining_seconds.toString().padStart(2, '0')}"
 	}
 }
 
@@ -148,25 +132,9 @@ fun String.indexOfFirstOrNull(start: Int = 0, predicate: (Char) -> Boolean): Int
 	return null
 }
 
-fun CoroutineScope.launchSingle(
-	context: CoroutineContext = EmptyCoroutineContext,
-	start: CoroutineStart = CoroutineStart.DEFAULT,
-	block: suspend CoroutineScope.() -> Unit
-): Job {
-	synchronized(this) {
-		coroutineContext.cancelChildren()
-		return launch(context, start, block)
-	}
-}
-
 fun Float.roundTo(decimals: Int): Float {
 	val multiplier = 10f.pow(decimals)
 	return (this * multiplier).roundToInt() / multiplier
-}
-
-// Kotlin doesn't like certain syntax when used within a lambda that returns a value
-inline fun synchronizedBlock(lock: Any, block: () -> Unit) {
-	synchronized(lock, block)
 }
 
 fun String.substringBetween(start: String, end: String, ignore_case: Boolean = false): String? {

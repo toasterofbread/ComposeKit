@@ -7,7 +7,7 @@ interface PlatformPreferences {
     fun removeListener(listener: PlatformPreferencesListener)
 
     fun getString(key: String, default_value: String?): String?
-    fun getStringSet(key: String, defValues: Set<String>?): Set<String>?
+    fun getStringSet(key: String, default_values: Set<String>?): Set<String>?
     fun getInt(key: String, default_value: Int?): Int?
     fun getLong(key: String, default_value: Long?): Long?
     fun getFloat(key: String, default_value: Float?): Float?
@@ -38,7 +38,7 @@ expect class PlatformPreferencesImpl: PlatformPreferences {
     override fun removeListener(listener: PlatformPreferencesListener)
 
     override fun getString(key: String, default_value: String?): String?
-    override fun getStringSet(key: String, defValues: Set<String>?): Set<String>?
+    override fun getStringSet(key: String, default_values: Set<String>?): Set<String>?
     override fun getInt(key: String, default_value: Int?): Int?
     override fun getLong(key: String, default_value: Long?): Long?
     override fun getFloat(key: String, default_value: Float?): Float?

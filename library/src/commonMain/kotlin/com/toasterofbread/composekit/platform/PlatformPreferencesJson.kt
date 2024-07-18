@@ -5,7 +5,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.boolean
-import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.float
 import kotlinx.serialization.json.int
@@ -13,12 +12,20 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import kotlinx.serialization.KSerializer
+import okio.buffer
+import okio.use
 
 open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPreferences {
     private val data: MutableMap<String, JsonElement> by lazy {
         loadData()
     }
     private var listeners: MutableList<PlatformPreferencesListener> = mutableListOf()
+
+    private val json: Json =
+        Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+        }
 
     private fun onKeyChanged(key: String) {
         for (listener in listeners) {
@@ -32,16 +39,14 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
         }
 
         return file.inputStream().use { stream ->
-            Json {
-                ignoreUnknownKeys = true
-                explicitNulls = false
-            }.decodeFromStream(stream)
+            json.decodeFromString(stream.buffer().readUtf8())
         }
     }
     private fun saveData() {
         file.createFile()
-        file.outputStream().writer().use { writer ->
-            writer.write(Json.encodeToString(data))
+
+        file.outputStream().buffer().use { writer ->
+            writer.writeUtf8(Json.encodeToString(data))
             writer.flush()
         }
     }
@@ -59,8 +64,8 @@ open class PlatformPreferencesJson(private val file: PlatformFile): PlatformPref
         data.get(key)?.jsonPrimitive?.takeIf { it.isString }?.content ?: default_value
 
     @Suppress("UNCHECKED_CAST")
-    override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? =
-        data.get(key)?.jsonArray?.map { it.jsonPrimitive.content }?.toSet() ?: defValues
+    override fun getStringSet(key: String, default_values: Set<String>?): Set<String>? =
+        data.get(key)?.jsonArray?.map { it.jsonPrimitive.content }?.toSet() ?: default_values
 
     override fun getInt(key: String, default_value: Int?): Int? =
         data.get(key)?.jsonPrimitive?.int ?: default_value

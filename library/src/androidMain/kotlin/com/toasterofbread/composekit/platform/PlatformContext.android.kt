@@ -49,6 +49,10 @@ import dev.toastbits.composekit.utils.common.isDark
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
+import okio.Sink
+import okio.Source
+import okio.sink
+import okio.source
 import java.io.*
 import java.util.*
 
@@ -213,13 +217,13 @@ actual class PlatformFile(
         return path_split.joinToString("/")
     }
 
-    actual fun inputStream(): InputStream {
+    actual fun inputStream(): Source {
         try {
-            return context.contentResolver.openInputStream(file!!.uri)!!
+            return context.contentResolver.openInputStream(file!!.uri)!!.source()
         }
         catch (e: Throwable) {
             try {
-                return File(absolute_path).inputStream()
+                return File(absolute_path).inputStream().source()
             }
             catch (_: Throwable) {}
 
@@ -227,17 +231,17 @@ actual class PlatformFile(
         }
     }
 
-    actual fun outputStream(append: Boolean): OutputStream {
+    actual fun outputStream(append: Boolean): Sink {
         if (!is_file) {
             createFile()
         }
 
         try {
-            return context.contentResolver.openOutputStream(file!!.uri, if (append) "wa" else "wt")!!
+            return context.contentResolver.openOutputStream(file!!.uri, if (append) "wa" else "wt")!!.sink()
         }
         catch (e: Throwable) {
             try {
-                return File(absolute_path).outputStream()
+                return File(absolute_path).outputStream().sink()
             }
             catch (_: Throwable) {}
 
@@ -503,16 +507,16 @@ actual class PlatformFile(
     override fun toString(): String =
         "PlatformFile(uri=${document_uri.clean_path}, file=${file?.uri?.clean_path}, parent_file=${parent_docfile?.uri?.clean_path})"
 
-    actual companion object {
-        actual fun fromFile(file: File, context: PlatformContext): PlatformFile =
-            PlatformFile(
-                file.toUri(),
-                DocumentFile.fromFile(file),
-                null,
-                context.ctx
-            )
-    }
+    actual companion object
 }
+
+actual fun PlatformFile.Companion.fromFile(file: File, context: PlatformContext): PlatformFile =
+    PlatformFile(
+        file.toUri(),
+        DocumentFile.fromFile(file),
+        null,
+        context.ctx
+    )
 
 actual open class PlatformContext(
     private val context: Context,
@@ -521,8 +525,8 @@ actual open class PlatformContext(
 ) {
     val ctx: Context get() = context
 
-    actual fun getFilesDir(): File = ctx.filesDir
-    actual fun getCacheDir(): File = ctx.cacheDir
+    actual fun getFilesDir(): PlatformFile? = PlatformFile.fromFile(ctx.filesDir, this)
+    actual fun getCacheDir(): PlatformFile? = PlatformFile.fromFile(ctx.cacheDir, this)
 
     actual fun promptUserForDirectory(persist: Boolean, callback: (uri: String?) -> Unit) {
         check(application_context != null)
@@ -703,13 +707,6 @@ actual open class PlatformContext(
             )
         }
     }
-
-    actual fun deleteFile(name: String): Boolean = ctx.deleteFile(name)
-    actual fun openFileInput(name: String): FileInputStream = ctx.openFileInput(name)
-    actual fun openFileOutput(name: String, append: Boolean): FileOutputStream = ctx.openFileOutput(name, if (append) MODE_APPEND else MODE_PRIVATE)
-
-    actual fun openResourceFile(path: String): InputStream = ctx.resources.assets.open(path)
-    actual fun listResourceFiles(path: String): List<String>? = ctx.resources.assets.list(path)?.toList()
 
     actual fun canSendNotifications(): Boolean = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
     @SuppressLint("MissingPermission")

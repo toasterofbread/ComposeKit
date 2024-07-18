@@ -7,11 +7,7 @@ import androidx.compose.runtime.remember
 import dev.toastbits.composekit.platform.PlatformContext
 
 @Composable
-actual fun BackHandler(
-    enabled: Boolean,
-    priority: Int,
-    action: () -> Unit
-) {
+actual fun BackHandler(enabled: Boolean, priority: Int, action: () -> Unit) {
     val listener: Listener = remember {
         object : Listener(enabled, priority) {
             override fun onBackPressed() {
