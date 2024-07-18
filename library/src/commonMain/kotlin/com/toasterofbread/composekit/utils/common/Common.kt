@@ -20,12 +20,20 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.time.Duration.Companion.seconds
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import dev.toastbits.composekit.platform.synchronized
 
 fun Boolean.toInt() = if (this) 1 else 0
 fun Boolean.toFloat() = if (this) 1f else 0f
@@ -132,9 +140,25 @@ fun String.indexOfFirstOrNull(start: Int = 0, predicate: (Char) -> Boolean): Int
 	return null
 }
 
+fun CoroutineScope.launchSingle(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
+    synchronized(this) {
+        coroutineContext.cancelChildren()
+        return launch(context, start, block)
+    }
+}
+
 fun Float.roundTo(decimals: Int): Float {
 	val multiplier = 10f.pow(decimals)
 	return (this * multiplier).roundToInt() / multiplier
+}
+
+// Kotlin doesn't like certain syntax when used within a lambda that returns a value
+inline fun synchronizedBlock(lock: Any, block: () -> Unit) {
+    synchronized(lock, block)
 }
 
 fun String.substringBetween(start: String, end: String, ignore_case: Boolean = false): String? {

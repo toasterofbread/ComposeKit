@@ -23,19 +23,3 @@ actual inline fun lazyAssert(
 }
 
 actual fun getEnv(name: String): String? = System.getenv(name)
-
-fun CoroutineScope.launchSingle(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> Unit
-): Job {
-    synchronized(this) {
-        coroutineContext.cancelChildren()
-        return launch(context, start, block)
-    }
-}
-
-// Kotlin doesn't like certain syntax when used within a lambda that returns a value
-inline fun synchronizedBlock(lock: Any, block: () -> Unit) {
-    synchronized(lock, block)
-}
