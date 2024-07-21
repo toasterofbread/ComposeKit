@@ -52,7 +52,7 @@ fun ResizableOutlinedTextField(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     val textColor = textStyle.color.takeOrElse {
-        colors.textColor(enabled, isError, interactionSource).value
+        colors.textColor(enabled, isError, interactionSource)
     }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
@@ -64,7 +64,7 @@ fun ResizableOutlinedTextField(
         }
     }
 
-    CompositionLocalProvider(LocalTextSelectionColors provides colors.selectionColors) {
+    CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
             value = value,
             modifier = modifier
@@ -80,7 +80,7 @@ fun ResizableOutlinedTextField(
             enabled = enabled,
             readOnly = readOnly,
             textStyle = mergedTextStyle,
-            cursorBrush = SolidColor(colors.cursorColor(isError).value),
+            cursorBrush = SolidColor(colors.cursorColor(isError)),
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,

@@ -46,7 +46,6 @@ fun PlatformClickableButton(
     val containerColor = colors.containerColor(enabled)
     val contentColor = colors.contentColor(enabled)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
-    val tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp
     Surface(
         modifier = modifier
             .semantics { role = Role.Button }
@@ -59,7 +58,6 @@ fun PlatformClickableButton(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         border = border
     ) {

@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.ripple
 import dev.toastbits.composekit.platform.composable.platformClickable
 import dev.toastbits.composekit.utils.common.thenIf
 
@@ -25,7 +26,7 @@ fun PlatformClickableIconButton(
     onAlt2Click: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    indication: Indication? = rememberRipple(bounded = false, radius = 24.dp),
+    indication: Indication? = ripple(bounded = false, radius = 24.dp),
     apply_minimum_size: Boolean = true,
     content: @Composable () -> Unit
 ) {

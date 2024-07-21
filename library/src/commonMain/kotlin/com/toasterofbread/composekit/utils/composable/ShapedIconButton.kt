@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.tokens.IconButtonTokens
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -34,7 +35,7 @@ fun ShapedIconButton(
     enabled: Boolean = true,
     applyWidth: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    indication: Indication? = rememberRipple(
+    indication: Indication? = ripple(
         bounded = false,
         radius = IconButtonTokens.StateLayerSize / 2
     ),
