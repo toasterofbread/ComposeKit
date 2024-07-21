@@ -15,7 +15,7 @@ fun rememberSystemTheme(name: String, context: PlatformContext): NamedTheme {
 
     return remember(environment_theme ?: dark_mode) {
         if (environment_theme != null) {
-            return@remember environment_theme
+            return@remember environment_theme.copy(name = "$name - ${environment_theme.name}")
         }
 
         return@remember NamedTheme(
