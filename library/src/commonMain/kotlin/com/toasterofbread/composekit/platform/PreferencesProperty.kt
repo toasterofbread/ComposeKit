@@ -3,22 +3,29 @@ package dev.toastbits.composekit.platform
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import dev.toastbits.composekit.utils.composable.OnChangedEffect
 import kotlinx.serialization.json.JsonElement
 
 interface PreferencesProperty<T>: ReadOnlyProperty<Any?, PreferencesProperty<T>> {
     val key: String
-    val name: String
-    val description: String?
 
-    fun get(): T
+    @Composable
+    fun getName(): String
+    @Composable
+    fun getDescription(): String?
+
+    suspend fun get(): T
     fun set(value: T, editor: PlatformPreferences.Editor? = null)
     fun set(data: JsonElement, editor: PlatformPreferences.Editor? = null)
     fun reset()
 
     fun serialise(value: Any?): JsonElement
 
-    fun getDefaultValue(): T
+    suspend fun getDefaultValue(): T
+    @Composable
+    fun getDefaultValueComposable(): T
+
     fun isHidden(): Boolean = false
 
     @Composable
@@ -30,10 +37,12 @@ interface PreferencesProperty<T>: ReadOnlyProperty<Any?, PreferencesProperty<T>>
         val base: PreferencesProperty<T> = this
         return object : PreferencesProperty<O> {
             override val key: String get() = base.key
-            override val name: String get() = base.name
-            override val description: String? get() = base.description
+            @Composable
+            override fun getName(): String = base.getName()
+            @Composable
+            override fun getDescription(): String? = base.getDescription()
 
-            override fun get(): O = fromProperty(base.get())
+            override suspend fun get(): O = fromProperty(base.get())
             override fun set(value: O, editor: PlatformPreferences.Editor?) { base.set(toProperty(value), editor) }
             override fun set(data: JsonElement, editor: PlatformPreferences.Editor?) { base.set(data, editor) }
             override fun reset() { base.reset() }
@@ -41,7 +50,10 @@ interface PreferencesProperty<T>: ReadOnlyProperty<Any?, PreferencesProperty<T>>
             @Suppress("UNCHECKED_CAST")
             override fun serialise(value: Any?): JsonElement = base.serialise(toProperty(value as O))
 
-            override fun getDefaultValue(): O = fromProperty(base.getDefaultValue())
+            override suspend fun getDefaultValue(): O = fromProperty(base.getDefaultValue())
+            @Composable
+            override fun getDefaultValueComposable(): O = fromProperty(base.getDefaultValueComposable())
+
             override fun isHidden(): Boolean = base.isHidden()
 
             @Composable

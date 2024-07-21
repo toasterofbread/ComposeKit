@@ -12,6 +12,9 @@ import kotlin.coroutines.EmptyCoroutineContext
 actual fun assert(condition: Boolean) {
     kotlin.assert(condition)
 }
+actual fun assert(condition: Boolean, lazyMessage: () -> String) {
+    kotlin.assert(condition, lazyMessage)
+}
 
 actual inline fun lazyAssert(
     noinline getMessage: (() -> String)?,

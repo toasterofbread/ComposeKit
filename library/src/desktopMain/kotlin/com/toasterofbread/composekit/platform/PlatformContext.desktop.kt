@@ -51,16 +51,8 @@ actual open class PlatformContext(
             directory = FileHandle(getHomeDir())
         }
 
-    actual fun getFilesDir(): PlatformFile? {
-        val subdir: String = when (hostOs) {
-            OS.Linux -> ".local/share"
-            OS.Windows -> "AppData/Local/"
-            else -> throw NotImplementedError(hostOs.name)
-        }
-
-        val file: File = getHomeDir().resolve(subdir).resolve(app_name.lowercase())
-        return PlatformFile.fromFile(file, this)
-    }
+    actual fun getFilesDir(): PlatformFile? =
+        PlatformFile.fromFile(getDesktopFilesDir(app_name), this)
 
     actual fun getCacheDir(): PlatformFile? {
         val subdir: String = when (hostOs) {
@@ -291,3 +283,14 @@ actual class PlatformFile(val file: File) {
 
 actual fun PlatformFile.Companion.fromFile(file: File, context: PlatformContext): PlatformFile =
     PlatformFile(file)
+
+fun getDesktopFilesDir(app_name: String): File {
+    val subdir: String =
+        when (hostOs) {
+            OS.Linux -> ".local/share"
+            OS.Windows -> "AppData/Local/"
+            else -> throw NotImplementedError(hostOs.name)
+        }
+
+    return getHomeDir().resolve(subdir).resolve(app_name.lowercase())
+}

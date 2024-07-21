@@ -23,7 +23,8 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.Theme
+import dev.toastbits.composekit.settings.ui.ThemeValues
+import dev.toastbits.composekit.settings.ui.vibrant_accent
 
 class ToggleSettingsItem(
     val state: PreferencesProperty<Boolean>,
@@ -35,7 +36,7 @@ class ToggleSettingsItem(
 ): SettingsItem() {
     private var loading: Boolean by mutableStateOf(false)
 
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
     }
 
@@ -48,7 +49,7 @@ class ToggleSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme: Theme = settings_interface.theme
+        val theme: ThemeValues = settings_interface.theme
         val enabled: Boolean = getEnabled()
         val value_override: Boolean? = getValueOverride()
         var current_value: Boolean by state.observe()
@@ -60,8 +61,8 @@ class ToggleSettingsItem(
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                ItemTitleText(state.name, theme, max_lines = title_max_lines)
-                settings_interface.ItemText(getSubtitleOverride() ?: state.description, theme)
+                ItemTitleText(state.getName(), theme, max_lines = title_max_lines)
+                settings_interface.ItemText(getSubtitleOverride() ?: state.getDescription(), theme)
             }
 
             Crossfade(loading) {

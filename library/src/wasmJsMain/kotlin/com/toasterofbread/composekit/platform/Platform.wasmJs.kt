@@ -9,6 +9,7 @@ actual fun getPlatformOSName(): String = js("window.navigator.platform")
 actual fun getPlatformHostName(): String = "Unknown"
 
 actual fun assert(condition: Boolean) {}
+actual fun assert(condition: Boolean, lazyMessage: () -> String) {}
 
 actual inline fun lazyAssert(
     noinline getMessage: (() -> String)?,

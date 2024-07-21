@@ -35,20 +35,23 @@ import dev.toastbits.composekit.platform.composable.ScrollabilityIndicatorColumn
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.utils.composable.ShapedIconButton
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 class StringSetSettingsItem(
     val state: PreferencesProperty<Set<String>>,
-    val add_dialog_title: String,
-    val msg_item_already_added: String,
-    val msg_set_empty: String,
+    val add_dialog_title: StringResource,
+    val msg_item_already_added: StringResource,
+    val msg_set_empty: StringResource,
     val single_line_content: Boolean = true,
     val max_height: Dp = 300.dp,
     val itemToText: @Composable (String) -> String = { it },
     val textToItem: (String) -> String = { it },
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
     }
 
@@ -61,6 +64,7 @@ class StringSetSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
+        val value: Set<String> by state.observe()
         val theme = settings_interface.theme
         val icon_button_colours = IconButtonDefaults.iconButtonColors(
             containerColor = theme.accent,
@@ -71,7 +75,7 @@ class StringSetSettingsItem(
         var show_add_item_dialog: Boolean by remember { mutableStateOf(false) }
         if (show_add_item_dialog) {
             var new_item_content: String by remember { mutableStateOf("") }
-            val item_already_added = state.get().contains(new_item_content)
+            val item_already_added = value.contains(new_item_content)
             val can_add_item = new_item_content.isNotEmpty() && !item_already_added
 
             AlertDialog(
@@ -80,7 +84,7 @@ class StringSetSettingsItem(
                     Crossfade(can_add_item) { enabled ->
                         ShapedIconButton(
                             {
-                                state.set(state.get().plus(textToItem(new_item_content)))
+                                state.set(value.plus(textToItem(new_item_content)))
                                 show_add_item_dialog = false
                             },
                             colours = icon_button_colours,
@@ -100,7 +104,7 @@ class StringSetSettingsItem(
                         Icon(Icons.Default.Close, null)
                     }
                 },
-                title = { Text(add_dialog_title) },
+                title = { Text(stringResource(add_dialog_title)) },
                 text = {
                     TextField(
                         new_item_content,
@@ -108,9 +112,9 @@ class StringSetSettingsItem(
                         getFieldModifier(),
                         singleLine = single_line_content,
                         isError = item_already_added,
-                        label = if (item_already_added) {{
-                            Text(msg_item_already_added)
-                        }} else null
+                        label =
+                        if (item_already_added) {{ Text(stringResource(msg_item_already_added)) }}
+                        else null
                     )
                 }
             )
@@ -124,8 +128,8 @@ class StringSetSettingsItem(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    ItemTitleText(state.name, theme)
-                    settings_interface.ItemText(state.description, theme)
+                    ItemTitleText(state.getName(), theme)
+                    settings_interface.ItemText(state.getDescription(), theme)
                 }
 
                 ShapedIconButton(
@@ -136,10 +140,10 @@ class StringSetSettingsItem(
                 }
             }
 
-            Crossfade(state.get(), Modifier.fillMaxWidth()) { set ->
+            Crossfade(value, Modifier.fillMaxWidth()) { set ->
                 if (set.isEmpty()) {
                     Text(
-                        msg_set_empty,
+                        stringResource(msg_set_empty),
                         Modifier.fillMaxWidth().padding(top = 20.dp),
                         textAlign = TextAlign.Center
                     )

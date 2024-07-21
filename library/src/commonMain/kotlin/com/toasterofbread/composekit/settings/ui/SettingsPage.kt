@@ -133,7 +133,7 @@ abstract class SettingsPage {
 private const val SETTINGS_PAGE_WITH_ITEMS_SPACING = 20f
 
 open class SettingsPageWithItems(
-    val getTitle: () -> String?,
+    val getTitle: @Composable () -> String?,
     val getItems: () -> List<SettingsItem>,
     val modifier: Modifier = Modifier,
     val getIcon: (@Composable () -> ImageVector?)? = null

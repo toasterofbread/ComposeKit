@@ -55,6 +55,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
@@ -71,46 +72,49 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.StaticThemeData
-import dev.toastbits.composekit.settings.ui.Theme
-import dev.toastbits.composekit.settings.ui.ThemeData
+import dev.toastbits.composekit.settings.ui.vibrant_accent
+import dev.toastbits.composekit.settings.ui.on_accent
+import dev.toastbits.composekit.settings.ui.ThemeValues
+import dev.toastbits.composekit.settings.ui.ThemeValuesData
+import dev.toastbits.composekit.settings.ui.ThemeManager
+import dev.toastbits.composekit.settings.ui.NamedTheme
 import dev.toastbits.composekit.utils.common.contrastAgainst
 import dev.toastbits.composekit.utils.common.generatePalette
 import dev.toastbits.composekit.utils.common.getContrasted
 import dev.toastbits.composekit.utils.common.random
 import dev.toastbits.composekit.utils.common.sorted
+import dev.toastbits.composekit.utils.common.copy
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 import dev.toastbits.composekit.utils.composable.ColourPicker
 import dev.toastbits.composekit.utils.composable.OnChangedEffect
 import dev.toastbits.composekit.utils.composable.ShapedIconButton
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import dev.toastbits.composekit.library.generated.resources.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class ThemeSelectorSettingsItem(
     val state: PreferencesProperty<Int>,
+    val theme_manager: ThemeManager,
 
-    val str_editor_title: String?,
-    val str_field_name: String,
-    val str_field_background: String,
-    val str_field_on_background: String,
-    val str_field_card: String,
-    val str_field_accent: String,
-    val str_button_preview: String,
+    val str_editor_title: StringResource?,
+    val str_field_name: StringResource,
+    val str_field_background: StringResource,
+    val str_field_on_background: StringResource,
+    val str_field_card: StringResource,
+    val str_field_accent: StringResource,
+    val str_button_preview: StringResource,
 
-    val getThemeCount: () -> Int,
-    val getTheme: (index: Int) -> ThemeData?,
-    val onThemeEdited: (index: Int, edited_theme: ThemeData) -> Unit,
-    val createTheme: (Int) -> Unit,
-    val removeTheme: (index: Int) -> Unit,
-
+    val resetThemes: suspend () -> Unit,
+    val getThemeProvider: @Composable () -> ThemeSelectorThemeProvider,
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
-    override fun resetValues() {
+    override suspend fun resetValues() {
+        resetThemes()
         state.reset()
-        for (i in getThemeCount() - 1 downTo 0) {
-            removeTheme(i)
-        }
     }
 
     override fun getProperties(): List<PreferencesProperty<*>> = listOf(state)
@@ -122,6 +126,10 @@ class ThemeSelectorSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
+        val value: Int by state.observe()
+        val coroutine_scope: CoroutineScope = rememberCoroutineScope()
+        val theme_provider: ThemeSelectorThemeProvider = getThemeProvider()
+
         Column {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -134,49 +142,51 @@ class ThemeSelectorSettingsItem(
                 )
 
                 ItemTitleText(
-                    state.name,
+                    state.getName(),
                     settings_interface.theme,
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
                 )
 
-                Text("${state.get() + 1} / ${getThemeCount()}")
+                Text("${value + 1} / ${theme_provider.getThemeCount()}")
 
                 ShapedIconButton(
-                    { state.set((state.get() - 1).coerceAtLeast(0)) },
+                    { state.set((value - 1).coerceAtLeast(0)) },
                     icon_button_colours,
                     onLongClick = {
                         settings_interface.triggerVibration()
                         state.set(0)
                     },
-                    enabled = state.get() > 0
+                    enabled = value > 0
                 ) {
                     Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, null)
                 }
 
                 ShapedIconButton(
-                    { state.set((state.get() + 1).coerceAtMost(getThemeCount() - 1)) },
+                    { state.set((value + 1).coerceAtMost(theme_provider.getThemeCount() - 1)) },
                     icon_button_colours,
                     onLongClick = {
                         settings_interface.triggerVibration()
-                        state.set(getThemeCount() - 1)
+                        state.set(theme_provider.getThemeCount() - 1)
                     },
-                    enabled = state.get() + 1 < getThemeCount()
+                    enabled = value + 1 < theme_provider.getThemeCount()
                 ) {
                     Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, null)
                 }
 
                 IconButton({
-                    val index: Int = state.get() + 1
-                    createTheme(index)
-                    state.set(index)
+                    coroutine_scope.launch {
+                        val index: Int = value + 1
+                        theme_provider.createTheme(index)
+                        state.set(index)
+                    }
                 }) {
                     Icon(Icons.Filled.Add, null)
                 }
             }
 
-            Crossfade(state.get().let { Pair(getTheme(it), it) }) {
+            Crossfade(value.let { Pair(theme_provider.getTheme(it), it) }) {
                 val (theme_data, theme_index) = it
                 if (theme_data == null) {
                     return@Crossfade
@@ -192,286 +202,260 @@ class ThemeSelectorSettingsItem(
                     WidthShrinkText(
                         theme_data.name,
                         Modifier
-                            .border(2.dp, theme_data.accent, CircleShape)
+                            .border(2.dp, theme_data.theme.accent, CircleShape)
                             .fillMaxHeight()
                             .weight(1f)
                             .padding(start = 15.dp)
                     )
 
-                    val icon_button_colours = IconButtonDefaults.iconButtonColors(
-                        containerColor = theme_data.accent,
-                        contentColor = theme_data.accent.getContrasted(),
-                        disabledContainerColor = theme_data.accent.copy(alpha = 0.1f)
-                    )
+                    val icon_button_colours: IconButtonColors =
+                        IconButtonDefaults.iconButtonColors(
+                            containerColor = theme_data.theme.accent,
+                            contentColor = theme_data.theme.accent.getContrasted(),
+                            disabledContainerColor = theme_data.theme.accent.copy(alpha = 0.1f)
+                        )
 
                     ShapedIconButton(
                         {
                             openCustomPage(
                                 getEditPage(
-                                    str_editor_title,
-                                    str_field_name,
-                                    str_field_background,
-                                    str_field_on_background,
-                                    str_field_card,
-                                    str_field_accent,
-                                    str_button_preview,
                                     theme_data,
-                                    onEditCompleted = {
-                                        onThemeEdited(theme_index, it)
-                                    },
-                                    getFieldModifier = getFieldModifier
+                                    onEditCompleted = { theme, name ->
+                                        theme_provider.onThemeEdited(theme_index, theme, name)
+                                    }
                                 )
                             )
                         },
                         icon_button_colours,
                         Modifier.size(height),
-                        enabled = theme_data.isEditable()
+                        enabled = theme_provider.isThemeEditable(theme_index)
                     ) {
-                        Icon(Icons.Filled.Edit, null, tint = theme_data.accent.getContrasted())
+                        Icon(Icons.Filled.Edit, null, tint = theme_data.theme.accent.getContrasted())
                     }
 
                     ShapedIconButton(
                         {
-                            removeTheme(theme_index)
-                            if (getThemeCount() <= theme_index) {
-                                state.set(theme_index - 1)
+                            coroutine_scope.launch {
+                                theme_provider.removeTheme(theme_index)
+                                if (theme_provider.getThemeCount() <= theme_index) {
+                                    state.set(theme_index - 1)
+                                }
                             }
                         },
                         icon_button_colours,
                         Modifier.size(height),
-                        enabled = theme_data.isEditable()
+                        enabled = theme_provider.isThemeEditable(theme_index)
                     ) {
-                        Icon(Icons.Filled.Close, null, tint = theme_data.accent.getContrasted())
+                        Icon(Icons.Filled.Close, null, tint = theme_data.theme.accent.getContrasted())
                     }
                 }
             }
         }
     }
-}
 
-private fun getEditPage(
-    editor_title: String?,
-    str_field_name: String,
-    str_field_background: String,
-    str_field_on_background: String,
-    str_field_card: String,
-    str_field_accent: String,
-    str_button_preview: String,
-    theme: ThemeData,
-    onEditCompleted: (theme_data: ThemeData) -> Unit,
-    getFieldModifier: @Composable () -> Modifier
-): SettingsPage {
-    return object : SettingsPage() {
-        override val title: String?
+    private fun getEditPage(
+        theme_data: NamedTheme,
+        onEditCompleted: (ThemeValues, String) -> Unit
+    ): SettingsPage {
+        return object : SettingsPage() {
+            override val title: String?
+                @Composable
+                get() = str_editor_title?.let { stringResource(it) }
+
+            private var theme_values: ThemeValuesData by mutableStateOf(theme_data.theme)
+            private var theme_name: String by mutableStateOf(theme_data.name)
+
             @Composable
-            get() = editor_title
-
-        private var reset by mutableStateOf(false)
-
-        private var name: String by mutableStateOf(theme.name)
-        private var background: Color by mutableStateOf(theme.background)
-        private var on_background: Color by mutableStateOf(theme.on_background)
-        private var card: Color by mutableStateOf(theme.card)
-        private var accent: Color by mutableStateOf(theme.accent)
-
-        @Composable
-        override fun PageView(
-            content_padding: PaddingValues,
-            openPage: (Int, Any?) -> Unit,
-            openCustomPage: (SettingsPage) -> Unit,
-            goBack: () -> Unit
-        ) {
-            val focus_manager: FocusManager = LocalFocusManager.current
-            val density: Density = LocalDensity.current
-
-            val ui_theme: Theme = settings_interface.theme
-            var previewing: Boolean by remember { mutableStateOf(ui_theme.preview_active) }
-            var randomise: Boolean by remember { mutableStateOf(false) }
-
-            val icon_button_colours = IconButtonDefaults.iconButtonColors(
-                containerColor = ui_theme.vibrant_accent,
-                contentColor = ui_theme.vibrant_accent.getContrasted()
-            )
-            OnChangedEffect(previewing) {
-                if (previewing) {
-                    ui_theme.setPreviewThemeData(StaticThemeData(name, background, on_background, card, accent))
-                }
-                else {
-                    ui_theme.setPreviewThemeData(null)
-                }
-            }
-
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectTapGestures {
-                            focus_manager.clearFocus()
-                        }
-                    }
+            override fun PageView(
+                content_padding: PaddingValues,
+                openPage: (Int, Any?) -> Unit,
+                openCustomPage: (SettingsPage) -> Unit,
+                goBack: () -> Unit
             ) {
-                var footer_height: Dp by remember { mutableStateOf(0.dp) }
+                val coroutine_scope: CoroutineScope = rememberCoroutineScope()
+                val focus_manager: FocusManager = LocalFocusManager.current
+                val density: Density = LocalDensity.current
 
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = content_padding
-                ) {
-                    item {
-                        OutlinedTextField(
-                            name,
-                            { name = it },
-                            getFieldModifier().fillMaxWidth(),
-                            label = { Text(str_field_name) },
-                            isError = name.isEmpty(),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                cursorColor = ui_theme.vibrant_accent,
-                                focusedBorderColor = ui_theme.vibrant_accent,
-                                focusedLabelColor = ui_theme.vibrant_accent,
-                            ),
-                            keyboardActions = KeyboardActions(onDone = {
+                val ui_theme: ThemeValues = settings_interface.theme
+                var randomise: Boolean by remember { mutableStateOf(false) }
+
+                val icon_button_colours = IconButtonDefaults.iconButtonColors(
+                    containerColor = ui_theme.vibrant_accent,
+                    contentColor = ui_theme.vibrant_accent.getContrasted()
+                )
+
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures {
                                 focus_manager.clearFocus()
-                            })
-                        )
-                    }
+                            }
+                        }
+                ) {
+                    var footer_height: Dp by remember { mutableStateOf(0.dp) }
 
-                    fun Field(name: String, default_colour: Color, onChanged: suspend (Color) -> Unit) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        contentPadding = content_padding
+                    ) {
                         item {
-                            ColourField(
-                                name,
-                                ui_theme,
-                                default_colour,
-                                icon_button_colours,
-                                randomise
-                            ) { colour ->
-                                onChanged(colour)
+                            OutlinedTextField(
+                                theme_name,
+                                { theme_name = it },
+                                getFieldModifier().fillMaxWidth(),
+                                label = { Text(stringResource(str_field_name)) },
+                                isError = theme_name.isEmpty(),
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    cursorColor = ui_theme.vibrant_accent,
+                                    focusedBorderColor = ui_theme.vibrant_accent,
+                                    focusedLabelColor = ui_theme.vibrant_accent,
+                                ),
+                                keyboardActions = KeyboardActions(onDone = {
+                                    focus_manager.clearFocus()
+                                })
+                            )
+                        }
 
-                                if (ui_theme.preview_active) {
-                                    ui_theme.setPreviewThemeData(
-                                        StaticThemeData(
-                                            "",
-                                            background,
-                                            on_background,
-                                            card,
-                                            accent
-                                        )
-                                    )
+                        fun Field(name: StringResource, default_colour: Color, onChanged: suspend (Color) -> Unit) {
+                            item {
+                                ColourField(
+                                    stringResource(name),
+                                    ui_theme,
+                                    default_colour,
+                                    icon_button_colours,
+                                    randomise
+                                ) { colour ->
+                                    onChanged(colour)
                                 }
                             }
                         }
+
+                        Field(
+                            str_field_background,
+                            theme_data.theme.background,
+                        ) { colour ->
+                            theme_values = theme_values.copy(background = colour)
+                        }
+                        Field(
+                            str_field_on_background,
+                            theme_data.theme.on_background,
+                        ) { colour ->
+                            theme_values = theme_values.copy(on_background = colour)
+                        }
+                        Field(
+                            str_field_card,
+                            theme_data.theme.card,
+                        ) { colour ->
+                            theme_values = theme_values.copy(card = colour)
+                        }
+                        Field(
+                            str_field_accent,
+                            theme_data.theme.accent,
+                        ) { colour ->
+                            theme_values = theme_values.copy(accent = colour)
+                        }
+
+                        item {
+                            Spacer(Modifier.height(footer_height))
+                        }
                     }
 
-                    Field(
-                        str_field_background,
-                        theme.background,
-                    ) { colour ->
-                        background = colour
-                    }
-                    Field(
-                        str_field_on_background,
-                        theme.on_background,
-                    ) { colour ->
-                        on_background = colour
-                    }
-                    Field(
-                        str_field_card,
-                        theme.card,
-                    ) { colour ->
-                        card = colour
-                    }
-                    Field(
-                        str_field_accent,
-                        theme.accent,
-                    ) { colour ->
-                        accent = colour
-                    }
+                    Row(
+                        settings_interface.getFooterModifier()
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max)
+                            .align(Alignment.BottomCenter)
+                            .padding(20.dp)
+                            .onSizeChanged {
+                                footer_height = with (density) {
+                                    it.height.toDp()
+                                }
+                            },
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        val button_colours: ButtonColors = ButtonDefaults.buttonColors(
+                            containerColor = ui_theme.accent,
+                            contentColor = ui_theme.on_accent
+                        )
 
-                    item {
-                        Spacer(Modifier.height(footer_height))
-                    }
-                }
-
-                Row(
-                    settings_interface.getFooterModifier()
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max)
-                        .align(Alignment.BottomCenter)
-                        .padding(20.dp)
-                        .onSizeChanged {
-                            footer_height = with (density) {
-                                it.height.toDp()
+                        LaunchedEffect(theme_values) {
+                            if (!theme_manager.isPreviewActive()) {
+                                return@LaunchedEffect
                             }
-                        },
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    val button_colours: ButtonColors = ButtonDefaults.buttonColors(
-                        containerColor = ui_theme.accent,
-                        contentColor = ui_theme.on_accent
-                    )
 
-                    Button(
-                        { previewing = !previewing },
-                        Modifier.fillMaxHeight(),
-                        colors = button_colours,
-                        contentPadding = PaddingValues(start = 10.dp, end = 15.dp)
-                    ) {
-                        Switch(
-                            previewing,
-                            { previewing = it },
-                            colors = SwitchDefaults.colors(
-                                checkedTrackColor = ui_theme.vibrant_accent.getContrasted().copy(alpha = 0.5f),
-                                checkedThumbColor = ui_theme.vibrant_accent,
-                                uncheckedTrackColor = ui_theme.vibrant_accent.getContrasted(),
-                                uncheckedThumbColor = ui_theme.vibrant_accent.copy(alpha = 0.5f)
+                            theme_manager.setPreviewTheme(theme_values)
+                        }
+
+                        fun togglePreviewTheme() {
+                            if (theme_manager.isPreviewActive()) {
+                                theme_manager.setPreviewTheme(null)
+                            }
+                            else {
+                                theme_manager.setPreviewTheme(theme_values)
+                            }
+                        }
+
+                        Button(
+                            { togglePreviewTheme() },
+                            Modifier.fillMaxHeight(),
+                            colors = button_colours,
+                            contentPadding = PaddingValues(start = 10.dp, end = 15.dp)
+                        ) {
+                            Switch(
+                                theme_manager.isPreviewActive(),
+                                { togglePreviewTheme() },
+                                colors = SwitchDefaults.colors(
+                                    checkedTrackColor = ui_theme.vibrant_accent.getContrasted().copy(alpha = 0.5f),
+                                    checkedThumbColor = ui_theme.vibrant_accent,
+                                    uncheckedTrackColor = ui_theme.vibrant_accent.getContrasted(),
+                                    uncheckedThumbColor = ui_theme.vibrant_accent.copy(alpha = 0.5f)
+                                )
                             )
-                        )
-                        Text(str_button_preview, Modifier.padding(start = 5.dp))
-                    }
+                            Text(stringResource(str_button_preview), Modifier.padding(start = 5.dp))
+                        }
 
-                    ShapedIconButton(
-                        { randomise = !randomise },
-                        icon_button_colours,
-                        Modifier.fillMaxHeight().aspectRatio(1f)
-                    ) {
-                        Icon(
-                            painterResource(Res.drawable.ic_die),
-                            null,
-                            Modifier.size(25.dp)
-                        )
-                    }
+                        ShapedIconButton(
+                            { randomise = !randomise },
+                            icon_button_colours,
+                            Modifier.fillMaxHeight().aspectRatio(1f)
+                        ) {
+                            Icon(
+                                painterResource(Res.drawable.ic_die),
+                                null,
+                                Modifier.size(25.dp)
+                            )
+                        }
 
-                    Spacer(Modifier.fillMaxWidth().weight(1f))
+                        Spacer(Modifier.fillMaxWidth().weight(1f))
 
-                    ShapedIconButton(
-                        {
-                            onEditCompleted(StaticThemeData(name, background, on_background, card, accent))
-                            goBack()
-                        },
-                        icon_button_colours,
-                        Modifier.fillMaxHeight().aspectRatio(1f)
-                    ) {
-                        Icon(
-                            Icons.Filled.Done,
-                            null,
-                            Modifier.size(25.dp)
-                        )
+                        ShapedIconButton(
+                            {
+                                onEditCompleted(theme_values, theme_name)
+                                goBack()
+                            },
+                            icon_button_colours,
+                            Modifier.fillMaxHeight().aspectRatio(1f)
+                        ) {
+                            Icon(
+                                Icons.Filled.Done,
+                                null,
+                                Modifier.size(25.dp)
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        override suspend fun resetKeys() {
-            name = theme.name
-            background = theme.background
-            on_background = theme.on_background
-            card = theme.card
-            accent = theme.accent
-            reset = !reset
-        }
+            override suspend fun resetKeys() {
+                theme_values = theme_data.theme
+            }
 
-        override fun onClosed() {
-            super.onClosed()
-            settings_interface.theme.setPreviewThemeData(null)
+            override fun onClosed() {
+                super.onClosed()
+                theme_manager.setPreviewTheme(null)
+            }
         }
     }
 }
@@ -479,7 +463,7 @@ private fun getEditPage(
 @Composable
 private fun ColourField(
     name: String,
-    ui_theme: Theme,
+    ui_theme: ThemeValues,
     default_colour: Color,
     button_colours: IconButtonColors,
     randomise: Any,

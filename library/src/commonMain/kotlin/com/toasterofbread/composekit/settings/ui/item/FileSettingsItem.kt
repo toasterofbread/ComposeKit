@@ -32,6 +32,7 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.utils.common.toFloat
 import dev.toastbits.composekit.utils.composable.SubtleLoadingIndicator
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
@@ -59,7 +60,7 @@ class FileSettingsItem(
         val onSelected: suspend (accepted: Boolean) -> Unit
     )
 
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
     }
 
@@ -157,8 +158,8 @@ class FileSettingsItem(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    ItemTitleText(state.name, settings_interface.theme)
-                    settings_interface.ItemText(state.description, settings_interface.theme)
+                    ItemTitleText(state.getName(), settings_interface.theme)
+                    settings_interface.ItemText(state.getDescription(), settings_interface.theme)
                 }
 
                 IconButton({
@@ -183,8 +184,10 @@ class FileSettingsItem(
                     .background(settings_interface.theme.accent, RoundedCornerShape(16.dp))
                     .padding(10.dp)
             ) {
+                val value: String? by state.observe()
+
                 Text(
-                    getPathLabel(state.get()),
+                    value?.let { getPathLabel(it) } ?: "",
                     style = MaterialTheme.typography.bodySmall,
                     color = settings_interface.theme.on_accent
                 )

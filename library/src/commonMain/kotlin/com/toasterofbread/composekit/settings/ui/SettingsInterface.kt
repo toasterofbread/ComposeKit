@@ -29,7 +29,7 @@ import dev.toastbits.composekit.settings.ui.item.SettingsItem
 
 class SettingsInterface(
     val context: PlatformContext,
-    val themeProvider: () -> Theme,
+    val themeProvider: () -> ThemeValues,
     private val root_page: Int,
     val prefs: PlatformPreferences,
     val triggerVibration: () -> Unit,
@@ -38,7 +38,7 @@ class SettingsInterface(
     private val onCloseRequested: (() -> Unit)? = null,
     val getFooterModifier: @Composable () -> Modifier = { Modifier }
 ) {
-    val theme: Theme get() = themeProvider()
+    val theme: ThemeValues get() = themeProvider()
     var current_page: SettingsPage by mutableStateOf(getUserPage(root_page, null))
         private set
     private val page_stack = mutableListOf<SettingsPage>()
@@ -126,7 +126,7 @@ class SettingsInterface(
     @Composable
     fun ItemText(
         text: String?,
-        theme: Theme,
+        theme: ThemeValues,
         colour: Color = theme.on_background.copy(alpha = 0.75f),
         linkify: Boolean = true
     ) {

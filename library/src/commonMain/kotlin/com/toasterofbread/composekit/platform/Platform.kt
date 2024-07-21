@@ -26,6 +26,7 @@ expect fun getPlatformOSName(): String
 expect fun getPlatformHostName(): String
 
 expect fun assert(condition: Boolean)
+expect fun assert(condition: Boolean, lazyMessage: () -> String)
 
 expect inline fun lazyAssert(noinline getMessage: (() -> String)? = null, condition: () -> Boolean)
 

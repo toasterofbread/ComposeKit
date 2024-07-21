@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.settings.ui.vibrant_accent
+import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.platform.PreferencesProperty
 
 class SubpageSettingsItem(
@@ -18,7 +20,7 @@ class SubpageSettingsItem(
     val target_page_param: Any?
 ): SettingsItem() {
     override fun getProperties(): List<PreferencesProperty<*>> = emptyList()
-    override fun resetValues() {}
+    override suspend fun resetValues() {}
 
     @Composable
     override fun Item(

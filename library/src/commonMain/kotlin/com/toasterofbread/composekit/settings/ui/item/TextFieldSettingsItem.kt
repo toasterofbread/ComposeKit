@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -23,10 +24,10 @@ import dev.toastbits.composekit.utils.composable.ResizableOutlinedTextField
 class TextFieldSettingsItem(
     val state: PreferencesProperty<String>,
     val single_line: Boolean = true,
-    val getStringError: (String) -> String? = { null },
+    val getStringErrorProvider: @Composable () -> TextFieldErrorMessageProvider? = { null },
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
     }
 
@@ -39,19 +40,25 @@ class TextFieldSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
+        val string_error_provider: TextFieldErrorMessageProvider? = getStringErrorProvider()
+
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            ItemTitleText(state.name, settings_interface.theme)
-            settings_interface.ItemText(state.description, settings_interface.theme)
+            ItemTitleText(state.getName(), settings_interface.theme)
+            settings_interface.ItemText(state.getDescription(), settings_interface.theme)
 
             var input_error: String? by remember { mutableStateOf(null) }
-            var current_value: String by remember { mutableStateOf(state.get()) }
+            var current_value: String by remember { mutableStateOf("") }
+
+            LaunchedEffect(state) {
+                current_value = state.get()
+            }
 
             ResizableOutlinedTextField(
                 current_value,
                 { text ->
                     current_value = text
 
-                    input_error = getStringError(text)
+                    input_error = string_error_provider?.invoke(text)
                     if (input_error == null) {
                         state.set(text)
                     }
@@ -70,3 +77,5 @@ class TextFieldSettingsItem(
         }
     }
 }
+
+typealias TextFieldErrorMessageProvider = (String) -> String?

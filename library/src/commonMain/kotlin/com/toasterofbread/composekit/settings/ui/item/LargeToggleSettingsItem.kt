@@ -38,17 +38,22 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.Theme
+import dev.toastbits.composekit.settings.ui.ThemeValues
+import dev.toastbits.composekit.settings.ui.on_accent
+import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.utils.composable.SubtleLoadingIndicator
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 import dev.toastbits.composekit.utils.modifier.background
+import dev.toastbits.composekit.utils.common.getValue
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 class LargeToggleSettingsItem(
     val state: PreferencesProperty<Boolean>,
-    val enabled_text: String? = null,
-    val disabled_text: String? = null,
-    val enable_button: String,
-    val disable_button: String,
+    val enabled_text: StringResource? = null,
+    val disabled_text: StringResource? = null,
+    val enable_button: StringResource,
+    val disable_button: StringResource,
     val enabledContent: (@Composable (Modifier) -> Unit)? = null,
     val disabledContent: (@Composable (Modifier) -> Unit)? = null,
     val prerequisite_value: PreferencesProperty<Boolean>? = null,
@@ -59,7 +64,7 @@ class LargeToggleSettingsItem(
     val onClicked: (target: Boolean, setEnabled: (Boolean) -> Unit, setLoading: (Boolean) -> Unit, openPage: (Int, Any?) -> Unit) -> Unit =
         { target, setEnabled, _, _ -> setEnabled(target) }
 ): SettingsItem() {
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
         for (item in extra_items) {
             item.resetValues()
@@ -75,7 +80,7 @@ class LargeToggleSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme: Theme = settings_interface.theme
+        val theme: ThemeValues = settings_interface.theme
         val shape: RoundedCornerShape = RoundedCornerShape(25.dp)
         var loading: Boolean by remember { mutableStateOf(false) }
 
@@ -87,20 +92,21 @@ class LargeToggleSettingsItem(
             openPage
         )
 
-        val state_value by state.observe()
+        val state_value: Boolean? by state.observe()
+        val prerequisite_value_value: Boolean? by prerequisite_value?.observe()
 
         LaunchedEffect(state_value) {
-            if (!state_value) {
+            if (state_value == false) {
                 showing_extra_state.value = false
             }
         }
 
         AnimatedVisibility(
-            prerequisite_value?.get() != false,
+            prerequisite_value_value != false,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            Crossfade(state_value) { enabled ->
+            Crossfade(state_value ?: false) { enabled ->
                 CompositionLocalProvider(LocalContentColor provides if (!enabled) theme.on_background else theme.on_accent) {
                     Column(
                         modifier
@@ -120,7 +126,7 @@ class LargeToggleSettingsItem(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             (if (enabled) enabledContent else disabledContent)?.invoke(Modifier.weight(1f).padding(vertical = 5.dp))
-                            (if (enabled) enabled_text else disabled_text)?.also { WidthShrinkText(it, Modifier.fillMaxWidth().weight(1f)) }
+                            (if (enabled) enabled_text else disabled_text)?.also { WidthShrinkText(stringResource(it), Modifier.fillMaxWidth().weight(1f)) }
 
                             AnimatedVisibility(show_button) {
                                 Button(
@@ -149,7 +155,7 @@ class LargeToggleSettingsItem(
 
                                         val text_alpha = animateFloatAsState(if (loading) 0f else 1f)
                                         Text(
-                                            if (enabled) disable_button else enable_button,
+                                            stringResource(if (enabled) disable_button else enable_button),
                                             Modifier.graphicsLayer { alpha = text_alpha.value }
                                         )
                                     }

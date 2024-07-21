@@ -13,7 +13,7 @@ class ComposableSettingsItem(
 ): SettingsItem() {
     override fun getProperties(): List<PreferencesProperty<*>> = settings_properties
 
-    override fun resetValues() {
+    override suspend fun resetValues() {
         resetSettingsValues()
     }
 

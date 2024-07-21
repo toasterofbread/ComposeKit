@@ -30,6 +30,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,19 +50,23 @@ import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.platform.Platform
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.Theme
+import dev.toastbits.composekit.settings.ui.ThemeValues
+import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.utils.common.getContrasted
 import dev.toastbits.composekit.utils.common.roundTo
+import dev.toastbits.composekit.utils.common.CustomStringResource
 import dev.toastbits.composekit.utils.composable.MeasureUnconstrainedView
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class SliderSettingsItem(
     val state: PreferencesProperty<out Number>,
-    val getErrMsgValueOutOfRange: (range: ClosedFloatingPointRange<Float>) -> String,
-    val errmsg_value_not_int: String,
-    val errmsg_value_not_float: String,
-    val min_label: String? = null,
-    val max_label: String? = null,
+    val getErrMsgValueOutOfRange: suspend (range: ClosedFloatingPointRange<Float>) -> String,
+    val errmsg_value_not_int: CustomStringResource,
+    val errmsg_value_not_float: CustomStringResource,
+    val min_label: CustomStringResource? = null,
+    val max_label: CustomStringResource? = null,
     val steps: Int = 0,
     val range: ClosedFloatingPointRange<Float> = 0f .. 1f,
     val getValueText: ((value: Number) -> String?)? = {
@@ -69,37 +75,36 @@ class SliderSettingsItem(
     },
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
-    private val is_int: Boolean =
+    private suspend fun isInt(): Boolean =
         when (val default: Number = state.getDefaultValue()) {
             is Float -> false
             is Int -> true
             else -> throw NotImplementedError(default::class.toString())
         }
-    private var value_state: Float by mutableStateOf(state.get().toFloat())
+    private var value_state: Float? by mutableStateOf(null)
 
     @Suppress("UNCHECKED_CAST")
     fun setValue(value: Float) {
         value_state = value
     }
 
-    fun saveValue() {
-        if (is_int) {
-            (state as PreferencesProperty<Int>).set(value_state.roundToInt())
+    suspend fun saveValue() {
+        if (isInt()) {
+            (state as PreferencesProperty<Int>).set(getValue().roundToInt())
         }
         else {
-            (state as PreferencesProperty<Float>).set(value_state)
+            (state as PreferencesProperty<Float>).set(getValue())
         }
     }
 
     fun getValue(): Float =
-        value_state
+        value_state ?: range.start
 
-    private fun getTypedValue(): Number {
-        if (is_int) return value_state.roundToInt()
-        else return value_state
-    }
+    private suspend fun getTypedValue(): Number =
+        if (isInt()) getValue().roundToInt()
+        else getValue()
 
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
         value_state = state.get().toFloat()
     }
@@ -113,12 +118,25 @@ class SliderSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme: Theme = settings_interface.theme
-        var show_edit_dialog by remember { mutableStateOf(false) }
+        val coroutine_scope: CoroutineScope = rememberCoroutineScope()
+        val theme: ThemeValues = settings_interface.theme
+        var show_edit_dialog: Boolean by remember { mutableStateOf(false) }
+        var is_int: Boolean by remember { mutableStateOf(false) }
+
+        LaunchedEffect(this) {
+            launch {
+                value_state = state.get().toFloat()
+            }
+            is_int = isInt()
+        }
 
         if (show_edit_dialog) {
-            var text: String by remember { mutableStateOf((if (is_int) getValue().roundToInt() else getValue()).toString()) }
+            var text: String by remember { mutableStateOf("") }
             var error: String? by remember { mutableStateOf(null) }
+
+            LaunchedEffect(this) {
+                text = (if (isInt()) getValue().roundToInt() else getValue()).toString()
+            }
 
             AlertDialog(
                 {
@@ -127,12 +145,14 @@ class SliderSettingsItem(
                 confirmButton = {
                     FilledTonalButton(
                         {
-                            try {
-                                setValue(if (is_int) text.toInt().toFloat() else text.toFloat())
-                                saveValue()
-                                show_edit_dialog = false
+                            coroutine_scope.launch {
+                                try {
+                                    setValue(if (is_int) text.toInt().toFloat() else text.toFloat())
+                                    saveValue()
+                                    show_edit_dialog = false
+                                }
+                                catch (_: NumberFormatException) {}
                             }
-                            catch (_: NumberFormatException) {}
                         },
                         enabled = error == null
                     ) {
@@ -140,7 +160,7 @@ class SliderSettingsItem(
                     }
                 },
                 dismissButton = { TextButton( { show_edit_dialog = false } ) { Text("Cancel") } },
-                title = { ItemTitleText(state.name ?: "Edit field", theme) },
+                title = { ItemTitleText(state.getName() ?: "Edit field", theme) },
                 text = {
                     OutlinedTextField(
                         value = text,
@@ -158,14 +178,18 @@ class SliderSettingsItem(
                             try {
                                 val value: Float = if (is_int) text.toInt().toFloat() else text.toFloat()
                                 if (!range.contains(value)) {
-                                    error = getErrMsgValueOutOfRange(range)
+                                    coroutine_scope.launch {
+                                        error = getErrMsgValueOutOfRange(range)
+                                    }
                                     return@OutlinedTextField
                                 }
 
                                 error = null
                             }
                             catch (_: NumberFormatException) {
-                                error = if (is_int) errmsg_value_not_int else errmsg_value_not_float
+                                coroutine_scope.launch {
+                                    error = (if (is_int) errmsg_value_not_int else errmsg_value_not_float).getString()
+                                }
                             }
                         },
                         singleLine = true,
@@ -177,20 +201,20 @@ class SliderSettingsItem(
 
         Column(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                ItemTitleText(state.name, theme, Modifier.fillMaxWidth().weight(1f))
+                ItemTitleText(state.getName(), theme, Modifier.fillMaxWidth().weight(1f))
 
                 IconButton({ show_edit_dialog = true }, Modifier.size(25.dp)) {
                     Icon(Icons.Filled.Edit, null)
                 }
             }
 
-            settings_interface.ItemText(state.description, theme)
+            settings_interface.ItemText(state.getDescription(), theme)
 
             Spacer(Modifier.requiredHeight(10.dp))
 
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (min_label != null) {
-                    settings_interface.ItemText(min_label, theme)
+                    settings_interface.ItemText(min_label.getComposable(), theme)
                 }
 
                 val view_configuration: ViewConfiguration = LocalViewConfiguration.current
@@ -212,7 +236,9 @@ class SliderSettingsItem(
                         value = getValue(),
                         onValueChange = { setValue(it) },
                         onValueChangeFinished = {
-                            saveValue()
+                            coroutine_scope.launch {
+                                saveValue()
+                            }
                         },
                         thumbSizeInDp = DpSize(12.dp, 12.dp),
                         track = { a, b, c, d, e ->
@@ -227,7 +253,11 @@ class SliderSettingsItem(
                             val colour: Color = theme.vibrant_accent
                             val scale_on_press: Float = 1.15f
                             val animation_spec: SpringSpec<Float> = SpringSpec(0.65f)
-                            val value_text: String? by remember { derivedStateOf { getValueText?.invoke(getTypedValue()) } }
+                            var value_text: String? by remember { mutableStateOf(null) }
+
+                            LaunchedEffect(getValueText) {
+                                value_text = getValueText?.invoke(getTypedValue())
+                            }
 
                             if (value_text != null) {
                                 MeasureUnconstrainedView({ settings_interface.ItemText(value_text, theme) }) { size ->
@@ -281,7 +311,7 @@ class SliderSettingsItem(
                 }
 
                 if (max_label != null) {
-                    settings_interface.ItemText(max_label, theme)
+                    settings_interface.ItemText(max_label.getComposable(), theme)
                 }
             }
         }

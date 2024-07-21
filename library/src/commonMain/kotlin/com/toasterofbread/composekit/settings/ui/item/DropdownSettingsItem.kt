@@ -25,16 +25,18 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.settings.ui.vibrant_accent
+import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.utils.composable.LargeDropdownMenu
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class DropdownSettingsItem(
     val state: PreferencesProperty<Int>,
     val item_count: Int,
-    val getButtonItem: ((Int) -> String)? = null,
+    val getButtonItem: (@Composable (Int) -> String)? = null,
     val getItem: @Composable (Int) -> String
 ): SettingsItem() {
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
     }
 
@@ -47,7 +49,7 @@ class DropdownSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        var current_value: Int by state.observe()
+        var current_value: Int = state.observe().value ?: 0
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
@@ -55,8 +57,8 @@ class DropdownSettingsItem(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                ItemTitleText(state.name, settings_interface.theme)
-                settings_interface.ItemText(state.description, settings_interface.theme)
+                ItemTitleText(state.getName(), settings_interface.theme)
+                settings_interface.ItemText(state.getDescription(), settings_interface.theme)
             }
 
             var open by remember { mutableStateOf(false) }
@@ -102,7 +104,7 @@ class DropdownSettingsItem(
 
 inline fun <reified T: Enum<T>> DropdownSettingsItem(
     state: PreferencesProperty<T>,
-    noinline getButtonItem: ((T) -> String)? = null,
+    noinline getButtonItem: (@Composable (T) -> String)? = null,
     noinline getItem: @Composable (T) -> String
 ): DropdownSettingsItem =
     DropdownSettingsItem(

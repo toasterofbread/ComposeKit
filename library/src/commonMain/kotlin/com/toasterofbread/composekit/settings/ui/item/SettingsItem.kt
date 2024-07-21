@@ -21,7 +21,7 @@ import dev.toastbits.composekit.platform.PlatformPreferencesListener
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.Theme
+import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.utils.composable.LinkifyText
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 import dev.toastbits.composekit.platform.PlatformContext
@@ -29,7 +29,7 @@ import dev.toastbits.composekit.platform.PlatformContext
 val SETTINGS_ITEM_ROUNDED_SHAPE = RoundedCornerShape(20.dp)
 
 abstract class SettingsItem {
-    abstract fun resetValues()
+    abstract suspend fun resetValues()
 
     abstract fun getProperties(): List<PreferencesProperty<*>>
 
@@ -43,7 +43,7 @@ abstract class SettingsItem {
 
     companion object {
         @Composable
-        fun ItemTitleText(text: String?, theme: Theme, modifier: Modifier = Modifier, max_lines: Int = 1) {
+        fun ItemTitleText(text: String?, theme: ThemeValues, modifier: Modifier = Modifier, max_lines: Int = 1) {
             if (text?.isNotBlank() == true) {
                 WidthShrinkText(
                     text,
@@ -58,7 +58,7 @@ abstract class SettingsItem {
         fun ItemText(
             context: PlatformContext,
             text: String?,
-            theme: Theme,
+            theme: ThemeValues,
             colour: Color = theme.on_background.copy(alpha = 0.75f),
             linkify: Boolean = true
         ) {

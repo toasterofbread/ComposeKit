@@ -19,6 +19,8 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import kotlinx.serialization.KSerializer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
@@ -27,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import dev.toastbits.composekit.utils.composable.OnChangedEffect
 
 @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
@@ -39,8 +42,8 @@ abstract class PreferencesGroup(
     fun getAllProperties(): List<PreferencesProperty<*>> = all_properties + getUnregisteredProperties()
 
     protected inline fun <reified T: Any> property(
-        noinline getName: () -> String,
-        noinline getDescription: () -> String?,
+        noinline getName: @Composable () -> String,
+        noinline getDescription: @Composable () -> String?,
         noinline getDefaultValue: () -> T,
         noinline isHidden: () -> Boolean = { false }
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T>> {
@@ -50,10 +53,41 @@ abstract class PreferencesGroup(
 
             val property: PreferencesProperty<T> =
                 object : PrefsProperty<T>(key = property.name) {
-                    override val name: String get() = getName()
-                    override val description: String? get() = getDescription()
+                    @Composable
+                    override fun getName(): String = getName()
+                    @Composable
+                    override fun getDescription(): String? = getDescription()
 
-                    override fun getDefaultValue(): T = defaultValueProvider()
+                    override suspend fun getDefaultValue(): T = defaultValueProvider()
+                    @Composable
+                    override fun getDefaultValueComposable(): T = defaultValueProvider()
+                    override fun isHidden(): Boolean = isHidden()
+                }
+            onPropertyAdded(property)
+            return@PropertyDelegateProvider property
+        }
+    }
+
+    protected inline fun <reified T: Any> resourceDefaultValueProperty(
+        noinline getName: @Composable () -> String,
+        noinline getDescription: @Composable () -> String?,
+        noinline getDefaultValueSuspending: suspend () -> T,
+        noinline getDefaultValueComposable: @Composable () -> T,
+        noinline isHidden: () -> Boolean = { false }
+    ): PropertyDelegateProvider<Any?, PreferencesProperty<T>> {
+        return PropertyDelegateProvider { _, property ->
+            check(T::class !is Enum<*>) { "Enum property '$property' must use enumProperty()" }
+
+            val property: PreferencesProperty<T> =
+                object : PrefsProperty<T>(key = property.name) {
+                    @Composable
+                    override fun getName(): String = getName()
+                    @Composable
+                    override fun getDescription(): String? = getDescription()
+
+                    override suspend fun getDefaultValue(): T = getDefaultValueSuspending()
+                    @Composable
+                    override fun getDefaultValueComposable(): T = getDefaultValueComposable()
                     override fun isHidden(): Boolean = isHidden()
                 }
             onPropertyAdded(property)
@@ -62,8 +96,8 @@ abstract class PreferencesGroup(
     }
 
     protected inline fun <reified T: Enum<T>> enumProperty(
-        noinline getName: () -> String,
-        noinline getDescription: () -> String?,
+        noinline getName: @Composable () -> String,
+        noinline getDescription: @Composable () -> String?,
         noinline getDefaultValue: () -> T,
         noinline isHidden: () -> Boolean = { false }
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T>> {
@@ -74,10 +108,14 @@ abstract class PreferencesGroup(
                     key = property.name,
                     entries = enumValues<T>().toList()
                 ) {
-                    override val name: String get() = getName()
-                    override val description: String? get() = getDescription()
+                    @Composable
+                    override fun getName(): String = getName()
+                    @Composable
+                    override fun getDescription(): String? = getDescription()
 
-                    override fun getDefaultValue(): T = defaultValueProvider()
+                    override suspend fun getDefaultValue(): T = defaultValueProvider()
+                    @Composable
+                    override fun getDefaultValueComposable(): T = defaultValueProvider()
                     override fun isHidden(): Boolean = isHidden()
                 }
             onPropertyAdded(property)
@@ -86,8 +124,8 @@ abstract class PreferencesGroup(
     }
 
     protected inline fun <reified T: Any> serialisableProperty(
-        noinline getName: () -> String,
-        noinline getDescription: () -> String?,
+        noinline getName: @Composable () -> String,
+        noinline getDescription: @Composable () -> String?,
         noinline getDefaultValue: () -> T
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T>> {
         val defaultValueProvider: () -> T = getDefaultValue
@@ -97,10 +135,14 @@ abstract class PreferencesGroup(
                     key = property.name,
                     serialiser = serializer<T>()
                 ) {
-                    override val name: String get() = getName()
-                    override val description: String? get() = getDescription()
+                    @Composable
+                    override fun getName(): String = getName()
+                    @Composable
+                    override fun getDescription(): String? = getDescription()
 
-                    override fun getDefaultValue(): T = defaultValueProvider()
+                    override suspend fun getDefaultValue(): T = defaultValueProvider()
+                    @Composable
+                    override fun getDefaultValueComposable(): T = defaultValueProvider()
                 }
             onPropertyAdded(property)
             return@PropertyDelegateProvider property
@@ -108,8 +150,8 @@ abstract class PreferencesGroup(
     }
 
     protected inline fun <reified T: Any> nullableSerialisableProperty(
-        noinline getName: () -> String,
-        noinline getDescription: () -> String?,
+        noinline getName: @Composable () -> String,
+        noinline getDescription: @Composable () -> String?,
         noinline getDefaultValue: () -> T?
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T?>> {
         val defaultValueProvider: () -> T? = getDefaultValue
@@ -119,10 +161,14 @@ abstract class PreferencesGroup(
                     key = property.name,
                     serialiser = serializer<T?>()
                 ) {
-                    override val name: String get() = getName()
-                    override val description: String? get() = getDescription()
+                    @Composable
+                    override fun getName(): String = getName()
+                    @Composable
+                    override fun getDescription(): String? = getDescription()
 
-                    override fun getDefaultValue(): T? = defaultValueProvider()
+                    override suspend fun getDefaultValue(): T? = defaultValueProvider()
+                    @Composable
+                    override fun getDefaultValueComposable(): T? = defaultValueProvider()
                 }
             onPropertyAdded(property)
             return@PropertyDelegateProvider property
@@ -146,7 +192,7 @@ abstract class PreferencesGroup(
     protected abstract inner class PrefsProperty<T>(key: String): PreferencesProperty<T> {
         override val key: String = formatPropertyKey(key)
 
-        override fun get(): T =
+        override suspend fun get(): T =
             when (val default_value: T = getDefaultValue()) {
                 is Boolean -> prefs.getBoolean(key, default_value)
                 is Float -> prefs.getFloat(key, default_value)
@@ -211,8 +257,16 @@ abstract class PreferencesGroup(
 
         @Composable
         override fun observe(): MutableState<T> {
-            val state: MutableState<T> = remember { mutableStateOf(get()) }
+            val coroutine_scope: CoroutineScope = rememberCoroutineScope()
+
+            val default_value: T = getDefaultValueComposable()
+            val state: MutableState<T> = remember { mutableStateOf(default_value) }
             var set_to: T by remember { mutableStateOf(state.value) }
+
+            LaunchedEffect(this) {
+                set_to = get()
+                state.value = get()
+            }
 
             LaunchedEffect(state.value) {
                 if (state.value != set_to) {
@@ -230,8 +284,10 @@ abstract class PreferencesGroup(
                     prefs.addListener(
                         PlatformPreferencesListener { _, key ->
                             if (key == this@PrefsProperty.key) {
-                                set_to = get()
-                                state.value = set_to
+                                coroutine_scope.launch {
+                                    set_to = get()
+                                    state.value = set_to
+                                }
                             }
                         }
                     )
@@ -245,14 +301,14 @@ abstract class PreferencesGroup(
         }
 
         override fun toString(): String =
-            "PrefsProperty<T>(key=$key, name=$name, description=$description)"
+            "PrefsProperty<T>(key=$key)"
     }
 
     protected abstract inner class EnumPrefsProperty<T: Enum<T>>(
         key: String,
         val entries: List<T>
     ): PrefsProperty<T>(key) {
-        override fun get(): T =
+        override suspend fun get(): T =
             entries[prefs.getInt(key, getDefaultValue().ordinal)!!]
 
         override fun set(value: T, editor: PlatformPreferences.Editor?) =
@@ -267,14 +323,14 @@ abstract class PreferencesGroup(
             JsonPrimitive((value as T?)?.ordinal)
 
         override fun toString(): String =
-            "EnumPrefsProperty(key=$key, name=$name, description=$description)"
+            "EnumPrefsProperty(key=$key)"
     }
 
     protected abstract inner class SerialisablePrefsProperty<T>(
         key: String,
         val serialiser: KSerializer<T>
     ): PrefsProperty<T>(key) {
-        override fun get(): T =
+        override suspend fun get(): T =
             prefs.getSerialisable(key, getDefaultValue(), serialiser)
 
         override fun set(value: T, editor: PlatformPreferences.Editor?) =
@@ -305,7 +361,7 @@ abstract class PreferencesGroup(
             Json.encodeToJsonElement(serialiser, value as T)
 
         override fun toString(): String =
-            "SerialisablePrefsProperty(key=$key, name=$name, description=$description)"
+            "SerialisablePrefsProperty(key=$key)"
     }
 }
 

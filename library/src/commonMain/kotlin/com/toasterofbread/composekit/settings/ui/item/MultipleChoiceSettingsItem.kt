@@ -29,15 +29,17 @@ import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.Theme
+import dev.toastbits.composekit.settings.ui.ThemeValues
+import dev.toastbits.composekit.settings.ui.vibrant_accent
+import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class MultipleChoiceSettingsItem(
     val state: PreferencesProperty<Int>,
     val choice_amount: Int,
-    val getChoiceText: (Int) -> String
+    val getChoiceText: @Composable (Int) -> String
 ): SettingsItem() {
-    override fun resetValues() {
+    override suspend fun resetValues() {
         state.reset()
     }
 
@@ -50,13 +52,13 @@ class MultipleChoiceSettingsItem(
         openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme: Theme = settings_interface.theme
+        val theme: ThemeValues = settings_interface.theme
         val current_value: Int by state.observe()
 
         Column {
             Column(Modifier.fillMaxWidth()) {
-                ItemTitleText(state.name, theme, Modifier.padding(bottom = 7.dp))
-                settings_interface.ItemText(state.description, theme)
+                ItemTitleText(state.getName(), theme, Modifier.padding(bottom = 7.dp))
+                settings_interface.ItemText(state.getDescription(), theme)
 
                 Spacer(Modifier.height(10.dp))
 
@@ -82,7 +84,7 @@ class MultipleChoiceSettingsItem(
                             Box(Modifier.padding(horizontal = 10.dp)) {
                                 WidthShrinkText(
                                     getChoiceText(i),
-                                    style = LocalTextStyle.current.copy(color = if (state.get() == i) theme.on_accent else theme.on_background),
+                                    style = LocalTextStyle.current.copy(color = if (current_value == i) theme.on_accent else theme.on_background),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -96,7 +98,7 @@ class MultipleChoiceSettingsItem(
 
 inline fun <reified T: Enum<T>> MultipleChoiceSettingsItem(
     state: PreferencesProperty<T>,
-    noinline getChoiceText: (T) -> String,
+    noinline getChoiceText: @Composable (T) -> String,
 ): MultipleChoiceSettingsItem =
     MultipleChoiceSettingsItem(
         state.getConvertedProperty(
