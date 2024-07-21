@@ -28,10 +28,10 @@ private fun Palette.toNamedTheme(accent: PaletteColor): NamedTheme =
     NamedTheme(
         "Catppuccin ${name.replaceFirstChar { it.uppercaseChar() }} (${accent.definition.label})",
         ThemeValuesData(
-            background = Color(base.hex.intValue),
-            on_background = Color(text.hex.intValue),
-            card = Color(mantle.hex.intValue),
-            accent = Color(accent.hex.intValue)
+            background = Color(base.hex.formatted.toLong(16) or 0x00000000FF000000),
+            on_background = Color(text.hex.formatted.toLong(16) or 0x00000000FF000000),
+            card = Color(mantle.hex.formatted.toLong(16) or 0x00000000FF000000),
+            accent = Color(accent.hex.formatted.toLong(16) or 0x00000000FF000000)
         )
     )
 
