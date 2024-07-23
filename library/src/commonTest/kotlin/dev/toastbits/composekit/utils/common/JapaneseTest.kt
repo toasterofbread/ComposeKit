@@ -1,8 +1,8 @@
 package dev.toastbits.composekit.utils.common
 
-import com.toasterofbread.composekit.test.assertFalseWith
-import com.toasterofbread.composekit.test.assertTrueWith
-import com.toasterofbread.composekit.test.testReceiverCheck
+import com.toastbits.composekit.test.assertFalseWith
+import com.toastbits.composekit.test.assertTrueWith
+import com.toastbits.composekit.test.testReceiverCheck
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
