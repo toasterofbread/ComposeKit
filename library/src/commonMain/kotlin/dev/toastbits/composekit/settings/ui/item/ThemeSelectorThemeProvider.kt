@@ -1,7 +1,7 @@
 package dev.toastbits.composekit.settings.ui.item
 
-import dev.toastbits.composekit.settings.ui.ThemeValues
-import dev.toastbits.composekit.settings.ui.NamedTheme
+import dev.toastbits.composekit.settings.ui.theme.ThemeValues
+import dev.toastbits.composekit.settings.ui.theme.NamedTheme
 
 interface ThemeSelectorThemeProvider {
     fun getThemeCount(): Int

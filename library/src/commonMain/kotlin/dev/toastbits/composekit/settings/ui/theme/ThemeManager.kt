@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui
+package dev.toastbits.composekit.settings.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.mutableStateOf
@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-abstract class ThemeManager(
+open class ThemeManager(
     initial_theme: ThemeValues,
     private val composable_coroutine_scope: CoroutineScope
 ): ThemeValues {

@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.vibrant_accent
-import dev.toastbits.composekit.settings.ui.on_accent
+import dev.toastbits.composekit.settings.ui.theme.vibrant_accent
+import dev.toastbits.composekit.settings.ui.theme.on_accent
 import dev.toastbits.composekit.platform.PreferencesProperty
 
 class SubpageSettingsItem(

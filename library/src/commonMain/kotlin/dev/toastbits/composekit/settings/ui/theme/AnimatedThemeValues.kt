@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui
+package dev.toastbits.composekit.settings.ui.theme
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope

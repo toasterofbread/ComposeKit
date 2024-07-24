@@ -1,18 +1,23 @@
-@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
+@file:OptIn(ExperimentalComposeLibrary::class, ExperimentalWasmDsl::class,
+    ExperimentalKotlinGradlePluginApi::class
+)
 
+import dev.toastbits.composekit.plugin.applyProjectHierarchyTemplate
 import com.vanniktech.maven.publish.SonatypeHost
 import com.vanniktech.maven.publish.KotlinMultiplatform
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     kotlin("plugin.serialization")
     id("com.android.library")
-    id("com.vanniktech.maven.publish")
     id("org.jetbrains.compose")
-    id("dev.mokkery").version("2.1.1-test")
+    id("com.vanniktech.maven.publish")
+    id("dev.mokkery")
 }
 
 allprojects {
@@ -21,7 +26,9 @@ allprojects {
 }
 
 kotlin {
-    androidTarget()
+    androidTarget {
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+    }
 
     jvm("desktop")
 
@@ -29,27 +36,12 @@ kotlin {
         browser()
     }
 
-    applyDefaultHierarchyTemplate {
-        common {
-            withAndroidTarget()
-            withJvm()
-            withWasmJs()
-
-            group("jvm") {
-                withAndroidTarget()
-                withJvm()
-            }
-            group("cmpJbr") {
-                withJvm()
-                withWasmJs()
-            }
-        }
-    }
+    applyProjectHierarchyTemplate()
 
     sourceSets {
         all {
             languageSettings.apply {
-                optIn("kotlinx.serialization.ExperimentalSerializationApi")
+                enableLanguageFeature("ExpectActualClasses")
 
                 optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
                 optIn("androidx.compose.foundation.ExperimentalFoundationApi")
@@ -57,8 +49,8 @@ kotlin {
                 optIn("androidx.compose.material3.ExperimentalMaterial3Api")
                 optIn("androidx.compose.material.ExperimentalMaterialApi")
                 optIn("androidx.compose.ui.ExperimentalComposeUiApi")
-
-                enableLanguageFeature("ExpectActualClasses")
+                optIn("androidx.compose.ui.test.ExperimentalTestApi")
+                optIn("kotlinx.serialization.ExperimentalSerializationApi")
             }
         }
 
@@ -104,9 +96,17 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(compose.uiTest)
                 implementation(project(":testing-library"))
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC")
+                // Android instrumented tests fail with 1.9.0-RC
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+            }
+        }
+
+        val desktopTest by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
             }
         }
     }
@@ -123,6 +123,7 @@ android {
     defaultConfig {
         minSdk = (findProperty("android.minSdk") as String).toInt()
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -134,6 +135,11 @@ android {
     buildFeatures {
         compose = true
     }
+}
+
+dependencies {
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4-android:1.6.8")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.8")
 }
 
 mavenPublishing {

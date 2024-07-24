@@ -1,15 +1,15 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
-import com.vanniktech.maven.publish.SonatypeHost
+import dev.toastbits.composekit.plugin.applyProjectHierarchyTemplate
 import com.vanniktech.maven.publish.KotlinMultiplatform
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import dev.mokkery.gradle.ApplicationRule
 
 plugins {
-    id("com.android.library")
-    id("com.vanniktech.maven.publish")
     kotlin("multiplatform")
     kotlin("plugin.serialization")
+    kotlin("plugin.compose")
+    id("com.android.library")
+    id("org.jetbrains.compose")
+    id("com.vanniktech.maven.publish")
+    id("dev.mokkery")
 }
 
 allprojects {
@@ -26,20 +26,28 @@ kotlin {
         browser()
     }
 
-    applyDefaultHierarchyTemplate()
+    applyProjectHierarchyTemplate()
 
     sourceSets {
         commonMain {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(project(":library"))
+
+                implementation(compose.runtime)
             }
         }
     }
 }
 
+mokkery {
+    // Apply Mokkery to all sourceSets
+    rule.set { true }
+}
+
 android {
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
-    namespace = "dev.toastbits.composekit"
+    namespace = "dev.toastbits.composekit.testing"
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")

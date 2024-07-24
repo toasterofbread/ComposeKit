@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui
+package dev.toastbits.composekit.settings.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable

@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui
+package dev.toastbits.composekit.settings.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -45,6 +45,9 @@ data class ThemeValuesData(
                 other.accent
             )
         }
+
+        fun singleColour(colour: Color): ThemeValuesData =
+            ThemeValuesData(colour, colour, colour, colour)
 
         fun fromColourScheme(colour_scheme: ColorScheme): ThemeValuesData =
             ThemeValuesData(

@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.vibrant_accent
+import dev.toastbits.composekit.settings.ui.theme.vibrant_accent
 import dev.toastbits.composekit.platform.PreferencesProperty
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource

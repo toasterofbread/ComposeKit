@@ -45,7 +45,7 @@ private const val ERROR_NOTIFICATION_CHANNEL_ID = "download_error_channel"
 actual open class PlatformContextImpl(
     private val context: Context,
     actual override val coroutine_scope: CoroutineScope,
-    override val application_context: ApplicationContext? = null
+    override val application_context: ApplicationContextImpl? = null
 ): PlatformContext {
     override val ctx: Context get() = context
 

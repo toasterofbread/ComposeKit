@@ -50,8 +50,8 @@ import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.platform.Platform
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.ThemeValues
-import dev.toastbits.composekit.settings.ui.vibrant_accent
+import dev.toastbits.composekit.settings.ui.theme.ThemeValues
+import dev.toastbits.composekit.settings.ui.theme.vibrant_accent
 import dev.toastbits.composekit.utils.common.getContrasted
 import dev.toastbits.composekit.utils.common.roundTo
 import dev.toastbits.composekit.utils.common.CustomStringResource

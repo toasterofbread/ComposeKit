@@ -1,6 +1,5 @@
 package dev.toastbits.composekit.settings.ui
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +25,7 @@ import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 import dev.toastbits.composekit.platform.PlatformContext
 import androidx.compose.ui.graphics.Color
 import dev.toastbits.composekit.settings.ui.item.SettingsItem
+import dev.toastbits.composekit.settings.ui.theme.ThemeValues
 
 class SettingsInterface(
     val context: PlatformContext,

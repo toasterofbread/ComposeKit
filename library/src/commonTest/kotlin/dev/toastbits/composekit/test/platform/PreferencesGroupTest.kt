@@ -53,9 +53,9 @@ class PreferencesGroupTest {
         val reference_group: TestGroup = TestGroup(mock())
 
         editor = mock {
-            every { putString(reference_group.string_prop.key, any()) } returns mock()
-            every { putInt(reference_group.enum_prop.key, any()) } returns mock()
-            every { putSerialisable<TestData>(reference_group.data_prop.key, any(), any()) } returns mock()
+            every { putString(reference_group.string_prop.key, any()) } calls { editor }
+            every { putInt(reference_group.enum_prop.key, any()) } calls { editor }
+            every { putSerialisable<TestData>(reference_group.data_prop.key, any(), any()) } calls { editor }
         }
 
         prefs = mock {

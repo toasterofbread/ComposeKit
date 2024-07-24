@@ -1,8 +1,8 @@
 package dev.toastbits.composekit.test.settings.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import dev.toastbits.composekit.settings.ui.NamedTheme
-import dev.toastbits.composekit.settings.ui.getCurrentEnvironmentTheme
+import dev.toastbits.composekit.settings.ui.theme.NamedTheme
+import dev.toastbits.composekit.settings.ui.theme.getCurrentEnvironmentTheme
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals

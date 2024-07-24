@@ -1,6 +1,7 @@
 package dev.toastbits.composekit.platform.composable
 
 import androidx.compose.runtime.Composable
+import dev.toastbits.composekit.platform.ApplicationContext
 import dev.toastbits.composekit.platform.PlatformContext
 
 @Composable
@@ -13,6 +14,9 @@ actual fun BackHandler(
 }
 
 actual fun onWindowBackPressed(context: PlatformContext): Boolean {
-    context.application_context?.simulateBackPress()
+    val application_context: ApplicationContext =
+        context.application_context
+        ?: throw RuntimeException("Cannot simulate back press because application_context is null")
+    application_context.simulateBackPress()
     return true
 }

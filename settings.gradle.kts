@@ -29,6 +29,8 @@ pluginManagement {
         id("org.jetbrains.compose").version(compose_version)
 
         id("com.vanniktech.maven.publish").version("0.28.0")
+
+        id("dev.mokkery").version("2.1.1-test")
     }
 }
 

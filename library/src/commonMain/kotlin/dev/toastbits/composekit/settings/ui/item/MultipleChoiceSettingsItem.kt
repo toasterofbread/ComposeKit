@@ -25,13 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.SettingsInterface
 import dev.toastbits.composekit.settings.ui.SettingsPage
-import dev.toastbits.composekit.settings.ui.ThemeValues
-import dev.toastbits.composekit.settings.ui.vibrant_accent
-import dev.toastbits.composekit.settings.ui.on_accent
+import dev.toastbits.composekit.settings.ui.theme.ThemeValues
+import dev.toastbits.composekit.settings.ui.theme.vibrant_accent
+import dev.toastbits.composekit.settings.ui.theme.on_accent
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 
 class MultipleChoiceSettingsItem(
