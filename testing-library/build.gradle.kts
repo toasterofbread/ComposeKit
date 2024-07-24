@@ -57,8 +57,8 @@ android {
 
 mavenPublishing {
     coordinates(artifactId = "composekit-testing")
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    // signAllPublications()
+//    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+//     signAllPublications()
 
     configure(KotlinMultiplatform(
         sourcesJar = true,

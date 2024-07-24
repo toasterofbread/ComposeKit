@@ -166,30 +166,30 @@ fun List<Color>.sorted(descending: Boolean = false): List<Color> {
 }
 
 fun Color.generatePalette(size: Int, variance: Float = 0.2f): List<Color> {
-    val ret: MutableList<Color> = mutableListOf()
-
-    fun isColourValid(colour: Color): Boolean {
-        if (ret.any { it.compare(colour) > 0.5f }) {
-            return false
-        }
-
-        if (colour.compare(Color.Black) > 0.8f || colour.compare(Color.White) > 0.8f) {
-            return false
-        }
-
-        return true
-    }
-
-    for (i in 0 until size) {
-        var tries = 5
-        while (tries-- > 0) {
-            val colour = offsetRGB(Random.nextFloat() * variance * (if (Random.nextBoolean()) 1f else -1f), false)
-            if (isColourValid(colour)) {
-                ret.add(colour)
-                break
-            }
-        }
-    }
+//    val ret: MutableList<Color> = mutableListOf()
+//
+//    fun isColourValid(colour: Color): Boolean {
+//        if (ret.any { it.compare(colour) > 0.5f }) {
+//            return false
+//        }
+//
+//        if (colour.compare(Color.Black) > 0.8f || colour.compare(Color.White) > 0.8f) {
+//            return false
+//        }
+//
+//        return true
+//    }
+//
+//    for (i in 0 until size) {
+//        var tries = 5
+//        while (tries-- > 0) {
+//            val colour = offsetRGB(Random.nextFloat() * variance * (if (Random.nextBoolean()) 1f else -1f), false)
+//            if (isColourValid(colour)) {
+//                ret.add(colour)
+//                break
+//            }
+//        }
+//    }
 
     return List(size) {
         offsetRGB(Random.nextFloat() * variance * (if (Random.nextBoolean()) 1f else -1f), false)

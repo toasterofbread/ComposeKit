@@ -1,11 +1,12 @@
-package dev.toastbits.composekit.utils.common
+package dev.toastbits.composekit.test.utils.common
 
-import com.toastbits.composekit.test.assertFalseWith
-import com.toastbits.composekit.test.assertTrueWith
-import com.toastbits.composekit.test.testReceiverCheck
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import dev.toastbits.composekit.utils.common.*
+import dev.toastbits.composekit.test.assertTrueWith
+import dev.toastbits.composekit.test.assertFalseWith
+import dev.toastbits.composekit.test.testReceiverCheck
 
 class JapaneseTest {
     private val hiragana: Iterable<Char> = 'あ'..'ん'

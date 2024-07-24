@@ -6,12 +6,13 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    id("com.android.library")
-    id("com.vanniktech.maven.publish")
-    id("org.jetbrains.compose")
     kotlin("multiplatform")
     kotlin("plugin.compose")
     kotlin("plugin.serialization")
+    id("com.android.library")
+    id("com.vanniktech.maven.publish")
+    id("org.jetbrains.compose")
+    id("dev.mokkery").version("2.1.1-test")
 }
 
 allprojects {
@@ -104,6 +105,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(project(":testing-library"))
+
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC")
             }
         }
     }

@@ -6,6 +6,7 @@ include(":compose-color-picker:color-picker")
 
 pluginManagement {
     repositories {
+        mavenLocal()
         gradlePluginPortal()
         mavenCentral()
         google()
@@ -32,7 +33,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
@@ -42,5 +43,11 @@ dependencyResolutionManagement {
         maven("https://maven.d1s.dev/snapshots")
 
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+
+        // Mokkery
+        mavenLocal()
+        maven {
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+        }
     }
 }

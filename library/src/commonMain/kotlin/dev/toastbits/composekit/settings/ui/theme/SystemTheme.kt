@@ -28,8 +28,8 @@ fun rememberSystemTheme(name: String, context: PlatformContext): NamedTheme {
     }
 }
 
-private fun getCurrentEnvironmentTheme(): NamedTheme? {
-    val gtk_theme: String? = getEnv("GTK_THEME")?.lowercase()
+fun getCurrentEnvironmentTheme(getEnvironment: (String) -> String? = ::getEnv): NamedTheme? {
+    val gtk_theme: String? = getEnvironment("GTK_THEME")?.lowercase()
 
     if (gtk_theme?.startsWith("catppuccin-") == true) {
         val split: List<String> = gtk_theme.substring(11).split("-", limit = 4)
