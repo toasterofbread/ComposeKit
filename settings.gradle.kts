@@ -40,6 +40,6 @@ dependencyResolutionManagement {
         // https://github.com/d1snin/catppuccin-kotlin
         maven("https://maven.d1s.dev/snapshots")
 
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        // maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
