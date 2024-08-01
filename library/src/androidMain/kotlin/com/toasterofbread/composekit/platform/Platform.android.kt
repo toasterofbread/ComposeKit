@@ -17,4 +17,4 @@ actual fun getPlatformOSName(): String {
 
 }
 
-actual fun getPlatformHostName(): String = Build.MODEL
+actual fun getPlatformHostName(): String? = Build.MODEL
