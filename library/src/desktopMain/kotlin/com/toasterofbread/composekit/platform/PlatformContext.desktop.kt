@@ -48,6 +48,8 @@ actual open class PlatformContext(
         }
 
     actual fun getFilesDir(): File {
+        System.getenv("XDG_CONFIG_HOME")?.also { return File(it) }
+
         val subdir: String = when (hostOs) {
             OS.Linux -> ".local/share"
             OS.Windows -> "AppData/Local/"
