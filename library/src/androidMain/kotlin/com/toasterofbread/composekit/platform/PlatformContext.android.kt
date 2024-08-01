@@ -71,7 +71,7 @@ class ApplicationContext(internal val activity: ComponentActivity) {
         }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun requestNotficationPermission(callback: (granted: Boolean) -> Unit) {
+    fun requestNotificationPermission(callback: (granted: Boolean) -> Unit) {
         synchronized(permission_callbacks) {
             permission_callbacks.add(callback)
             if (permission_callbacks.size == 1) {
@@ -107,7 +107,19 @@ class ApplicationContext(internal val activity: ComponentActivity) {
 }
 
 private val Uri.clean_path: String
-    get() = path!!.split(':').last()
+    get() {
+        val first_colon: Int = path!!.indexOf(':')
+        if (first_colon == -1) {
+            return path!!
+        }
+
+        val first_slash: Int = path!!.indexOf('/')
+        if (first_colon > first_slash) {
+            return path!!
+        }
+
+        return path!!.substring(first_colon + 1)
+    }
 
 private val Uri.split_path: List<String>
     get() = clean_path.split('/').filter { it.isNotBlank() }
