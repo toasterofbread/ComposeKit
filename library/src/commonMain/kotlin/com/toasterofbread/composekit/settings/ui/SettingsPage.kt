@@ -43,6 +43,8 @@ abstract class SettingsPage {
         @Composable
         get() = true
 
+    open val apply_padding: Boolean = true
+
     open val title: String?
         @Composable
         get() = null

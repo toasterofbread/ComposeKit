@@ -26,6 +26,7 @@ import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 import dev.toastbits.composekit.platform.PlatformContext
 import androidx.compose.ui.graphics.Color
 import dev.toastbits.composekit.settings.ui.item.SettingsItem
+import dev.toastbits.composekit.utils.common.thenIf
 
 class SettingsInterface(
     val context: PlatformContext,
@@ -90,7 +91,9 @@ class SettingsInterface(
 
             Column(
                 Modifier
-                    .widthIn(max = 800.dp)
+                    .thenIf(page.apply_padding) {
+                        widthIn(max = 800.dp)
+                    }
                     .fillMaxSize()
                     .onSizeChanged { width = it.width }
             ) {
