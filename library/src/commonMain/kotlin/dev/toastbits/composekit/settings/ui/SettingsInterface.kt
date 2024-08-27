@@ -1,6 +1,5 @@
 package dev.toastbits.composekit.settings.ui
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,26 +15,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import dev.toastbits.composekit.platform.PlatformPreferences
-import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 import dev.toastbits.composekit.platform.PlatformContext
-import androidx.compose.ui.graphics.Color
+import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.vibrateShort
 import dev.toastbits.composekit.settings.ui.item.SettingsItem
+import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 
 class SettingsInterface(
     val context: PlatformContext,
+    val prefs: PlatformPreferences,
     val themeProvider: () -> ThemeValues,
     private val root_page: Int,
-    val prefs: PlatformPreferences,
-    val triggerVibration: () -> Unit,
     private val getPage: (Int, Any?) -> SettingsPage,
+    val triggerVibration: () -> Unit = { context.vibrateShort() },
     private val onPageChanged: ((page: Int?) -> Unit)? = null,
-    private val onCloseRequested: (() -> Unit)? = null,
     val getFooterModifier: @Composable () -> Modifier = { Modifier }
 ) {
     val theme: ThemeValues get() = themeProvider()

@@ -4,16 +4,17 @@ import java.io.File
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.KSerializer
 
-actual class PlatformPreferencesImpl private constructor(file: File): PlatformPreferencesJson(
+actual class PlatformPreferencesImpl private constructor(private val file: File): PlatformPreferencesJson(
     PlatformFile(file)
 ), PlatformPreferences {
     companion object {
-        private var instance: PlatformPreferences? = null
+        private var instance: PlatformPreferencesImpl? = null
 
-        fun getInstance(getFile: () -> File): PlatformPreferences {
+        fun getInstance(file: File): PlatformPreferences {
             if (instance == null) {
-                instance = PlatformPreferencesImpl(getFile())
+                instance = PlatformPreferencesImpl(file)
             }
+            check(instance!!.file == file)
             return instance!!
         }
     }
