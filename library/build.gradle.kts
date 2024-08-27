@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
+
 import com.vanniktech.maven.publish.SonatypeHost
 import com.vanniktech.maven.publish.KotlinMultiplatform
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     id("com.android.library")
@@ -21,12 +24,26 @@ kotlin {
 
     jvm("desktop")
 
-    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }
 
-    applyDefaultHierarchyTemplate()
+    applyDefaultHierarchyTemplate {
+        common {
+            withAndroidTarget()
+            withJvm()
+            withWasmJs()
+
+            group("jvm") {
+                withAndroidTarget()
+                withJvm()
+            }
+            group("cmpJbr") {
+                withJvm()
+                withWasmJs()
+            }
+        }
+    }
 
     sourceSets {
         all {
@@ -63,19 +80,7 @@ kotlin {
             }
         }
 
-        // Desktop and Android
-        val jvmMain by creating {
-            dependsOn(commonMain.get())
-        }
-
-        // Desktop and WASM
-        val cmpJbrMain by creating {
-            dependsOn(commonMain.get())
-        }
-
         val androidMain by getting {
-            dependsOn(jvmMain)
-
             dependencies {
                 api("androidx.activity:activity-compose:1.8.1")
 
@@ -86,9 +91,6 @@ kotlin {
         }
 
         val desktopMain by getting {
-            dependsOn(jvmMain)
-            dependsOn(cmpJbrMain)
-
             dependencies {
                 implementation(compose.desktop.common)
                 implementation("com.sshtools:two-slices:0.9.1")
@@ -96,8 +98,13 @@ kotlin {
             }
         }
 
-        val wasmJsMain by getting {
-            dependsOn(cmpJbrMain)
+        // Testing
+
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(project(":testing-library"))
+            }
         }
     }
 }
@@ -137,7 +144,7 @@ mavenPublishing {
 
     pom {
         name.set("ComposeKit")
-        description.set(" A collection of common code for use in my Compose Multiplatform projects")
+        description.set("A collection of common code for use in my Compose Multiplatform projects")
         url.set("https://github.com/toasterofbread/composekit")
         inceptionYear.set("2023")
 
