@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.platform.composable
+package dev.toastbits.composekit.platform.composable.theme
 
 import androidx.compose.runtime.Composable
 import dev.toastbits.composekit.settings.ui.ThemeValues

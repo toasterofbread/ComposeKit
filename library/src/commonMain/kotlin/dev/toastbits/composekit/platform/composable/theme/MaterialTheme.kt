@@ -1,9 +1,8 @@
-package dev.toastbits.composekit.platform.composable
+package dev.toastbits.composekit.platform.composable.theme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.LocalContentColor
