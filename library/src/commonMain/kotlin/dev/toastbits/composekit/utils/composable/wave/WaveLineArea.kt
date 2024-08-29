@@ -1,6 +1,8 @@
 package dev.toastbits.composekit.utils.composable.wave
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -30,7 +32,8 @@ fun WaveLineArea(
     waveThickness: Dp = 2.dp,
     rotationDegrees: Float = -15f,
     getStagger: (Int, Float) -> Float = { wave, offset -> (wave % 2 == 0).toInt() * offset },
-    getPlaying: () -> Boolean = { true }
+    getPlaying: () -> Boolean = { true },
+    content: @Composable () -> Unit = {}
 ) {
     val waveOffset: Float by
         pauseableInfiniteRepeatableAnimation(
@@ -40,30 +43,34 @@ fun WaveLineArea(
             getPlaying = getPlaying
         )
 
-    Canvas(modifier.clipToBounds()) {
-        val path: Path = Path()
-        val waveStroke: Stroke = Stroke(waveThickness.toPx())
+    Box(modifier.clipToBounds()) {
+        Canvas(Modifier.fillMaxSize()) {
+            val path: Path = Path()
+            val waveStroke: Stroke = Stroke(waveThickness.toPx())
 
-        fun drawWave(position: Float, offset: Float) {
-            for (direction in listOf(-1, 1)) {
-                wavePath(
-                    path = path,
-                    direction = direction,
-                    height = waveHeight.toPx(),
-                    wavelength = wavelength,
-                    outerRotationDegrees = rotationDegrees,
-                    getOffset = { (waveOffset + offset) % 1f }
-                )
-                path.translate(Offset(0f, position))
-                drawPath(path, lineColour, style = waveStroke)
+            fun drawWave(position: Float, offset: Float) {
+                for (direction in listOf(-1, 1)) {
+                    wavePath(
+                        path = path,
+                        direction = direction,
+                        height = waveHeight.toPx(),
+                        wavelength = wavelength,
+                        outerRotationDegrees = rotationDegrees,
+                        getOffset = { (waveOffset + offset) % 1f }
+                    )
+                    path.translate(Offset(0f, position))
+                    drawPath(path, lineColour, style = waveStroke)
+                }
+            }
+
+            rotate(rotationDegrees) {
+                for (wave in 0 until (maxOf(size.width, size.height) / waveSpacing.toPx()).toInt() * 2) {
+                    drawWave((waveSpacing * wave).toPx(), getStagger(wave, waveOffset))
+                }
             }
         }
 
-        rotate(rotationDegrees) {
-            for (wave in 0 until (maxOf(size.width, size.height) / waveSpacing.toPx()).toInt() * 2) {
-                drawWave((waveSpacing * wave).toPx(), getStagger(wave, waveOffset))
-            }
-        }
+        content()
     }
 }
 

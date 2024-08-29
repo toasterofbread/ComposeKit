@@ -26,22 +26,23 @@ actual fun ScrollBarLazyRow(
     scrollBarColour: Color,
     horizontalAlignment: Alignment.Horizontal,
     reverseScrollBarLayout: Boolean,
+    scrollbarSpacing: Dp,
     content: LazyListScope.() -> Unit
 ) {
     Column(modifier.scrollWheelScrollable(state), horizontalAlignment = horizontalAlignment) {
         val scrollbar_alpha: Float by animateFloatAsState(if (state.isContentOverflowing()) 1f else 0f)
 
-        val scrollbar_height: Dp = 10.dp
-        val scrollbar_padding: Dp = 5.dp
-        val scrollbar_modifier: Modifier = Modifier.padding(bottom = scrollbar_padding).height(scrollbar_height - scrollbar_padding).alpha(scrollbar_alpha)
+        val scrollbar_modifier: Modifier =
+            Modifier.graphicsLayer { alpha = scrollbar_alpha }
 
-        val scrollbar_style: ScrollbarStyle = LocalScrollbarStyle.current.run {
-            if (scrollBarColour.isUnspecified) this
-            else copy(
-                hoverColor = scrollBarColour,
-                unhoverColor = scrollBarColour.copy(alpha = scrollBarColour.alpha * 0.25f)
-            )
-        }
+        val scrollbar_style: ScrollbarStyle =
+            LocalScrollbarStyle.current.run {
+                if (scrollBarColour.isUnspecified) this
+                else copy(
+                    hoverColor = scrollBarColour,
+                    unhoverColor = scrollBarColour.copy(alpha = scrollBarColour.alpha * 0.25f)
+                )
+            }
 
         if (reverseScrollBarLayout && show_scrollbar) {
             HorizontalScrollbar(
@@ -49,13 +50,14 @@ actual fun ScrollBarLazyRow(
                 scrollbar_modifier,
                 style = scrollbar_style
             )
+            Spacer(Modifier.height(scrollbarSpacing))
         }
 
         LazyRow(
             Modifier
                 .weight(1f, false)
                 .thenIf(show_scrollbar) {
-                    offset(y = (scrollbar_height / 2) * (1f - scrollbar_alpha))
+                    offset(y = (LocalScrollbarStyle.current.thickness / 2) * (1f - scrollbar_alpha))
                 },
             state,
             contentPadding,
@@ -69,6 +71,7 @@ actual fun ScrollBarLazyRow(
         }
 
         if (!reverseScrollBarLayout && show_scrollbar) {
+            Spacer(Modifier.height(scrollbarSpacing))
             HorizontalScrollbar(
                 rememberScrollbarAdapter(state),
                 scrollbar_modifier,

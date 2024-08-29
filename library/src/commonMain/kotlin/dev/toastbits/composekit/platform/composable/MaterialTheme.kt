@@ -123,9 +123,17 @@ fun ThemeValues.ApplicationTheme(
         shapes = shapes
     ) {
         Box(Modifier.background(background)) {
-            CompositionLocalProvider(LocalContentColor provides on_background, LocalApplicationTheme provides this@ApplicationTheme) {
-                content()
+            CompositionLocalProvider(
+                LocalApplicationTheme provides this@ApplicationTheme,
+                LocalContentColor provides on_background
+            ) {
+                PlatformTheme {
+                    content()
+                }
             }
         }
     }
 }
+
+@Composable
+internal expect fun ThemeValues.PlatformTheme(content: @Composable () -> Unit)
