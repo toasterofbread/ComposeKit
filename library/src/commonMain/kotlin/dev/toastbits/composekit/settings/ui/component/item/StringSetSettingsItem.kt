@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
@@ -30,11 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.composable.ScrollabilityIndicatorColumn
 import dev.toastbits.composekit.platform.PreferencesProperty
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.utils.composable.ShapedIconButton
 import org.jetbrains.compose.resources.StringResource
@@ -59,13 +58,10 @@ class StringSetSettingsItem(
 
     @Composable
     override fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
         val value: Set<String> by state.observe()
-        val theme = settings_interface.theme
+        val theme: ThemeValues = LocalApplicationTheme.current
         val icon_button_colours = IconButtonDefaults.iconButtonColors(
             containerColor = theme.accent,
             contentColor = theme.on_accent,
@@ -129,7 +125,7 @@ class StringSetSettingsItem(
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     ItemTitleText(state.getName(), theme)
-                    settings_interface.ItemText(state.getDescription(), theme)
+                    ItemText(state.getDescription(), theme)
                 }
 
                 ShapedIconButton(

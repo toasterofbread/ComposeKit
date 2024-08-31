@@ -2,6 +2,7 @@
 package dev.toastbits.composekit.utils.composable
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -52,7 +53,8 @@ fun ResizableOutlinedTextField(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     val textColor = textStyle.color.takeOrElse {
-        colors.textColor(enabled, isError, interactionSource)
+        val focused: Boolean = interactionSource.collectIsFocusedAsState().value
+        colors.textColor(enabled, isError, focused)
     }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 

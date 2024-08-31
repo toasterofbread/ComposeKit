@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -68,10 +68,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.settings.ui.ThemeValues
@@ -83,7 +80,6 @@ import dev.toastbits.composekit.utils.common.generatePalette
 import dev.toastbits.composekit.utils.common.getContrasted
 import dev.toastbits.composekit.utils.common.random
 import dev.toastbits.composekit.utils.common.sorted
-import dev.toastbits.composekit.utils.common.copy
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 import dev.toastbits.composekit.utils.composable.ColourPicker
 import dev.toastbits.composekit.utils.composable.OnChangedEffect
@@ -93,6 +89,14 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import dev.toastbits.composekit.library.generated.resources.*
+import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
+import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.composekit.platform.LocalContext
+import dev.toastbits.composekit.platform.PlatformContext
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.platform.vibrateShort
+import dev.toastbits.composekit.settings.ui.SettingsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -121,11 +125,12 @@ class ThemeSelectorSettingsItem(
 
     @Composable
     override fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
+        val theme: ThemeValues = LocalApplicationTheme.current
+        val context: PlatformContext = LocalContext.current
+        val navigator: Navigator = LocalNavigator.current
+
         val value: Int by state.observe()
         val coroutine_scope: CoroutineScope = rememberCoroutineScope()
         val theme_provider: ThemeSelectorThemeProvider = getThemeProvider()
@@ -136,14 +141,14 @@ class ThemeSelectorSettingsItem(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 val icon_button_colours: IconButtonColors = IconButtonDefaults.iconButtonColors(
-                    containerColor = settings_interface.theme.accent,
-                    contentColor = settings_interface.theme.accent.getContrasted(),
-                    disabledContainerColor = settings_interface.theme.accent.copy(alpha = 0.1f)
+                    containerColor = theme.accent,
+                    contentColor = theme.accent.getContrasted(),
+                    disabledContainerColor = theme.accent.copy(alpha = 0.1f)
                 )
 
                 ItemTitleText(
                     state.getName(),
-                    settings_interface.theme,
+                    theme,
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
@@ -155,7 +160,7 @@ class ThemeSelectorSettingsItem(
                     { state.set((value - 1).coerceAtLeast(0)) },
                     icon_button_colours,
                     onLongClick = {
-                        settings_interface.triggerVibration()
+                        context.vibrateShort()
                         state.set(0)
                     },
                     enabled = value > 0
@@ -167,7 +172,7 @@ class ThemeSelectorSettingsItem(
                     { state.set((value + 1).coerceAtMost(theme_provider.getThemeCount() - 1)) },
                     icon_button_colours,
                     onLongClick = {
-                        settings_interface.triggerVibration()
+                        context.vibrateShort()
                         state.set(theme_provider.getThemeCount() - 1)
                     },
                     enabled = value + 1 < theme_provider.getThemeCount()
@@ -217,7 +222,7 @@ class ThemeSelectorSettingsItem(
 
                     ShapedIconButton(
                         {
-                            openCustomPage(
+                            navigator.pushScreen(
                                 getEditPage(
                                     theme_data,
                                     onEditCompleted = { theme, name ->
@@ -256,8 +261,8 @@ class ThemeSelectorSettingsItem(
     private fun getEditPage(
         theme_data: NamedTheme,
         onEditCompleted: (ThemeValues, String) -> Unit
-    ): SettingsPage {
-        return object : SettingsPage() {
+    ): Screen =
+        object : SettingsScreen {
             override val title: String?
                 @Composable
                 get() = str_editor_title?.let { stringResource(it) }
@@ -266,22 +271,20 @@ class ThemeSelectorSettingsItem(
             private var theme_name: String by mutableStateOf(theme_data.name)
 
             @Composable
-            override fun PageView(
-                content_padding: PaddingValues,
-                openPage: (Int, Any?) -> Unit,
-                openCustomPage: (SettingsPage) -> Unit,
-                goBack: () -> Unit
+            override fun Content(
+                navigator: Navigator,
+                modifier: Modifier,
+                contentPadding: PaddingValues
             ) {
-                val coroutine_scope: CoroutineScope = rememberCoroutineScope()
                 val focus_manager: FocusManager = LocalFocusManager.current
                 val density: Density = LocalDensity.current
 
-                val ui_theme: ThemeValues = settings_interface.theme
+                val theme: ThemeValues = LocalApplicationTheme.current
                 var randomise: Boolean by remember { mutableStateOf(false) }
 
                 val icon_button_colours = IconButtonDefaults.iconButtonColors(
-                    containerColor = ui_theme.vibrant_accent,
-                    contentColor = ui_theme.vibrant_accent.getContrasted()
+                    containerColor = theme.vibrant_accent,
+                    contentColor = theme.vibrant_accent.getContrasted()
                 )
 
                 Box(
@@ -297,7 +300,7 @@ class ThemeSelectorSettingsItem(
 
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
-                        contentPadding = content_padding
+                        contentPadding = contentPadding
                     ) {
                         item {
                             OutlinedTextField(
@@ -308,9 +311,9 @@ class ThemeSelectorSettingsItem(
                                 isError = theme_name.isEmpty(),
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    cursorColor = ui_theme.vibrant_accent,
-                                    focusedBorderColor = ui_theme.vibrant_accent,
-                                    focusedLabelColor = ui_theme.vibrant_accent,
+                                    cursorColor = theme.vibrant_accent,
+                                    focusedBorderColor = theme.vibrant_accent,
+                                    focusedLabelColor = theme.vibrant_accent,
                                 ),
                                 keyboardActions = KeyboardActions(onDone = {
                                     focus_manager.clearFocus()
@@ -322,7 +325,7 @@ class ThemeSelectorSettingsItem(
                             item {
                                 ColourField(
                                     stringResource(name),
-                                    ui_theme,
+                                    theme,
                                     default_colour,
                                     icon_button_colours,
                                     randomise
@@ -363,7 +366,8 @@ class ThemeSelectorSettingsItem(
                     }
 
                     Row(
-                        settings_interface.getFooterModifier()
+                        Modifier
+//                        settings_interface.getFooterModifier()
                             .fillMaxWidth()
                             .height(IntrinsicSize.Max)
                             .align(Alignment.BottomCenter)
@@ -376,8 +380,8 @@ class ThemeSelectorSettingsItem(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         val button_colours: ButtonColors = ButtonDefaults.buttonColors(
-                            containerColor = ui_theme.accent,
-                            contentColor = ui_theme.on_accent
+                            containerColor = theme.accent,
+                            contentColor = theme.on_accent
                         )
 
                         LaunchedEffect(theme_values) {
@@ -407,10 +411,10 @@ class ThemeSelectorSettingsItem(
                                 theme_manager.isPreviewActive(),
                                 { togglePreviewTheme() },
                                 colors = SwitchDefaults.colors(
-                                    checkedTrackColor = ui_theme.vibrant_accent.getContrasted().copy(alpha = 0.5f),
-                                    checkedThumbColor = ui_theme.vibrant_accent,
-                                    uncheckedTrackColor = ui_theme.vibrant_accent.getContrasted(),
-                                    uncheckedThumbColor = ui_theme.vibrant_accent.copy(alpha = 0.5f)
+                                    checkedTrackColor = theme.vibrant_accent.getContrasted().copy(alpha = 0.5f),
+                                    checkedThumbColor = theme.vibrant_accent,
+                                    uncheckedTrackColor = theme.vibrant_accent.getContrasted(),
+                                    uncheckedThumbColor = theme.vibrant_accent.copy(alpha = 0.5f)
                                 )
                             )
                             Text(stringResource(str_button_preview), Modifier.padding(start = 5.dp))
@@ -433,7 +437,7 @@ class ThemeSelectorSettingsItem(
                         ShapedIconButton(
                             {
                                 onEditCompleted(theme_values, theme_name)
-                                goBack()
+                                navigator.navigateBackward()
                             },
                             icon_button_colours,
                             Modifier.fillMaxHeight().aspectRatio(1f)
@@ -453,11 +457,9 @@ class ThemeSelectorSettingsItem(
             }
 
             override fun onClosed() {
-                super.onClosed()
                 theme_manager.setPreviewTheme(null)
             }
         }
-    }
 }
 
 @Composable

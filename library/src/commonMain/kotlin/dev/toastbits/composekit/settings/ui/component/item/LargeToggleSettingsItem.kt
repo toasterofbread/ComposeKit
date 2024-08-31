@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -34,10 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.settings.ui.vibrant_accent
@@ -57,12 +55,12 @@ class LargeToggleSettingsItem(
     val enabledContent: (@Composable (Modifier) -> Unit)? = null,
     val disabledContent: (@Composable (Modifier) -> Unit)? = null,
     val prerequisite_value: PreferencesProperty<Boolean>? = null,
-    val warningDialog: (@Composable (dismiss: () -> Unit, openPage: (Int, Any?) -> Unit) -> Unit)? = null,
+    val warningDialog: (@Composable (dismiss: () -> Unit) -> Unit)? = null,
     val infoButton: (@Composable (enabled: Boolean, showing_extra_state: MutableState<Boolean>) -> Unit)? = null,
     val extra_items: List<SettingsItem> = emptyList(),
     val show_button: Boolean = true,
-    val onClicked: (target: Boolean, setEnabled: (Boolean) -> Unit, setLoading: (Boolean) -> Unit, openPage: (Int, Any?) -> Unit) -> Unit =
-        { target, setEnabled, _, _ -> setEnabled(target) }
+    val onClicked: (target: Boolean, setEnabled: (Boolean) -> Unit, setLoading: (Boolean) -> Unit) -> Unit =
+        { target, setEnabled, _ -> setEnabled(target) }
 ): SettingsItem() {
     override suspend fun resetValues() {
         state.reset()
@@ -75,22 +73,16 @@ class LargeToggleSettingsItem(
 
     @Composable
     override fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme: ThemeValues = settings_interface.theme
+        val theme: ThemeValues = LocalApplicationTheme.current
         val shape: RoundedCornerShape = RoundedCornerShape(25.dp)
         var loading: Boolean by remember { mutableStateOf(false) }
 
         val showing_extra_state: MutableState<Boolean> = remember { mutableStateOf(false) }
-        var showing_dialog: (@Composable (dismiss: () -> Unit, openPage: (Int, Any?) -> Unit) -> Unit)? by remember { mutableStateOf(null) }
+        var showing_dialog: (@Composable (dismiss: () -> Unit) -> Unit)? by remember { mutableStateOf(null) }
 
-        showing_dialog?.invoke(
-            { showing_dialog = null },
-            openPage
-        )
+        showing_dialog?.invoke { showing_dialog = null }
 
         val state_value: Boolean? by state.observe()
         val prerequisite_value_value: Boolean? by prerequisite_value?.observe()
@@ -138,8 +130,7 @@ class LargeToggleSettingsItem(
                                             onClicked(
                                                 !enabled,
                                                 { state.set(it) },
-                                                { loading = it },
-                                                openPage
+                                                { loading = it }
                                             )
                                         }
                                     },
@@ -162,9 +153,7 @@ class LargeToggleSettingsItem(
                                 }
                             }
 
-                            if (infoButton != null) {
-                                infoButton.invoke(enabled, showing_extra_state)
-                            }
+                            infoButton?.invoke(enabled, showing_extra_state)
                         }
 
                         if (showing_extra_state.value) {
@@ -177,7 +166,7 @@ class LargeToggleSettingsItem(
                             ) {
                                 CompositionLocalProvider(LocalContentColor provides theme.on_background) {
                                     for (item in extra_items) {
-                                        item.Item(settings_interface, openPage, openCustomPage, Modifier)
+                                        item.Item(Modifier)
                                     }
                                 }
                             }

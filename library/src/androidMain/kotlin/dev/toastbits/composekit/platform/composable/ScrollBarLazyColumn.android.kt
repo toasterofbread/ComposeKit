@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 
 @Composable
 actual fun ScrollBarLazyColumn(
@@ -25,6 +26,7 @@ actual fun ScrollBarLazyColumn(
     scrollBarColour: Color,
     verticalAlignment: Alignment.Vertical,
     reverseScrollBarLayout: Boolean,
+    scrollbarSpacing: Dp,
     content: LazyListScope.() -> Unit
 ) {
     LazyColumn(

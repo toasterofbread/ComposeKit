@@ -24,7 +24,7 @@ import androidx.compose.ui.zIndex
 import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.vibrateShort
-import dev.toastbits.composekit.settings.ui.item.SettingsItem
+import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 
 class SettingsInterface(
@@ -122,15 +122,15 @@ class SettingsInterface(
         }
     }
 
-    @Composable
-    fun ItemText(
-        text: String?,
-        theme: ThemeValues,
-        colour: Color = theme.on_background.copy(alpha = 0.75f),
-        linkify: Boolean = true
-    ) {
-        SettingsItem.ItemText(context, text, theme, colour, linkify)
-    }
+//    @Composable
+//    fun ItemText(
+//        text: String?,
+//        theme: ThemeValues,
+//        colour: Color = theme.on_background.copy(alpha = 0.75f),
+//        linkify: Boolean = true
+//    ) {
+//        SettingsItem.ItemText(context, text, theme, colour, linkify)
+//    }
 }
 
 @Composable

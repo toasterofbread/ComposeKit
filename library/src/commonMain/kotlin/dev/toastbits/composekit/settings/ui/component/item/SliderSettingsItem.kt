@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.SpringSpec
@@ -24,7 +24,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,11 +44,9 @@ import com.github.krottv.compose.sliders.DefaultThumb
 import com.github.krottv.compose.sliders.DefaultTrack
 import com.github.krottv.compose.sliders.ListenOnPressed
 import com.github.krottv.compose.sliders.SliderValueHorizontal
-import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.platform.Platform
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.utils.common.getContrasted
@@ -113,13 +110,10 @@ class SliderSettingsItem(
 
     @Composable
     override fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
         val coroutine_scope: CoroutineScope = rememberCoroutineScope()
-        val theme: ThemeValues = settings_interface.theme
+        val theme: ThemeValues = LocalApplicationTheme.current
         var show_edit_dialog: Boolean by remember { mutableStateOf(false) }
         var is_int: Boolean by remember { mutableStateOf(false) }
 
@@ -208,13 +202,13 @@ class SliderSettingsItem(
                 }
             }
 
-            settings_interface.ItemText(state.getDescription(), theme)
+            ItemText(state.getDescription(), theme)
 
             Spacer(Modifier.requiredHeight(10.dp))
 
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (min_label != null) {
-                    settings_interface.ItemText(min_label.getComposable(), theme)
+                    ItemText(min_label.getComposable(), theme)
                 }
 
                 val view_configuration: ViewConfiguration = LocalViewConfiguration.current
@@ -260,7 +254,7 @@ class SliderSettingsItem(
                             }
 
                             if (value_text != null) {
-                                MeasureUnconstrainedView({ settings_interface.ItemText(value_text, theme) }) { size ->
+                                MeasureUnconstrainedView({ ItemText(value_text, theme) }) { size ->
                                     var is_pressed by remember { mutableStateOf(false) }
                                     interaction_source.ListenOnPressed { is_pressed = it }
                                     val scale: Float by animateFloatAsState(
@@ -287,7 +281,7 @@ class SliderSettingsItem(
                                                         colour.copy(alpha = 0.6f), CircleShape
                                                 )
                                         )
-                                        settings_interface.ItemText(value_text, theme, linkify = false)
+                                        ItemText(value_text, theme, linkify = false)
                                     }
                                 }
                             }
@@ -311,7 +305,7 @@ class SliderSettingsItem(
                 }
 
                 if (max_label != null) {
-                    settings_interface.ItemText(max_label.getComposable(), theme)
+                    ItemText(max_label.getComposable(), theme)
                 }
             }
         }

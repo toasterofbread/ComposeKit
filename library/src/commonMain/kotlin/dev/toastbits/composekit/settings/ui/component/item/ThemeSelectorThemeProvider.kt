@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.NamedTheme

@@ -12,18 +12,19 @@ import androidx.compose.ui.text.*
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.geometry.Offset
+import dev.toastbits.composekit.platform.LocalContext
 import dev.toastbits.composekit.platform.composable.platformClickableWithOffset
 import dev.toastbits.composekit.platform.PlatformContext
 
 // https://gist.github.com/stevdza-san/ff9dbec0e072d8090e1e6d16e6b73c91
 @Composable
 fun LinkifyText(
-    context: PlatformContext,
     text: String,
     highlight_colour: Color,
     modifier: Modifier = Modifier,
     style: TextStyle = LocalTextStyle.current
 ) {
+    val context: PlatformContext = LocalContext.current
     var layout_result: TextLayoutResult? by remember { mutableStateOf(null) }
     
     val annotated_string: AnnotatedString =

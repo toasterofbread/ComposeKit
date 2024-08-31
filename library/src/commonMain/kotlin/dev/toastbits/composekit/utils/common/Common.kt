@@ -81,6 +81,15 @@ fun PaddingValues.copy(
 	)
 }
 
+@Composable
+operator fun PaddingValues.plus(other: PaddingValues): PaddingValues =
+	PaddingValues(
+		start = calculateStartPadding(LocalLayoutDirection.current) + other.calculateStartPadding(LocalLayoutDirection.current),
+		top = calculateTopPadding() + other.calculateTopPadding(),
+		end = calculateEndPadding(LocalLayoutDirection.current) + other.calculateEndPadding(LocalLayoutDirection.current),
+		bottom = calculateBottomPadding() + other.calculateBottomPadding()
+	)
+
 fun Modifier.thenIf(condition: Boolean, modifier: Modifier): Modifier = if (condition) then(modifier) else this
 inline fun Modifier.thenIf(condition: Boolean, action: Modifier.() -> Modifier): Modifier = if (condition) action() else this
 inline fun Modifier.thenIf(condition: Boolean, elseAction: Modifier.() -> Modifier, action: Modifier.() -> Modifier): Modifier = if (condition) action() else elseAction()

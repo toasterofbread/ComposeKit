@@ -12,6 +12,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import dev.toastbits.composekit.utils.modifier.*
 import dev.toastbits.composekit.utils.common.thenIf
 import kotlinx.coroutines.*
@@ -32,6 +33,7 @@ actual fun ScrollBarLazyColumn(
     scrollBarColour: Color,
     verticalAlignment: Alignment.Vertical,
     reverseScrollBarLayout: Boolean,
+    scrollbarSpacing: Dp,
     content: LazyListScope.() -> Unit
 ) {
     val density: Density = LocalDensity.current
@@ -109,6 +111,7 @@ actual fun ScrollBarLazyColumn(
                 scrollbar_modifier,
                 style = scrollbar_style
             )
+            Spacer(Modifier.width(scrollbarSpacing))
         }
 
         LazyColumn(
@@ -124,6 +127,7 @@ actual fun ScrollBarLazyColumn(
         )
 
         if (!reverseScrollBarLayout && show_scrollbar) {
+            Spacer(Modifier.width(scrollbarSpacing))
             VerticalScrollbar(
                 scrollbar_adapter,
                 scrollbar_modifier,

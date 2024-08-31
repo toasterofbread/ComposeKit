@@ -1,32 +1,27 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.PlatformPreferences
-import dev.toastbits.composekit.platform.PlatformPreferencesListener
+import dev.toastbits.composekit.platform.Platform
 import dev.toastbits.composekit.platform.PreferencesProperty
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.utils.composable.LinkifyText
-import dev.toastbits.composekit.utils.composable.WidthShrinkText
-import dev.toastbits.composekit.platform.PlatformContext
 
-val SETTINGS_ITEM_ROUNDED_SHAPE = RoundedCornerShape(20.dp)
+val SETTINGS_ITEM_ROUNDED_SHAPE: CornerBasedShape
+    @Composable
+    get() = when (Platform.current) {
+        Platform.ANDROID -> MaterialTheme.shapes.extraLarge
+        Platform.DESKTOP,
+        Platform.WEB -> MaterialTheme.shapes.small
+    }
 
 abstract class SettingsItem {
     abstract suspend fun resetValues()
@@ -35,28 +30,23 @@ abstract class SettingsItem {
 
     @Composable
     abstract fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     )
 
     companion object {
         @Composable
-        fun ItemTitleText(text: String?, theme: ThemeValues, modifier: Modifier = Modifier, max_lines: Int = 1) {
+        fun ItemTitleText(text: String?, theme: ThemeValues, modifier: Modifier = Modifier) {
             if (text?.isNotBlank() == true) {
-                WidthShrinkText(
+                Text(
                     text,
                     modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.titleMedium.copy(color = theme.on_background),
-                    max_lines = max_lines
+                    style = MaterialTheme.typography.titleMedium.copy(color = theme.on_background)
                 )
             }
         }
 
         @Composable
         fun ItemText(
-            context: PlatformContext,
             text: String?,
             theme: ThemeValues,
             colour: Color = theme.on_background.copy(alpha = 0.75f),
@@ -64,7 +54,7 @@ abstract class SettingsItem {
         ) {
             if (text?.isNotBlank() == true) {
                 val style: TextStyle = MaterialTheme.typography.bodySmall.copy(color = colour)
-                if (linkify) LinkifyText(context, text, theme.accent, style = style)
+                if (linkify) LinkifyText(text, theme.accent, style = style)
                 else Text(text, style = style)
             }
         }

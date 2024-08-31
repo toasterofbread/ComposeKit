@@ -1,8 +1,13 @@
 package dev.toastbits.composekit.platform
 
 import androidx.compose.material3.ColorScheme
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CoroutineScope
+
+val LocalContext: ProvidableCompositionLocal<PlatformContext> =
+    staticCompositionLocalOf { throw IllegalStateException() }
 
 expect interface PlatformContext {
     val coroutine_scope: CoroutineScope

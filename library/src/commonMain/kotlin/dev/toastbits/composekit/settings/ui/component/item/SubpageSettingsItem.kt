@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,32 +7,32 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
+import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.settings.ui.ThemeValues
 
 class SubpageSettingsItem(
     val title: String,
     val subtitle: String?,
-    val target_page: Int,
-    val target_page_param: Any?
+    val target_page: Screen
 ): SettingsItem() {
     override fun getProperties(): List<PreferencesProperty<*>> = emptyList()
     override suspend fun resetValues() {}
 
     @Composable
     override fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        val theme = settings_interface.theme
+        val theme: ThemeValues = LocalApplicationTheme.current
+        val navigator: Navigator = LocalNavigator.current
 
         Button(
-            { openPage(target_page, target_page_param) },
+            { navigator.pushScreen(target_page) },
             Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = theme.vibrant_accent,
@@ -41,7 +41,7 @@ class SubpageSettingsItem(
         ) {
             Column(Modifier.weight(1f)) {
                 Text(title, color = theme.on_accent)
-                settings_interface.ItemText(subtitle, theme)
+                ItemText(subtitle, theme)
             }
         }
     }

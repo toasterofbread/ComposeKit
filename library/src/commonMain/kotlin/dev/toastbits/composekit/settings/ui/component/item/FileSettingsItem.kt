@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
@@ -28,10 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.utils.common.toFloat
 import dev.toastbits.composekit.utils.composable.SubtleLoadingIndicator
@@ -71,11 +70,10 @@ class FileSettingsItem(
 
     @Composable
     override fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
+        val theme: ThemeValues = LocalApplicationTheme.current
+
         var action_in_progress: Boolean by remember { mutableStateOf(false) }
         LaunchedEffect(current_dialog) {
             action_in_progress = false
@@ -158,8 +156,8 @@ class FileSettingsItem(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    ItemTitleText(state.getName(), settings_interface.theme)
-                    settings_interface.ItemText(state.getDescription(), settings_interface.theme)
+                    ItemTitleText(state.getName(), theme)
+                    ItemText(state.getDescription(), theme)
                 }
 
                 IconButton({
@@ -181,7 +179,7 @@ class FileSettingsItem(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .background(settings_interface.theme.accent, RoundedCornerShape(16.dp))
+                    .background(theme.accent, RoundedCornerShape(16.dp))
                     .padding(10.dp)
             ) {
                 val value: String? by state.observe()
@@ -189,7 +187,7 @@ class FileSettingsItem(
                 Text(
                     value?.let { getPathLabel(it) } ?: "",
                     style = MaterialTheme.typography.bodySmall,
-                    color = settings_interface.theme.on_accent
+                    color = theme.on_accent
                 )
             }
         }

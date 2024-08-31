@@ -4,7 +4,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.State
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -15,36 +17,53 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
 import dev.toastbits.composekit.utils.common.toInt
 import dev.toastbits.composekit.utils.composable.pauseableInfiniteRepeatableAnimation
 import kotlin.math.PI
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 import kotlin.math.sin
+
+val LocalWaveLineAreaState: ProvidableCompositionLocal<WaveLineAreaState?> =
+    staticCompositionLocalOf { null }
+
+typealias WaveLineAreaState = State<Float>
 
 @Composable
 fun WaveLineArea(
-    lineColour: Color,
     modifier: Modifier = Modifier,
+    lineColour: Color = LocalApplicationTheme.current.accent.copy(alpha = 0.2f),
     wavelength: Dp = 70.dp,
     periodMillis: Int = 2000,
     waveHeight: Dp = 15.dp,
     waveSpacing: Dp = 25.dp,
     waveThickness: Dp = 2.dp,
     rotationDegrees: Float = -15f,
+    playing: Boolean = true,
+    enabled: Boolean = true,
+    initialOffset: Float = 0f,
     getStagger: (Int, Float) -> Float = { wave, offset -> (wave % 2 == 0).toInt() * offset },
-    getPlaying: () -> Boolean = { true },
     content: @Composable () -> Unit = {}
-) {
-    val waveOffset: Float by
-        pauseableInfiniteRepeatableAnimation(
+): State<Float> {
+    require(initialOffset in 0f .. 1f)
+
+    val waveState: WaveLineAreaState =
+        LocalWaveLineAreaState.current
+        ?: pauseableInfiniteRepeatableAnimation(
             start = 0f,
             end = 1f,
             period = periodMillis,
-            getPlaying = getPlaying
+            playing = playing,
+            initialOffsetMillis = (initialOffset * periodMillis).roundToInt()
         )
 
     Box(modifier.clipToBounds()) {
         Canvas(Modifier.fillMaxSize()) {
+            if (!enabled) {
+                return@Canvas
+            }
+
             val path: Path = Path()
             val waveStroke: Stroke = Stroke(waveThickness.toPx())
 
@@ -56,7 +75,7 @@ fun WaveLineArea(
                         height = waveHeight.toPx(),
                         wavelength = wavelength,
                         outerRotationDegrees = rotationDegrees,
-                        getOffset = { (waveOffset + offset) % 1f }
+                        getOffset = { (waveState.value + offset) % 1f }
                     )
                     path.translate(Offset(0f, position))
                     drawPath(path, lineColour, style = waveStroke)
@@ -65,13 +84,15 @@ fun WaveLineArea(
 
             rotate(rotationDegrees) {
                 for (wave in 0 until (maxOf(size.width, size.height) / waveSpacing.toPx()).toInt() * 2) {
-                    drawWave((waveSpacing * wave).toPx(), getStagger(wave, waveOffset))
+                    drawWave((waveSpacing * wave).toPx(), getStagger(wave, waveState.value))
                 }
             }
         }
 
         content()
     }
+
+    return waveState
 }
 
 private inline fun DrawScope.wavePath(

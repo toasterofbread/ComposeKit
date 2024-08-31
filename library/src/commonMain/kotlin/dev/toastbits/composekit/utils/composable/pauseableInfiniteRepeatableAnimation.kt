@@ -1,6 +1,7 @@
 package dev.toastbits.composekit.utils.composable
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
@@ -21,11 +22,11 @@ fun pauseableInfiniteRepeatableAnimation(
     start: Float,
     end: Float,
     period: Int,
-    getPlaying: () -> Boolean
+    playing: Boolean = true,
+    initialOffsetMillis: Int = 0
 ): State<Float> {
-    val playing = getPlaying()
-    var animatable by remember { mutableStateOf(Animatable(start)) }
-    var paused_animatable_position by remember { mutableStateOf(0) }
+    var animatable: Animatable<Float, AnimationVector1D> by remember { mutableStateOf(Animatable(start)) }
+    var pausedAnimatablePosition: Int by remember { mutableStateOf(initialOffsetMillis) }
 
     LaunchedEffect(playing) {
         if (playing) {
@@ -35,14 +36,14 @@ fun pauseableInfiniteRepeatableAnimation(
                     animation = tween(period, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart,
                     initialStartOffset = StartOffset(
-                        paused_animatable_position, 
+                        pausedAnimatablePosition,
                         StartOffsetType.FastForward
                     )
                 )
             )
         }
         else {
-            paused_animatable_position = ((animatable.value - start) / (end - start)).roundToInt() * period
+            pausedAnimatablePosition = ((animatable.value - start) / (end - start)).roundToInt() * period
             animatable = Animatable(0f)
         }
     }

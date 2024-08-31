@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,11 +27,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.settings.ui.item.GroupSettingsItem
-import dev.toastbits.composekit.settings.ui.item.SettingsItem
+import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.settings.ui.component.item.GroupSettingsItem
+import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 import dev.toastbits.composekit.utils.composable.WidthShrinkText
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
+
+interface SettingsScreen: Screen {
+    suspend fun resetKeys()
+    fun onClosed()
+}
 
 abstract class SettingsPage {
     var id: Int? = null
@@ -52,7 +58,7 @@ abstract class SettingsPage {
 
     @Composable
     fun Page(content_padding: PaddingValues, openPage: (Int, Any?) -> Unit, openCustomPage: (SettingsPage) -> Unit, goBack: () -> Unit) {
-        CompositionLocalProvider(LocalContentColor provides settings_interface.theme.on_background) {
+        CompositionLocalProvider(LocalContentColor provides LocalApplicationTheme.current.on_background) {
             PageView(content_padding, openPage, openCustomPage, goBack)
         }
     }
@@ -67,6 +73,8 @@ abstract class SettingsPage {
 
     @Composable
     open fun TitleBar(is_root: Boolean, modifier: Modifier, titleFooter: (@Composable () -> Unit)?) {
+        val theme: ThemeValues = LocalApplicationTheme.current
+
         Crossfade(title, modifier) { title ->
             Column(Modifier.fillMaxWidth()) {
 
@@ -90,7 +98,7 @@ abstract class SettingsPage {
                                 .weight(1f)
                                 .align(Alignment.CenterVertically),
                             style = MaterialTheme.typography.headlineMedium.copy(
-                                color = settings_interface.theme.on_background,
+                                color = theme.on_background,
                                 fontWeight = FontWeight.Light,
                                 textAlign = TextAlign.Center
                             )
@@ -165,7 +173,7 @@ open class SettingsPageWithItems(
                         Spacer(Modifier.height(30.dp))
                     }
 
-                    item.Item(settings_interface, openPage, openCustomPage, Modifier)
+                    item.Item(Modifier)
                 }
             }
         }

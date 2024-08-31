@@ -1,7 +1,9 @@
-package dev.toastbits.composekit.settings.ui.item
+package dev.toastbits.composekit.settings.ui.component.item
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
@@ -17,14 +19,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PreferencesProperty
-import dev.toastbits.composekit.settings.ui.SettingsInterface
-import dev.toastbits.composekit.settings.ui.SettingsPage
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.settings.ui.on_accent
 import dev.toastbits.composekit.utils.composable.LargeDropdownMenu
@@ -44,39 +44,42 @@ class DropdownSettingsItem(
 
     @Composable
     override fun Item(
-        settings_interface: SettingsInterface,
-        openPage: (Int, Any?) -> Unit,
-        openCustomPage: (SettingsPage) -> Unit,
         modifier: Modifier
     ) {
-        var current_value: Int = state.observe().value ?: 0
+        val theme: ThemeValues = LocalApplicationTheme.current
+        var current_value: Int = state.observe().value
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        FlowRow(
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
             Column(
                 Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .align(Alignment.CenterVertically)
             ) {
-                ItemTitleText(state.getName(), settings_interface.theme)
-                settings_interface.ItemText(state.getDescription(), settings_interface.theme)
+                ItemTitleText(state.getName(), theme)
+                ItemText(state.getDescription(), theme)
             }
 
             var open by remember { mutableStateOf(false) }
 
             Button(
                 { open = !open },
-                Modifier.requiredHeight(40.dp),
+                Modifier
+                    .requiredHeight(40.dp)
+                    .align(Alignment.CenterVertically),
                 shape = SETTINGS_ITEM_ROUNDED_SHAPE,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = settings_interface.theme.vibrant_accent,
-                    contentColor = settings_interface.theme.on_accent
+                    containerColor = theme.vibrant_accent,
+                    contentColor = theme.on_accent
                 )
             ) {
                 Text(getButtonItem?.invoke(current_value) ?: getItem(current_value))
                 Icon(
                     Icons.Filled.ArrowDropDown,
                     null,
-                    tint = settings_interface.theme.on_accent
+                    tint = theme.on_accent
                 )
             }
 
