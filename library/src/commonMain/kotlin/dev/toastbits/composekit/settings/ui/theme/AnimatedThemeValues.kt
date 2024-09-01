@@ -12,11 +12,13 @@ internal class AnimatedThemeValues(initial_state: ThemeValues): ThemeValues {
     private val on_background_state: Animatable<Color, AnimationVector4D> = Animatable(initial_state.on_background)
     private val card_state: Animatable<Color, AnimationVector4D> = Animatable(initial_state.card)
     private val accent_state: Animatable<Color, AnimationVector4D> = Animatable(initial_state.accent)
+    private val error_state: Animatable<Color, AnimationVector4D> = Animatable(initial_state.error)
 
     override val background: Color get() = background_state.value
     override val on_background: Color get() = on_background_state.value
     override val card: Color get() = card_state.value
     override val accent: Color get() = accent_state.value
+    override val error: Color get() = error_state.value
 
     suspend fun updateColours(values: ThemeValues) = coroutineScope {
         launch {
@@ -30,6 +32,9 @@ internal class AnimatedThemeValues(initial_state: ThemeValues): ThemeValues {
         }
         launch {
             accent_state.animateTo(values.accent)
+        }
+        launch {
+            error_state.animateTo(values.error)
         }
     }
 }

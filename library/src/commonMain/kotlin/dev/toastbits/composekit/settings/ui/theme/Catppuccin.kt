@@ -21,17 +21,18 @@ fun getDefaultCatppuccinThemes(): List<NamedTheme> =
         blue,
         flamingo
     ).map { accent ->
-        mocha.toNamedTheme(accent of mocha)
+        mocha.toNamedTheme(accent of mocha, accent.errorColour of mocha)
     }
 
-private fun Palette.toNamedTheme(accent: PaletteColor): NamedTheme =
+private fun Palette.toNamedTheme(accent: PaletteColor, errorAccent: PaletteColor): NamedTheme =
     NamedTheme(
         "Catppuccin ${name.replaceFirstChar { it.uppercaseChar() }} (${accent.definition.label})",
         ThemeValuesData(
             background = Color(base.hex.formatted.toLong(16) or 0x00000000FF000000),
             on_background = Color(text.hex.formatted.toLong(16) or 0x00000000FF000000),
             card = Color(mantle.hex.formatted.toLong(16) or 0x00000000FF000000),
-            accent = Color(accent.hex.formatted.toLong(16) or 0x00000000FF000000)
+            accent = Color(accent.hex.formatted.toLong(16) or 0x00000000FF000000),
+            error = Color(errorAccent.hex.formatted.toLong(16) or 0x00000000FF000000)
         )
     )
 
@@ -46,7 +47,7 @@ internal fun getCatppuccinTheme(target_flavour: String, target_accent: String): 
                 continue
             }
 
-            return flavour.toNamedTheme(accent)
+            return flavour.toNamedTheme(accent, accent.definition.errorColour of flavour)
         }
 
         break
@@ -54,3 +55,8 @@ internal fun getCatppuccinTheme(target_flavour: String, target_accent: String): 
 
     return null
 }
+
+private val ColorDefinition.errorColour: ColorDefinition
+    get() =
+        if (this == red) yellow
+        else red

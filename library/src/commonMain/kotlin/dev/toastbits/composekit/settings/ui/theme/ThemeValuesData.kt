@@ -12,24 +12,28 @@ data class ThemeValuesData(
     val _background: Int,
     val _on_background: Int,
     val _card: Int,
-    val _accent: Int
+    val _accent: Int,
+    val _error: Int
 ): ThemeValues {
     override val background: Color get() = Color(_background)
     override val on_background: Color get() = Color(_on_background)
     override val card: Color get() = Color(_card)
     override val accent: Color get() = Color(_accent)
+    override val error: Color get() = Color(_error)
 
     fun copy(
         background: Color? = null,
         on_background: Color? = null,
         card: Color? = null,
-        accent: Color? = null
+        accent: Color? = null,
+        error: Color? = null
     ): ThemeValuesData =
         ThemeValuesData(
             background ?: this.background,
             on_background ?: this.on_background,
             card ?: this.card,
-            accent ?: this.accent
+            accent ?: this.accent,
+            error ?: this.error
         )
 
     companion object {
@@ -42,7 +46,8 @@ data class ThemeValuesData(
                 other.background,
                 other.on_background,
                 other.card,
-                other.accent
+                other.accent,
+                other.error
             )
         }
 
@@ -51,7 +56,8 @@ data class ThemeValuesData(
                 background = colour_scheme.background,
                 on_background = colour_scheme.onBackground,
                 card = colour_scheme.surfaceColorAtElevation(2.dp),
-                accent = colour_scheme.primary
+                accent = colour_scheme.primary,
+                error = colour_scheme.error
             )
     }
 }
@@ -60,11 +66,13 @@ fun ThemeValuesData(
     background: Color,
     on_background: Color,
     card: Color,
-    accent: Color
+    accent: Color,
+    error: Color
 ): ThemeValuesData =
     ThemeValuesData(
         background.toArgb(),
         on_background.toArgb(),
         card.toArgb(),
-        accent.toArgb()
+        accent.toArgb(),
+        error.toArgb()
     )

@@ -10,6 +10,7 @@ interface ThemeValues {
     val on_background: Color
     val card: Color
     val accent: Color
+    val error: Color
 
     enum class Colour {
         BACKGROUND,
@@ -17,7 +18,8 @@ interface ThemeValues {
         CARD,
         ACCENT,
         ON_ACCENT,
-        VIBRANT_ACCENT;
+        VIBRANT_ACCENT,
+        ERROR;
 
         fun get(values: ThemeValues): Color =
             when (this) {
@@ -27,6 +29,7 @@ interface ThemeValues {
                 ACCENT -> values.accent
                 ON_ACCENT -> values.on_accent
                 VIBRANT_ACCENT -> values.vibrant_accent
+                ERROR -> values.error
             }
     }
 }
