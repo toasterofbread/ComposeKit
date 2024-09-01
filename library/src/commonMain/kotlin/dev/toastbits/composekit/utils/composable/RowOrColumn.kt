@@ -144,6 +144,8 @@ fun ScrollBarLazyRowOrColumn(
     scrollBarColour: Color = Color.Unspecified,
     alt_alignment: Int = -1,
     reverseScrollBarLayout: Boolean = false,
+    scrollBarSpacing: Dp = 5.dp,
+    rowOrColumnModifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit
 ) {
     if (row) {
@@ -160,6 +162,8 @@ fun ScrollBarLazyRowOrColumn(
             scrollBarColour,
             alt_alignment.toHorizontalAlignment(),
             reverseScrollBarLayout,
+            scrollBarSpacing,
+            rowOrColumnModifier,
             content = content
         )
     }
@@ -177,6 +181,8 @@ fun ScrollBarLazyRowOrColumn(
             scrollBarColour,
             alt_alignment.toVerticalAlignment(),
             reverseScrollBarLayout,
+            scrollBarSpacing,
+            rowOrColumnModifier,
             content = content
         )
     }

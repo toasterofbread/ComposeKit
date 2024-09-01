@@ -26,11 +26,12 @@ actual fun ScrollBarLazyColumn(
     scrollBarColour: Color,
     verticalAlignment: Alignment.Vertical,
     reverseScrollBarLayout: Boolean,
-    scrollbarSpacing: Dp,
+    scrollBarSpacing: Dp,
+    columnModifier: Modifier,
     content: LazyListScope.() -> Unit
 ) {
     LazyColumn(
-        modifier,
+        modifier.then(columnModifier),
         state,
         contentPadding,
         reverseLayout,

@@ -75,7 +75,20 @@ fun ThemeValues.ApplicationTheme(
                 inverseOnSurface = vibrant_accent.getContrasted(),
 
                 outline = on_background,
-                outlineVariant = vibrant_accent
+                outlineVariant = vibrant_accent,
+
+//                error = Color.Unspecified,
+//                onError = Color.Unspecified,
+//                errorContainer = Color.Unspecified,
+//                onErrorContainer = Color.Unspecified,
+//                scrim = Color.Unspecified,
+                surfaceBright = card.amplifyPercent(0.1f),
+                surfaceDim = card,
+                surfaceContainer = card.amplifyPercent(0.1f),
+                surfaceContainerHigh = card.amplifyPercent(0.025f),
+                surfaceContainerHighest = card,
+                surfaceContainerLow = card.amplifyPercent(0.2f),
+                surfaceContainerLowest = card.amplifyPercent(0.3f),
             )
 
     val defaultTypography: Typography = MaterialTheme.typography

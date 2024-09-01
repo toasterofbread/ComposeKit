@@ -33,7 +33,8 @@ actual fun ScrollBarLazyColumn(
     scrollBarColour: Color,
     verticalAlignment: Alignment.Vertical,
     reverseScrollBarLayout: Boolean,
-    scrollbarSpacing: Dp,
+    scrollBarSpacing: Dp,
+    columnModifier: Modifier,
     content: LazyListScope.() -> Unit
 ) {
     val density: Density = LocalDensity.current
@@ -111,11 +112,11 @@ actual fun ScrollBarLazyColumn(
                 scrollbar_modifier,
                 style = scrollbar_style
             )
-            Spacer(Modifier.width(scrollbarSpacing))
+            Spacer(Modifier.width(scrollBarSpacing))
         }
 
         LazyColumn(
-            Modifier.weight(1f, false),
+            columnModifier.weight(1f, false),
             state,
             vertical_padding,
             reverseLayout,
@@ -127,7 +128,7 @@ actual fun ScrollBarLazyColumn(
         )
 
         if (!reverseScrollBarLayout && show_scrollbar) {
-            Spacer(Modifier.width(scrollbarSpacing))
+            Spacer(Modifier.width(scrollBarSpacing))
             VerticalScrollbar(
                 scrollbar_adapter,
                 scrollbar_modifier,

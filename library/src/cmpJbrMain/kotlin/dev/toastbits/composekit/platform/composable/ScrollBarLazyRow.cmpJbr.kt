@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.*
 import dev.toastbits.composekit.utils.common.thenIf
@@ -26,10 +25,11 @@ actual fun ScrollBarLazyRow(
     scrollBarColour: Color,
     horizontalAlignment: Alignment.Horizontal,
     reverseScrollBarLayout: Boolean,
-    scrollbarSpacing: Dp,
+    scrollBarSpacing: Dp,
+    rowModifier: Modifier,
     content: LazyListScope.() -> Unit
 ) {
-    Column(modifier.scrollWheelScrollable(state), horizontalAlignment = horizontalAlignment) {
+    Column(modifier.scrollWheelScrollable(state, onlyWhileShifting = true), horizontalAlignment = horizontalAlignment) {
         val scrollbar_alpha: Float by animateFloatAsState(if (state.isContentOverflowing()) 1f else 0f)
 
         val scrollbar_modifier: Modifier =
@@ -50,11 +50,11 @@ actual fun ScrollBarLazyRow(
                 scrollbar_modifier,
                 style = scrollbar_style
             )
-            Spacer(Modifier.height(scrollbarSpacing))
+            Spacer(Modifier.height(scrollBarSpacing))
         }
 
         LazyRow(
-            Modifier
+            rowModifier
                 .weight(1f, false)
                 .thenIf(show_scrollbar) {
                     offset(y = (LocalScrollbarStyle.current.thickness / 2) * (1f - scrollbar_alpha))
@@ -71,7 +71,7 @@ actual fun ScrollBarLazyRow(
         }
 
         if (!reverseScrollBarLayout && show_scrollbar) {
-            Spacer(Modifier.height(scrollbarSpacing))
+            Spacer(Modifier.height(scrollBarSpacing))
             HorizontalScrollbar(
                 rememberScrollbarAdapter(state),
                 scrollbar_modifier,

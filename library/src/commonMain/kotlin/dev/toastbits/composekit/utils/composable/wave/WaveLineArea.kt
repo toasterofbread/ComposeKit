@@ -35,7 +35,7 @@ fun WaveLineArea(
     modifier: Modifier = Modifier,
     lineColour: Color = LocalApplicationTheme.current.accent.copy(alpha = 0.2f),
     wavelength: Dp = 70.dp,
-    periodMillis: Int = 2000,
+    periodMillis: Int = 3000,
     waveHeight: Dp = 15.dp,
     waveSpacing: Dp = 25.dp,
     waveThickness: Dp = 2.dp,

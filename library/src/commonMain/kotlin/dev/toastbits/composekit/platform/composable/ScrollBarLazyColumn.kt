@@ -29,6 +29,7 @@ expect fun ScrollBarLazyColumn(
     scrollBarColour: Color = Color.Unspecified,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     reverseScrollBarLayout: Boolean = false,
-    scrollbarSpacing: Dp = 5.dp,
+    scrollBarSpacing: Dp = 5.dp,
+    columnModifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit
 )

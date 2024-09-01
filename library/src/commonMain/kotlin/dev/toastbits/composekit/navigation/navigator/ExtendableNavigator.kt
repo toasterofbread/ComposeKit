@@ -55,12 +55,14 @@ class ExtendableNavigator(
 
     override fun canNavigateBackward(): Boolean =  currentScreenIndex > 0
 
-    override fun navigateForward() {
-        currentScreenIndex++
+    override fun navigateForward(by: Int) {
+        require(by >= 0)
+        currentScreenIndex += by
     }
 
-    override fun navigateBackward() {
-        currentScreenIndex--
+    override fun navigateBackward(by: Int) {
+        require(by >= 0)
+        currentScreenIndex -= by
     }
 
     override fun peekRelative(offset: Int): Screen? =

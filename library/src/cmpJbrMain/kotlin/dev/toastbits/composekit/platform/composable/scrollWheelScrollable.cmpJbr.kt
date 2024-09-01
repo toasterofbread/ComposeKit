@@ -11,17 +11,23 @@ import androidx.compose.animation.core.tween
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.animation.core.*
+import androidx.compose.ui.input.pointer.isShiftPressed
 
 private const val SCROLL_DISTANCE_MULTIPLER: Float = 100f
 
 actual fun Modifier.scrollWheelScrollable(
     state: ScrollableState,
-    reverse_direction: Boolean
+    reverseDirection: Boolean,
+    onlyWhileShifting: Boolean
 ): Modifier = composed {
     val coroutine_scope: CoroutineScope = rememberCoroutineScope()
 
-    onPointerEvent(PointerEventType.Scroll) {
-        val distance: Float = it.changes.first().scrollDelta.y * SCROLL_DISTANCE_MULTIPLER * (if (reverse_direction) -1 else 1)
+    onPointerEvent(PointerEventType.Scroll) { event ->
+        if (onlyWhileShifting && !event.keyboardModifiers.isShiftPressed) {
+            return@onPointerEvent
+        }
+
+        val distance: Float = event.changes.first().scrollDelta.y * SCROLL_DISTANCE_MULTIPLER * (if (reverseDirection) -1 else 1)
 
         coroutine_scope.launch {
             if (state.isScrollInProgress) {

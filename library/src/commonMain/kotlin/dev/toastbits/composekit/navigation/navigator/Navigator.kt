@@ -19,8 +19,8 @@ interface Navigator {
     fun canNavigateForward(): Boolean
     fun canNavigateBackward(): Boolean
 
-    fun navigateForward()
-    fun navigateBackward()
+    fun navigateForward(by: Int = 1)
+    fun navigateBackward(by: Int = 1)
 
     fun peekRelative(offset: Int): Screen?
     fun getMostRecentOfOrNull(predicate: (Screen) -> Boolean): Screen?

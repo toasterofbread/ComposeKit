@@ -5,5 +5,6 @@ import androidx.compose.ui.Modifier
 
 expect fun Modifier.scrollWheelScrollable(
     state: ScrollableState,
-    reverse_direction: Boolean = false
+    reverseDirection: Boolean = false,
+    onlyWhileShifting: Boolean = false
 ): Modifier
