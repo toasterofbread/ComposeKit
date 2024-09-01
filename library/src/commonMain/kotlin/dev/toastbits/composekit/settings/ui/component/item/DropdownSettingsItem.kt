@@ -47,7 +47,7 @@ class DropdownSettingsItem(
         modifier: Modifier
     ) {
         val theme: ThemeValues = LocalApplicationTheme.current
-        var current_value: Int = state.observe().value
+        var current_value: Int by state.observe()
 
         FlowRow(
             verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -93,7 +93,7 @@ class DropdownSettingsItem(
                         item_count,
                         current_value,
                         {
-                            WidthShrinkText(getItem(it), Modifier.fillMaxWidth())
+                            Text(getItem(it), Modifier.fillMaxWidth())
                         }
                     ) {
                         current_value = it
