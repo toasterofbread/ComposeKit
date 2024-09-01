@@ -44,6 +44,7 @@ fun WaveLineArea(
     enabled: Boolean = true,
     initialOffset: Float = 0f,
     getStagger: (Int, Float) -> Float = { wave, offset -> (wave % 2 == 0).toInt() * offset },
+    transformOffset: (Float) -> Float = { it },
     content: @Composable () -> Unit = {}
 ): State<Float> {
     require(initialOffset in 0f .. 1f)
@@ -75,16 +76,18 @@ fun WaveLineArea(
                         height = waveHeight.toPx(),
                         wavelength = wavelength,
                         outerRotationDegrees = rotationDegrees,
-                        getOffset = { (waveState.value + offset) % 1f }
+                        offset = offset % 1f
                     )
                     path.translate(Offset(0f, position))
                     drawPath(path, lineColour, style = waveStroke)
                 }
             }
 
+            val offset: Float = transformOffset(waveState.value) % 1f
+
             rotate(rotationDegrees) {
                 for (wave in 0 until (maxOf(size.width, size.height) / waveSpacing.toPx()).toInt() * 2) {
-                    drawWave((waveSpacing * wave).toPx(), getStagger(wave, waveState.value))
+                    drawWave((waveSpacing * wave).toPx(), offset + getStagger(wave, offset))
                 }
             }
         }
@@ -95,13 +98,13 @@ fun WaveLineArea(
     return waveState
 }
 
-private inline fun DrawScope.wavePath(
+private fun DrawScope.wavePath(
     path: Path,
     direction: Int,
     height: Float,
     wavelength: Dp,
     outerRotationDegrees: Float = 0f,
-    getOffset: () -> Float = { 0f }
+    offset: Float
 ): Path {
     path.reset()
 
@@ -114,10 +117,9 @@ private inline fun DrawScope.wavePath(
 
     val yOffset: Float = -(maxSize * rotationAdj * 0.5f)
 
-    val xOffsetProgress: Float = getOffset()
-    check(xOffsetProgress in 0f .. 1f) { xOffsetProgress }
+    check(offset in 0f .. 1f) { offset }
 
-    val xOffset: Float = xOffsetProgress * halfPeriod * 2
+    val xOffset: Float = offset * halfPeriod * 2
     val xAdjustedOffset = (xOffset % effectiveWidth) - (if (xOffset > 0f) effectiveWidth else 0f)
     path.moveTo(x = -halfPeriod / 2 + xAdjustedOffset, y = yOffset)
 
