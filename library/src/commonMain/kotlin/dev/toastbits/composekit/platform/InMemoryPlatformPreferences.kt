@@ -17,7 +17,7 @@ open class InMemoryPlatformPreferences(): PlatformPreferences {
     protected open val data: MutableMap<String, JsonElement> = mutableMapOf()
     private val listeners: MutableList<PlatformPreferencesListener> = mutableListOf()
 
-    private fun onKeyChanged(key: String) {
+    protected open fun onKeyChanged(key: String) {
         for (listener in listeners) {
             listener.onChanged(this, key)
         }

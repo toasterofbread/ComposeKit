@@ -98,7 +98,11 @@ kotlin {
             }
         }
 
-        // Testing
+        val wasmJsMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.1")
+            }
+        }
 
         commonTest {
             dependencies {
