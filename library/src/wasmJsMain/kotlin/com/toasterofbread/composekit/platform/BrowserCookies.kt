@@ -30,7 +30,7 @@ object BrowserCookies: Cookies {
         firstOrNull { it.key == key }?.value
 
     override operator fun set(key: String, value: String) {
-        document.cookie = "${key.encode()}=${value.encode()}; path=/"
+        document.cookie = "${key.encode()}=${value.encode()}; SameSite=Strict; path=/"
     }
 
     private fun String.encode(): String = encodeURIComponent(this)
