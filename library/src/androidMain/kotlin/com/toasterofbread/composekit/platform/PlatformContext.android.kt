@@ -108,17 +108,16 @@ class ApplicationContext(internal val activity: ComponentActivity) {
 
 private val Uri.clean_path: String
     get() {
-        val first_colon: Int = path!!.indexOf(':')
-        if (first_colon == -1) {
-            return path!!
+        val parts: List<String> = path!!.split(':', limit = 3)
+        if (parts.getOrNull(0)?.startsWith("/tree/") == true) {
+            if (parts.getOrNull(1)?.endsWith("/document/primary") == true) {
+                return parts.getOrNull(2) ?: ""
+            }
+
+            return path!!.drop(parts[0].length + 1)
         }
 
-        val first_slash: Int = path!!.indexOf('/')
-        if (first_colon > first_slash) {
-            return path!!
-        }
-
-        return path!!.substring(first_colon + 1)
+        return path!!
     }
 
 private val Uri.split_path: List<String>
@@ -160,8 +159,12 @@ actual class PlatformFile(
         get() = path
     actual val parent_file: PlatformFile
         get() {
-            val parent: DocumentFile = parent_docfile ?: file!!.parentFile!!
-            return PlatformFile(parent.uri, parent, null, context)
+            val lastSlash: Int = document_uri.path!!.lastIndexOf('/')
+            check(lastSlash != -1) { "Cannot get parent of file $this" }
+
+            val uriPath: String = document_uri.path!!.substring(0, lastSlash)
+            val uri: Uri = Uri.Builder().path(uriPath).build()
+            return PlatformFile(uri, file?.parentFile, parent_docfile, context)
         }
 
     actual val exists: Boolean
@@ -374,7 +377,8 @@ actual class PlatformFile(
                 try {
                     return File(absolute_path).mkdirs()
                 }
-                catch (_: Throwable) {
+                catch (e: Throwable) {
+                    RuntimeException("Ignoring exception when creating file dirs for '$absolute_path'", e).printStackTrace()
                     return false
                 }
             }
