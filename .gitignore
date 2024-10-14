@@ -9,3 +9,5 @@
 .cxx
 local.properties
 .vscode
+/.kotlin
+/kotlin-js-store

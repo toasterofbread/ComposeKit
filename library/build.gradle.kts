@@ -1,23 +1,49 @@
+@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
+
 import com.vanniktech.maven.publish.SonatypeHost
 import com.vanniktech.maven.publish.KotlinMultiplatform
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     id("com.android.library")
     id("com.vanniktech.maven.publish")
     id("org.jetbrains.compose")
     kotlin("multiplatform")
+    kotlin("plugin.compose")
     kotlin("plugin.serialization")
 }
 
 allprojects {
     group = "dev.toastbits.composekit"
-    version = "0.0.2"
+    version = "0.0.3-SNAPSHOT"
 }
 
 kotlin {
-    android()
+    androidTarget()
 
     jvm("desktop")
+
+    wasmJs {
+        browser()
+    }
+
+    applyDefaultHierarchyTemplate {
+        common {
+            withAndroidTarget()
+            withJvm()
+            withWasmJs()
+
+            group("jvm") {
+                withAndroidTarget()
+                withJvm()
+            }
+            group("cmpJbr") {
+                withJvm()
+                withWasmJs()
+            }
+        }
+    }
 
     sourceSets {
         all {
@@ -47,9 +73,10 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
 
-                implementation("com.github.catppuccin:java:v1.0.0")
-                implementation("com.godaddy.android.colorpicker:compose-color-picker:0.7.0")
+                implementation("com.catppuccin:catppuccin-kotlin:1.0.3-dev")
+                implementation("com.github.toasterofbread.compose-color-picker:compose-color-picker:19c9fb4736")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+                api("com.squareup.okio:okio:3.9.0")
             }
         }
 
@@ -68,6 +95,19 @@ kotlin {
                 implementation(compose.desktop.common)
                 implementation("com.sshtools:two-slices:0.9.1")
                 implementation("com.github.toasterofbread:gdx-nativefilechooser:325fa2a")
+            }
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.1")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(project(":testing-library"))
             }
         }
     }
@@ -108,7 +148,7 @@ mavenPublishing {
 
     pom {
         name.set("ComposeKit")
-        description.set(" A collection of common code for use in my Compose Multiplatform projects")
+        description.set("A collection of common code for use in my Compose Multiplatform projects")
         url.set("https://github.com/toasterofbread/composekit")
         inceptionYear.set("2023")
 
