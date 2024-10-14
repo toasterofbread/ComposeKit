@@ -143,7 +143,7 @@ mavenPublishing {
 
     configure(KotlinMultiplatform(
         sourcesJar = true,
-        androidVariantsToPublish = listOf("debug", "release")
+        androidVariantsToPublish = listOf("release")
     ))
 
     pom {

@@ -6,7 +6,7 @@ actual fun getPlatformForbiddenFilenameCharacters(): String = ""
 
 actual fun getPlatformOSName(): String = js("window.navigator.platform")
 
-actual fun getPlatformHostName(): String = "Unknown"
+actual fun getPlatformHostName(): String? = null
 
 actual fun assert(condition: Boolean) {}
 actual fun assert(condition: Boolean, lazyMessage: () -> String) {}

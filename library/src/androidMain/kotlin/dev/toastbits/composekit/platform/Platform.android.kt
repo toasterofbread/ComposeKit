@@ -6,7 +6,7 @@ import java.lang.reflect.Field
 actual fun getPlatform(): Platform =
     Platform.ANDROID
 
-actual fun getPlatformForbiddenFilenameCharacters(): String = "/"
+actual fun getPlatformForbiddenFilenameCharacters(): String = "/:|\\<>"
 
 actual fun getPlatformOSName(): String {
     val fields: Array<Field> = Build.VERSION_CODES::class.java.fields
@@ -17,4 +17,4 @@ actual fun getPlatformOSName(): String {
 
 }
 
-actual fun getPlatformHostName(): String = Build.MODEL
+actual fun getPlatformHostName(): String? = Build.MODEL

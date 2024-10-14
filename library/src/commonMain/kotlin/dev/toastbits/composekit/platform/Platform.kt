@@ -13,9 +13,6 @@ enum class Platform {
 
     companion object {
         val current: Platform get() = getPlatform()
-
-        fun getOSName(): String = getPlatformOSName()
-        fun getHostName(): String = getPlatformHostName()
     }
 }
 
@@ -23,7 +20,7 @@ internal expect fun getPlatform(): Platform
 expect fun getPlatformForbiddenFilenameCharacters(): String
 
 expect fun getPlatformOSName(): String
-expect fun getPlatformHostName(): String
+expect fun getPlatformHostName(): String?
 
 expect fun assert(condition: Boolean)
 expect fun assert(condition: Boolean, lazyMessage: () -> String)

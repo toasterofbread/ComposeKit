@@ -16,4 +16,10 @@ actual fun getPlatformForbiddenFilenameCharacters(): String =
     }
 
 actual fun getPlatformOSName(): String = System.getProperty("os.name")
-actual fun getPlatformHostName(): String = InetAddress.getLocalHost().hostName
+actual fun getPlatformHostName(): String? =
+    try {
+        InetAddress.getLocalHost().hostName
+    }
+    catch (_: Throwable) {
+        null
+    }

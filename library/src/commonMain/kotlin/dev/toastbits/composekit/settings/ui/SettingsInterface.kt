@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
@@ -24,7 +23,7 @@ import androidx.compose.ui.zIndex
 import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.vibrateShort
-import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
+import dev.toastbits.composekit.utils.common.thenIf
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 
 class SettingsInterface(
@@ -89,7 +88,9 @@ class SettingsInterface(
 
             Column(
                 Modifier
-                    .widthIn(max = 800.dp)
+                    .thenIf(page.apply_padding) {
+                        widthIn(max = 800.dp)
+                    }
                     .fillMaxSize()
                     .onSizeChanged { width = it.width }
             ) {

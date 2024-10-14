@@ -7,22 +7,25 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-abstract class ThemeManager(
-    initial_theme: ThemeValues,
-    private val composable_coroutine_scope: CoroutineScope
-): ThemeValues {
+class ThemeManager(initial_theme: ThemeValues): ThemeValues {
     private val animated_theme_values: AnimatedThemeValues = AnimatedThemeValues(initial_theme)
     private var current_thumbnail_colour: Color? = null
+    private var composable_coroutine_scope: CoroutineScope? = null
 
     override val background: Color get() = animated_theme_values.background
     override val on_background: Color get() = animated_theme_values.on_background
     override val card: Color get() = animated_theme_values.card
     override val accent: Color get() = animated_theme_values.accent
+    override val error: Color get() = animated_theme_values.error
 
     var current_theme: ThemeValues by mutableStateOf(initial_theme)
         private set
     var preview_theme: ThemeValues? by mutableStateOf(null)
         private set
+
+    fun init(composable_coroutine_scope: CoroutineScope) {
+        this.composable_coroutine_scope = composable_coroutine_scope
+    }
 
     fun setTheme(new_theme: ThemeValues) {
         if (new_theme == current_theme) {
@@ -55,7 +58,9 @@ abstract class ThemeManager(
     open fun selectAccentColour(values: ThemeValues, thumbnail_colour: Color?): Color = values.accent
 
     private fun updateColours() {
-        composable_coroutine_scope.launch {
+        checkNotNull(composable_coroutine_scope) { "Not initialised" }
+
+        composable_coroutine_scope!!.launch {
             val current_values: ThemeValues = preview_theme ?: current_theme
             val accent_colour: Color = selectAccentColour(current_values, current_thumbnail_colour)
             val theme_values: ThemeValues = ThemeValuesData.of(current_values).copy(accent = accent_colour)

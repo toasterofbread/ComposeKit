@@ -5,7 +5,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class ThemeValuesData(
@@ -59,6 +61,35 @@ data class ThemeValuesData(
                 accent = colour_scheme.primary,
                 error = colour_scheme.error
             )
+
+        fun deserialise(serialised: String, json: Json): ThemeValuesData {
+            try {
+                return json.decodeFromString(serialised)
+            }
+            catch (e: Throwable) {
+                try {
+                    return oldDeserialise(serialised, Color.Red).theme
+                }
+                catch (_: Throwable) {
+                    throw e
+                }
+            }
+        }
+
+        fun oldDeserialise(data: String, error_colour: Color): NamedTheme {
+            val split: List<String> = data.split(',')
+            check(split.size == 5)
+            return NamedTheme(
+                split[4],
+                ThemeValuesData(
+                    split[0].toInt(),
+                    split[1].toInt(),
+                    split[2].toInt(),
+                    split[3].toInt(),
+                    error_colour.toArgb()
+                )
+            )
+        }
     }
 }
 
