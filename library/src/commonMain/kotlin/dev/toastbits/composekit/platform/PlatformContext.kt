@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CoroutineScope
 
 val LocalContext: ProvidableCompositionLocal<PlatformContext> =
-    staticCompositionLocalOf { throw IllegalStateException() }
+    staticCompositionLocalOf { throw IllegalStateException("LocalContext accessed before provide") }
 
 expect interface PlatformContext {
     val coroutine_scope: CoroutineScope

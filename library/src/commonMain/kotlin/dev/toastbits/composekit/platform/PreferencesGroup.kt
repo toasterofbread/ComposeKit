@@ -1,8 +1,6 @@
 package dev.toastbits.composekit.platform
 
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 

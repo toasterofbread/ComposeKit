@@ -25,6 +25,7 @@ fun WidthShrinkText(
     style: TextStyle = LocalTextStyle.current,
     inline_content: Map<String, InlineTextContent> = mapOf(),
     alignment: TextAlign? = null,
+    contentAlignment: Alignment = Alignment.TopStart,
     max_lines: Int = 1
 ) {
     val density: Density = LocalDensity.current
@@ -42,7 +43,8 @@ fun WidthShrinkText(
                     DpSize(it.width.toDp(), it.height.toDp())
                 }
             }
-            .width(IntrinsicSize.Min)
+            .width(IntrinsicSize.Min),
+        contentAlignment = contentAlignment
     ) {
         Box(Modifier.requiredSize(0.dp)) {
             val large_style: TextStyle = current_style.shiftSize(delta, style.fontSize)
@@ -92,14 +94,16 @@ fun WidthShrinkText(
     modifier: Modifier = Modifier,
     style: TextStyle = LocalTextStyle.current,
     alignment: TextAlign? = null,
-    max_lines: Int = 1
+    max_lines: Int = 1,
+    contentAlignment: Alignment = Alignment.TopCenter
 ) {
     WidthShrinkText(
         AnnotatedString(text),
         modifier,
         style,
         alignment = alignment,
-        max_lines = max_lines
+        max_lines = max_lines,
+        contentAlignment = contentAlignment
     )
 }
 
@@ -110,13 +114,15 @@ fun WidthShrinkText(
     modifier: Modifier = Modifier,
     fontWeight: FontWeight? = null,
     colour: Color = LocalContentColor.current,
-    alignment: TextAlign? = null
+    alignment: TextAlign? = null,
+    contentAlignment: Alignment = Alignment.TopCenter
 ) {
     WidthShrinkText(
         text,
         modifier,
         LocalTextStyle.current.copy(fontSize = fontSize, fontWeight = fontWeight, color = colour),
-        alignment
+        alignment,
+        contentAlignment = contentAlignment
     )
 }
 

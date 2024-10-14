@@ -40,6 +40,7 @@ interface SettingsScreen: Screen {
     fun onClosed()
 }
 
+@Deprecated("Use SettingsScreen and Navigator")
 abstract class SettingsPage {
     var id: Int? = null
         internal set

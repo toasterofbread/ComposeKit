@@ -113,6 +113,7 @@ class ThemeSelectorSettingsItem(
     val str_button_preview: StringResource,
 
     val resetThemes: suspend () -> Unit,
+    val getFooterModifier: @Composable () -> Modifier,
     val getThemeProvider: @Composable () -> ThemeSelectorThemeProvider,
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
 ): SettingsItem() {
@@ -210,7 +211,8 @@ class ThemeSelectorSettingsItem(
                             .border(2.dp, theme_data.theme.accent, CircleShape)
                             .fillMaxHeight()
                             .weight(1f)
-                            .padding(start = 15.dp)
+                            .padding(start = 15.dp),
+                        contentAlignment = Alignment.Center
                     )
 
                     val icon_button_colours: IconButtonColors =
@@ -366,8 +368,7 @@ class ThemeSelectorSettingsItem(
                     }
 
                     Row(
-                        Modifier
-//                        settings_interface.getFooterModifier()
+                        getFooterModifier()
                             .fillMaxWidth()
                             .height(IntrinsicSize.Max)
                             .align(Alignment.BottomCenter)

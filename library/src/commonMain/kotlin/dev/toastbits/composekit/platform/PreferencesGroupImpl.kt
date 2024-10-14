@@ -251,28 +251,38 @@ abstract class PreferencesGroupImpl(
                 else -> throw NotImplementedError("$key ${value::class.simpleName}")
             }
 
+        private var previousValue: T? = null
+        private var previousValueSet: Boolean = false
+
         @Composable
         override fun observe(): MutableState<T> {
             val coroutine_scope: CoroutineScope = rememberCoroutineScope()
 
             val default_value: T = getDefaultValueComposable()
-            val state: MutableState<T> = remember { mutableStateOf(default_value) }
+            val state: MutableState<T> = remember { mutableStateOf(if (previousValueSet) previousValue as T else default_value) }
             var set_to: T by remember { mutableStateOf(state.value) }
 
             LaunchedEffect(this) {
                 set_to = get()
                 state.value = get()
+                previousValue = state.value
+                previousValueSet = true
             }
 
             LaunchedEffect(state.value) {
                 if (state.value != set_to) {
                     set_to = state.value
                     set(set_to)
+                    previousValue = state.value
+                    previousValueSet = true
                 }
             }
 
             OnChangedEffect(this) {
+                previousValueSet = false
                 state.value = get()
+                previousValue = state.value
+                previousValueSet = true
             }
 
             DisposableEffect(this) {
@@ -283,6 +293,8 @@ abstract class PreferencesGroupImpl(
                                 coroutine_scope.launch {
                                     set_to = get()
                                     state.value = set_to
+                                    previousValue = state.value
+                                    previousValueSet = true
                                 }
                             }
                         }

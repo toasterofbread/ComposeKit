@@ -11,4 +11,16 @@ interface Screen {
 
     @Composable
     fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues)
+
+    companion object {
+        val EMPTY: Screen =
+            object : Screen {
+                @Composable
+                override fun Content(
+                    navigator: Navigator,
+                    modifier: Modifier,
+                    contentPadding: PaddingValues
+                ) {}
+            }
+    }
 }

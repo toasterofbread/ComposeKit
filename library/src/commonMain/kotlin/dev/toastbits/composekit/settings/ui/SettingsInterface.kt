@@ -26,6 +26,7 @@ import dev.toastbits.composekit.platform.vibrateShort
 import dev.toastbits.composekit.utils.common.thenIf
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade
 
+@Deprecated("Use Navigator")
 class SettingsInterface(
     val context: PlatformContext,
     val prefs: PlatformPreferences,

@@ -1,20 +1,22 @@
 package dev.toastbits.composekit.utils.composable
 
-import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.text.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.*
-import androidx.compose.ui.platform.*
-import androidx.compose.ui.text.*
-import androidx.compose.ui.text.style.*
-import androidx.compose.ui.unit.*
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import dev.toastbits.composekit.platform.LocalContext
-import dev.toastbits.composekit.platform.composable.platformClickableWithOffset
 import dev.toastbits.composekit.platform.PlatformContext
+import dev.toastbits.composekit.platform.composable.platformClickableWithOffset
 
 // https://gist.github.com/stevdza-san/ff9dbec0e072d8090e1e6d16e6b73c91
 @Composable
@@ -89,7 +91,6 @@ fun LinkifyText(
                                 ?: return@platformClickableWithOffset
 
                         context.openUrl(link)
-                        return@platformClickableWithOffset
                     }
                 )
         )
