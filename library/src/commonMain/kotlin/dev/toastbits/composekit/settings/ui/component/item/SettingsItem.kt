@@ -33,6 +33,9 @@ abstract class SettingsItem {
         modifier: Modifier
     )
 
+    @Composable
+    open fun showItem(): Boolean = true
+
     companion object {
         @Composable
         fun ItemTitleText(text: String?, theme: ThemeValues, modifier: Modifier = Modifier) {

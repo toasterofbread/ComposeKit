@@ -7,7 +7,8 @@ import dev.toastbits.composekit.platform.PreferencesProperty
 class ComposableSettingsItem(
     val settings_properties: List<PreferencesProperty<*>> = emptyList(),
     val resetSettingsValues: () -> Unit = {},
-    val composable: @Composable (Modifier) -> Unit
+    val shouldShowItem: @Composable () -> Boolean = { true },
+    val content: @Composable (Modifier) -> Unit
 ): SettingsItem() {
     override fun getProperties(): List<PreferencesProperty<*>> = settings_properties
 
@@ -19,6 +20,9 @@ class ComposableSettingsItem(
     override fun Item(
         modifier: Modifier
     ) {
-        composable(modifier)
+        content(modifier)
     }
+
+    @Composable
+    override fun showItem(): Boolean = shouldShowItem()
 }

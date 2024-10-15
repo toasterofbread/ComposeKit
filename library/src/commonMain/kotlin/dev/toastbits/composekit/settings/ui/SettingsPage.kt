@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
@@ -165,14 +167,14 @@ open class SettingsPageWithItems(
         goBack: () -> Unit
     ) {
         Crossfade(getItems()) { items ->
+            val showItems: List<SettingsItem> = items.filter { it.showItem() }
+
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(SETTINGS_PAGE_WITH_ITEMS_SPACING.dp),
                 contentPadding = content_padding
             ) {
-                items(items.size) { i ->
-                    val item = items[i]
-
-                    if (i != 0 && item is GroupSettingsItem) {
+                itemsIndexed(showItems) { index, item ->
+                    if (index != 0 && item is GroupSettingsItem) {
                         Spacer(Modifier.height(30.dp))
                     }
 
