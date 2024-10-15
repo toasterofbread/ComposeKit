@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import dev.toastbits.composekit.platform.LocalContext
 import dev.toastbits.composekit.platform.Platform
 import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.settings.ui.ThemeValues
@@ -137,7 +138,8 @@ fun ThemeValues.ApplicationTheme(
         Box(Modifier.background(background)) {
             CompositionLocalProvider(
                 LocalApplicationTheme provides this@ApplicationTheme,
-                LocalContentColor provides on_background
+                LocalContentColor provides on_background,
+                LocalContext provides context
             ) {
                 PlatformTheme {
                     content()
