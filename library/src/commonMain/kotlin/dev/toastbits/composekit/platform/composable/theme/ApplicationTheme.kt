@@ -92,7 +92,7 @@ fun ThemeValues.ApplicationTheme(
             )
 
     val defaultTypography: Typography = MaterialTheme.typography
-    val typography: Typography = remember(defaultTypography) {
+    val typography: Typography = remember(defaultTypography, fontFamily) {
         with(defaultTypography) {
             copy(
                 displayLarge = displayLarge.copy(fontFamily = fontFamily),
