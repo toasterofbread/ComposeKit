@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.platform.composable.BackHandler
 import kotlin.reflect.KClass
 
 interface Navigator {
@@ -32,5 +33,9 @@ interface Navigator {
 fun Navigator.CurrentScreen(modifier: Modifier, contentPadding: PaddingValues) {
     CurrentScreen(modifier, contentPadding) { innerModifier, innerContentPadding, content ->
         content(innerModifier, innerContentPadding)
+    }
+
+    BackHandler(canNavigateBackward()) {
+        navigateBackward()
     }
 }
