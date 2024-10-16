@@ -21,6 +21,13 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
         }
     }
 
+    private val json: Json by lazy {
+        Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+        }
+    }
+
     actual override fun getString(key: String, default_value: String?): String? =
         prefs.getString(key, default_value)
 
@@ -57,10 +64,12 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
 
     actual override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
         val data: String = prefs.getString(key, null) ?: return default_value
-        return Json {
-            ignoreUnknownKeys = true
-            explicitNulls = false
-        }.decodeFromString(serialiser, data)
+        try {
+            return json.decodeFromString(serialiser, data)
+        }
+        catch (e: Throwable) {
+            throw RuntimeException("Deserialising prefs key '$key' with value '$data' failed", e)
+        }
     }
 
     actual override operator fun contains(key: String): Boolean = prefs.contains(key)
