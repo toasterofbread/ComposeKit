@@ -7,16 +7,18 @@ import kotlinx.serialization.json.JsonElement
 class MutableStatePreferencesProperty<T>(
     private val state: MutableState<T>,
     private val getPropertyName: @Composable () -> String,
-    private val getPropertyDescription: @Composable () -> String?
+    private val getPropertyDescription: @Composable () -> String?,
+    private val getPropertyDefaultValue: suspend () -> T = { throw IllegalStateException("Default value not provided to MutableStatePreferencesProperty") },
+    private val getPropertyDefaultValueComposable: @Composable () -> T = { throw IllegalStateException("Default value not provided to MutableStatePreferencesProperty") }
 ): PreferencesProperty<T> {
     override val key: String get() = throw IllegalStateException()
 
     override suspend fun get(): T = state.value
 
-    override suspend fun getDefaultValue(): T = throw IllegalStateException()
+    override suspend fun getDefaultValue(): T = getPropertyDefaultValue()
 
     @Composable
-    override fun getDefaultValueComposable(): T = throw IllegalStateException()
+    override fun getDefaultValueComposable(): T = getPropertyDefaultValueComposable()
 
     @Composable
     override fun getName(): String = getPropertyName()
