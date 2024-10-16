@@ -70,15 +70,15 @@ data class ThemeValuesData(
                 try {
                     return oldDeserialise(serialised, Color.Red).theme
                 }
-                catch (_: Throwable) {
-                    throw e
+                catch (e2: Throwable) {
+                    throw RuntimeException("Deserialising ThemeValuesData from '$serialised' failed, tried new and old method. Old method is next part of message, new method is cause.\n\n${e2.stackTraceToString()}", e)
                 }
             }
         }
 
         fun oldDeserialise(data: String, error_colour: Color): NamedTheme {
             val split: List<String> = data.split(',')
-            check(split.size == 5)
+            check(split.size == 5) { "data.split(',') size is not 5 (${split.size}): $split" }
             return NamedTheme(
                 split[4],
                 ThemeValuesData(
