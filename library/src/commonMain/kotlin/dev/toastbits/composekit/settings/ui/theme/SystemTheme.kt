@@ -8,23 +8,29 @@ import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.getEnv
 import org.jetbrains.compose.resources.getString
 
+fun getSystemTheme(name: String, dark_mode: Boolean, context: PlatformContext): NamedTheme {
+    val environment_theme: NamedTheme? = getCurrentEnvironmentTheme()
+
+    if (environment_theme != null) {
+        return environment_theme.copy(name = "$name - ${environment_theme.name}")
+    }
+
+    return NamedTheme(
+        name,
+        ThemeValuesData.fromColourScheme(
+            if (dark_mode) context.getDarkColorScheme()
+            else context.getLightColorScheme()
+        )
+    )
+}
+
 @Composable
 fun rememberSystemTheme(name: String, context: PlatformContext): NamedTheme {
     val dark_mode: Boolean = isSystemInDarkTheme()
     val environment_theme: NamedTheme? = remember { getCurrentEnvironmentTheme() }
 
     return remember(environment_theme ?: dark_mode) {
-        if (environment_theme != null) {
-            return@remember environment_theme.copy(name = "$name - ${environment_theme.name}")
-        }
-
-        return@remember NamedTheme(
-            name,
-            ThemeValuesData.fromColourScheme(
-                if (dark_mode) context.getDarkColorScheme()
-                else context.getLightColorScheme()
-            )
-        )
+        getSystemTheme(name, dark_mode, context)
     }
 }
 
