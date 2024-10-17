@@ -12,6 +12,8 @@ interface Screen {
     @Composable
     fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues)
 
+    fun onClosed() {}
+
     companion object {
         val EMPTY: Screen =
             object : Screen {

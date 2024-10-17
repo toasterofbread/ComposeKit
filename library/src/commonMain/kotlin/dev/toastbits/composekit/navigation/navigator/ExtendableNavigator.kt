@@ -30,7 +30,14 @@ class ExtendableNavigator(
     private var currentScreenIndex: Int
         get() = _currentScreenIndex
         set(value) {
-            _currentScreenIndex = value.coerceIn(0 until stack.size)
+            val newIndex: Int = value.coerceIn(0 until stack.size)
+            val oldIndex: Int = _currentScreenIndex
+
+            _currentScreenIndex = newIndex
+
+            if (stack[oldIndex] != stack[newIndex]) {
+                stack[oldIndex].onClosed()
+            }
         }
 
     override val currentScreen: Screen

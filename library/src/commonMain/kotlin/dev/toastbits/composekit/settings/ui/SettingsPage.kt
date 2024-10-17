@@ -39,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
 
 interface SettingsScreen: Screen {
     suspend fun resetKeys()
-    fun onClosed()
 }
 
 @Deprecated("Use SettingsScreen and Navigator")
