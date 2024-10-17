@@ -8,6 +8,6 @@ interface ThemeSelectorThemeProvider {
     fun getTheme(index: Int): NamedTheme?
     fun isThemeEditable(index: Int): Boolean
     fun onThemeEdited(index: Int, theme: ThemeValues, theme_name: String)
-    suspend fun createTheme(index: Int)
+    suspend fun createTheme(index: Int): Int
     suspend fun removeTheme(index: Int)
 }

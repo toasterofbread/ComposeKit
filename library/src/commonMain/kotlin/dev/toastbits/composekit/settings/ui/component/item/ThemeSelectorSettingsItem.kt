@@ -183,9 +183,7 @@ class ThemeSelectorSettingsItem(
 
                 IconButton({
                     coroutine_scope.launch {
-                        val index: Int = value + 1
-                        theme_provider.createTheme(index)
-                        state.set(index)
+                        state.set(theme_provider.createTheme(value + 1))
                     }
                 }) {
                     Icon(Icons.Filled.Add, null)
