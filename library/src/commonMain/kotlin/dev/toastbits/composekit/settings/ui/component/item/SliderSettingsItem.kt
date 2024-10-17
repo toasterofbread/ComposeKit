@@ -97,8 +97,8 @@ class SliderSettingsItem(
     fun getValue(): Float =
         value_state ?: range.start
 
-    private suspend fun getTypedValue(): Number =
-        if (isInt()) getValue().roundToInt()
+    private fun getTypedValue(is_int: Boolean): Number =
+        if (is_int) getValue().roundToInt()
         else getValue()
 
     override suspend fun resetValues() {
@@ -249,8 +249,9 @@ class SliderSettingsItem(
                             val animation_spec: SpringSpec<Float> = SpringSpec(0.65f)
                             var value_text: String? by remember { mutableStateOf(null) }
 
-                            LaunchedEffect(getValueText) {
-                                value_text = getValueText?.invoke(getTypedValue())
+                            val typed_value: Number = getTypedValue(is_int)
+                            LaunchedEffect(typed_value, getValueText) {
+                                value_text = getValueText?.invoke(typed_value)
                             }
 
                             if (value_text != null) {
