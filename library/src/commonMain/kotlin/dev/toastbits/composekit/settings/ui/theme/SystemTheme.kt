@@ -2,11 +2,9 @@ package dev.toastbits.composekit.settings.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.getEnv
-import org.jetbrains.compose.resources.getString
 
 fun getSystemTheme(name: String, dark_mode: Boolean, context: PlatformContext): NamedTheme {
     val environment_theme: NamedTheme? = getCurrentEnvironmentTheme()

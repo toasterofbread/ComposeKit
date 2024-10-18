@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.documentfile.provider.DocumentFile
@@ -160,10 +161,16 @@ actual open class PlatformContextImpl(
     }
 
     actual override fun getLightColorScheme(): ColorScheme =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) dynamicLightColorScheme(ctx)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            dynamicLightColorScheme(ctx).copy(
+                surface = Color(ResourcesCompat.getColor(context.resources, android.R.color.system_accent2_50, null))
+            )
         else lightColorScheme()
     actual override fun getDarkColorScheme(): ColorScheme =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) dynamicDarkColorScheme(ctx)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            dynamicDarkColorScheme(ctx).copy(
+                surface = Color(ResourcesCompat.getColor(context.resources, android.R.color.system_accent2_800, null))
+            )
         else darkColorScheme()
 
     actual override fun canShare(): Boolean = true

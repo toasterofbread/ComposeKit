@@ -57,7 +57,7 @@ data class ThemeValuesData(
             ThemeValuesData(
                 background = colour_scheme.background,
                 on_background = colour_scheme.onBackground,
-                card = colour_scheme.surfaceColorAtElevation(2.dp),
+                card = colour_scheme.surface,
                 accent = colour_scheme.primary,
                 error = colour_scheme.error
             )
