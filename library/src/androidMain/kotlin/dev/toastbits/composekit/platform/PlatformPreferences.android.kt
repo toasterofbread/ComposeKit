@@ -3,28 +3,24 @@ package dev.toastbits.composekit.platform
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 
-actual class PlatformPreferencesImpl private constructor(private val prefs: SharedPreferences): PlatformPreferences {
+actual class PlatformPreferencesImpl private constructor(
+    private val prefs: SharedPreferences,
+    actual override val json: Json
+): PlatformPreferences {
     companion object {
         private var instance: PlatformPreferences? = null
 
-        fun getInstance(context: Context): PlatformPreferences {
-            return getInstance(context.getSharedPreferences("dev.toastbits.composekit.PREFERENCES", Context.MODE_PRIVATE))
+        fun getInstance(context: Context, json: Json): PlatformPreferences {
+            return getInstance(context.getSharedPreferences("dev.toastbits.composekit.PREFERENCES", Context.MODE_PRIVATE), json)
         }
-        fun getInstance(prefs: SharedPreferences): PlatformPreferences {
+        fun getInstance(prefs: SharedPreferences, json: Json): PlatformPreferences {
             if (instance == null) {
-                instance = PlatformPreferencesImpl(prefs)
+                instance = PlatformPreferencesImpl(prefs, json)
             }
             return instance!!
-        }
-    }
-
-    private val json: Json by lazy {
-        Json {
-            ignoreUnknownKeys = true
-            explicitNulls = false
         }
     }
 
@@ -89,7 +85,7 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
         }
     }
 
-    actual open class EditorImpl(private val upstream: SharedPreferences.Editor): PlatformPreferences.Editor {
+    actual inner class EditorImpl(private val upstream: SharedPreferences.Editor): PlatformPreferences.Editor {
         actual override fun putString(key: String, value: String): PlatformPreferences.Editor {
             upstream.putString(key, value)
             return this
@@ -124,7 +120,7 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
         }
 
         actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
-            upstream.putString(key, Json.encodeToString(serialiser, value))
+            upstream.putString(key, json.encodeToString(serialiser, value))
             return this
         }
 
@@ -143,8 +139,8 @@ actual class PlatformPreferencesImpl private constructor(private val prefs: Shar
 actual fun interface PlatformPreferencesListener: SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
         if (key != null) {
-            onChanged(PlatformPreferencesImpl.getInstance(prefs), key)
+            onChanged(key)
         }
     }
-    actual fun onChanged(prefs: PlatformPreferences, key: String)
+    actual fun onChanged(key: String)
 }

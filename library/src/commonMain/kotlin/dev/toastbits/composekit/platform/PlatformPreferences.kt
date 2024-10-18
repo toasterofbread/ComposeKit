@@ -1,8 +1,11 @@
 package dev.toastbits.composekit.platform
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 
 interface PlatformPreferences {
+    val json: Json
+
     fun addListener(listener: PlatformPreferencesListener): PlatformPreferencesListener
     fun removeListener(listener: PlatformPreferencesListener)
 
@@ -30,10 +33,12 @@ interface PlatformPreferences {
 }
 
 expect fun interface PlatformPreferencesListener {
-    fun onChanged(prefs: PlatformPreferences, key: String)
+    fun onChanged(key: String)
 }
 
 expect class PlatformPreferencesImpl: PlatformPreferences {
+    override val json: Json
+
     override fun addListener(listener: PlatformPreferencesListener): PlatformPreferencesListener
     override fun removeListener(listener: PlatformPreferencesListener)
 
@@ -48,7 +53,7 @@ expect class PlatformPreferencesImpl: PlatformPreferences {
 
     override fun edit(action: PlatformPreferences.Editor.() -> Unit)
 
-    open class EditorImpl: PlatformPreferences.Editor {
+    inner class EditorImpl: PlatformPreferences.Editor {
         override fun putString(key: String, value: String): PlatformPreferences.Editor
         override fun putStringSet(key: String, values: Set<String>): PlatformPreferences.Editor
         override fun putInt(key: String, value: Int): PlatformPreferences.Editor

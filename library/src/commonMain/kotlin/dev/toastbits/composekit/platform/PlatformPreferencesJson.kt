@@ -1,20 +1,13 @@
 package dev.toastbits.composekit.platform
 
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okio.buffer
 import okio.use
 
-open class PlatformPreferencesJson(private val file: PlatformFile): InMemoryPlatformPreferences() {
+open class PlatformPreferencesJson(private val file: PlatformFile, json: Json): InMemoryPlatformPreferences(json) {
     override val data: MutableMap<String, JsonElement> by lazy { loadData() }
-    private val listeners: MutableList<PlatformPreferencesListener> = mutableListOf()
-
-    private val json: Json =
-        Json {
-            ignoreUnknownKeys = true
-            explicitNulls = false
-        }
 
     protected open fun loadData(): MutableMap<String, JsonElement> {
         if (!file.exists) {
@@ -29,7 +22,7 @@ open class PlatformPreferencesJson(private val file: PlatformFile): InMemoryPlat
         file.createFile()
 
         file.outputStream().buffer().use { writer ->
-            writer.writeUtf8(Json.encodeToString(data))
+            writer.writeUtf8(json.encodeToString(data))
             writer.flush()
         }
     }

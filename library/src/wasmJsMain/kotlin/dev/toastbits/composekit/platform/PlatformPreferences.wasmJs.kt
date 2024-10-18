@@ -1,15 +1,13 @@
 package dev.toastbits.composekit.platform
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 
 actual fun interface PlatformPreferencesListener {
-    actual fun onChanged(
-        prefs: PlatformPreferences,
-        key: String
-    )
+    actual fun onChanged(key: String)
 }
 
-actual class PlatformPreferencesImpl : PlatformPreferences {
+actual class PlatformPreferencesImpl(actual override val json: Json): PlatformPreferences {
     actual override fun addListener(listener: PlatformPreferencesListener): PlatformPreferencesListener {
         return listener
     }
@@ -47,7 +45,7 @@ actual class PlatformPreferencesImpl : PlatformPreferences {
 
     actual override fun edit(action: PlatformPreferences.Editor.() -> Unit) {}
 
-    actual open class EditorImpl : PlatformPreferences.Editor {
+    actual inner class EditorImpl : PlatformPreferences.Editor {
         actual override fun putString(
             key: String,
             value: String

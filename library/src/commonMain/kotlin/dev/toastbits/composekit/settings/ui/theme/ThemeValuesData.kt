@@ -1,13 +1,9 @@
 package dev.toastbits.composekit.settings.ui
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.surfaceColorAtElevation
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 @Serializable
 data class ThemeValuesData(

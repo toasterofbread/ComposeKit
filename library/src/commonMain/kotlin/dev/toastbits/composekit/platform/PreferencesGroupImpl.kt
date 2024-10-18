@@ -12,7 +12,6 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.floatOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.int
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import kotlinx.serialization.KSerializer
 import kotlinx.coroutines.CoroutineScope
@@ -288,7 +287,7 @@ abstract class PreferencesGroupImpl(
             DisposableEffect(this) {
                 val listener: PlatformPreferencesListener =
                     prefs.addListener(
-                        PlatformPreferencesListener { _, key ->
+                        PlatformPreferencesListener { key ->
                             if (key == this@PrefsProperty.key) {
                                 coroutine_scope.launch {
                                     set_to = get()
@@ -352,26 +351,20 @@ abstract class PreferencesGroupImpl(
             }
 
         override fun set(data: JsonElement, editor: PlatformPreferences.Editor?) {
-            val json: Json =
-                Json {
-                    ignoreUnknownKeys = true
-                    explicitNulls = false
-                }
-
             val value: T
 
             if (data is JsonPrimitive) {
-                value = json.decodeFromString(serialiser, data.content)
+                value = prefs.json.decodeFromString(serialiser, data.content)
             }
             else {
-                value = json.decodeFromJsonElement(serialiser, data)
+                value = prefs.json.decodeFromJsonElement(serialiser, data)
             }
 
             set(value, editor)
         }
 
         override fun serialise(value: Any?): JsonElement =
-            Json.encodeToJsonElement(serialiser, value as T)
+            prefs.json.encodeToJsonElement(serialiser, value as T)
 
         override fun toString(): String =
             "SerialisablePrefsProperty(key=$key)"

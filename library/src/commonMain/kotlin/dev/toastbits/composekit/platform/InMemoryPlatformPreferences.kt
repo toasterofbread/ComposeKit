@@ -1,7 +1,5 @@
 package dev.toastbits.composekit.platform
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.boolean
@@ -12,14 +10,15 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 
-open class InMemoryPlatformPreferences(): PlatformPreferences {
+open class InMemoryPlatformPreferences(override val json: Json): PlatformPreferences {
     protected open val data: MutableMap<String, JsonElement> = mutableMapOf()
     private val listeners: MutableList<PlatformPreferencesListener> = mutableListOf()
 
     protected open fun onKeyChanged(key: String) {
         for (listener in listeners) {
-            listener.onChanged(this, key)
+            listener.onChanged(key)
         }
     }
 
@@ -52,12 +51,6 @@ open class InMemoryPlatformPreferences(): PlatformPreferences {
         data.get(key)?.jsonPrimitive?.boolean ?: default_value
 
     override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
-        val json: Json =
-            Json {
-                ignoreUnknownKeys = true
-                explicitNulls = false
-            }
-
         val value: JsonElement = data.get(key) ?: return default_value
         if (value is JsonPrimitive) {
             return json.decodeFromString(serialiser, value.content)
@@ -79,9 +72,9 @@ open class InMemoryPlatformPreferences(): PlatformPreferences {
         }
     }
 
-    open class EditorImpl(private val data: MutableMap<String, JsonElement>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
+    inner class EditorImpl(private val data: MutableMap<String, JsonElement>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
         override fun putString(key: String, value: String): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(value)
+            data[key] = json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
@@ -90,37 +83,37 @@ open class InMemoryPlatformPreferences(): PlatformPreferences {
             key: String,
             values: Set<String>,
         ): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(values)
+            data[key] = json.encodeToJsonElement(values)
             changed.add(key)
             return this
         }
 
         override fun putInt(key: String, value: Int): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(value)
+            data[key] = json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
 
         override fun putLong(key: String, value: Long): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(value)
+            data[key] = json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
 
         override fun putFloat(key: String, value: Float): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(value)
+            data[key] = json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
 
         override fun putBoolean(key: String, value: Boolean): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(value)
+            data[key] = json.encodeToJsonElement(value)
             changed.add(key)
             return this
         }
 
         override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(serialiser, value)
+            data[key] = json.encodeToJsonElement(serialiser, value)
             changed.add(key)
             return this
         }

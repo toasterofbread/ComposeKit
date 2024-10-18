@@ -1,25 +1,25 @@
 package dev.toastbits.composekit.platform
 
-import java.io.File
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import java.io.File
 
-actual class PlatformPreferencesImpl private constructor(private val file: File): PlatformPreferencesJson(
-    PlatformFile(file)
+actual class PlatformPreferencesImpl private constructor(private val file: File, json: Json): PlatformPreferencesJson(
+    PlatformFile(file), json
 ), PlatformPreferences {
     companion object {
         private var instance: PlatformPreferencesImpl? = null
 
-        fun getInstance(file: File): PlatformPreferences {
+        fun getInstance(file: File, json: Json): PlatformPreferences {
             if (instance == null) {
-                instance = PlatformPreferencesImpl(file)
+                instance = PlatformPreferencesImpl(file, json)
             }
             check(instance!!.file == file)
             return instance!!
         }
     }
 
-    actual open class EditorImpl(private val data: MutableMap<String, Any>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
+    actual inner class EditorImpl(private val data: MutableMap<String, Any>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
         actual override fun putString(key: String, value: String): PlatformPreferences.Editor {
             data[key] = value
             changed.add(key)
@@ -60,7 +60,7 @@ actual class PlatformPreferencesImpl private constructor(private val file: File)
         }
 
         actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
-            data[key] = Json.encodeToJsonElement(serialiser, value)
+            data[key] = json.encodeToJsonElement(serialiser, value)
             changed.add(key)
             return this
         }
@@ -79,5 +79,5 @@ actual class PlatformPreferencesImpl private constructor(private val file: File)
 }
 
 actual fun interface PlatformPreferencesListener {
-    actual fun onChanged(prefs: PlatformPreferences, key: String)
+    actual fun onChanged(key: String)
 }
