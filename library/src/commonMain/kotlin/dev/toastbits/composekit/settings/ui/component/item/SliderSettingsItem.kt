@@ -193,7 +193,7 @@ class SliderSettingsItem(
             )
         }
 
-        Column(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
+        Column(modifier.fillMaxWidth().padding(bottom = 10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 ItemTitleText(state.getName(), theme, Modifier.fillMaxWidth().weight(1f))
 

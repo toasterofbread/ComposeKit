@@ -142,7 +142,7 @@ class FileSettingsItem(
         }
 
         Column(
-            Modifier.fillMaxWidth(),
+            modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(

@@ -39,7 +39,7 @@ class MultipleChoiceSettingsItem(
         val theme: ThemeValues = LocalApplicationTheme.current
         val current_value: Int by state.observe()
 
-        Column {
+        Column(modifier) {
             Column(Modifier.fillMaxWidth()) {
                 ItemTitleText(state.getName(), theme, Modifier.padding(bottom = 7.dp))
                 ItemText(state.getDescription(), theme)

@@ -39,7 +39,7 @@ class TextFieldSettingsItem(
         val theme: ThemeValues = LocalApplicationTheme.current
         val string_error_provider: TextFieldErrorMessageProvider? = getStringErrorProvider()
 
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             ItemTitleText(state.getName(), theme)
             ItemText(state.getDescription(), theme)
 

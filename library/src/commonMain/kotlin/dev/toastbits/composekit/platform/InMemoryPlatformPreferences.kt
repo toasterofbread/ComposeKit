@@ -50,7 +50,7 @@ open class InMemoryPlatformPreferences(override val json: Json): PlatformPrefere
     override fun getBoolean(key: String, default_value: Boolean?): Boolean? =
         data.get(key)?.jsonPrimitive?.boolean ?: default_value
 
-    override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
+    override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>, json: Json): T {
         val value: JsonElement = data.get(key) ?: return default_value
         if (value is JsonPrimitive) {
             return json.decodeFromString(serialiser, value.content)
@@ -73,6 +73,8 @@ open class InMemoryPlatformPreferences(override val json: Json): PlatformPrefere
     }
 
     inner class EditorImpl(private val data: MutableMap<String, JsonElement>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
+        override val json: Json get() = this@InMemoryPlatformPreferences.json
+
         override fun putString(key: String, value: String): PlatformPreferences.Editor {
             data[key] = json.encodeToJsonElement(value)
             changed.add(key)
@@ -112,7 +114,7 @@ open class InMemoryPlatformPreferences(override val json: Json): PlatformPrefere
             return this
         }
 
-        override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
+        override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>, json: Json): PlatformPreferences.Editor {
             data[key] = json.encodeToJsonElement(serialiser, value)
             changed.add(key)
             return this

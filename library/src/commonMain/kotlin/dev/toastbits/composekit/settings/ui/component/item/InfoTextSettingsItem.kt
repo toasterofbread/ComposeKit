@@ -17,6 +17,10 @@ class InfoTextSettingsItem(val text: StringResource): SettingsItem() {
     override fun Item(
         modifier: Modifier
     ) {
-        LinkifyText(stringResource(text), LocalApplicationTheme.current.vibrant_accent)
+        LinkifyText(
+            stringResource(text),
+            LocalApplicationTheme.current.vibrant_accent,
+            modifier
+        )
     }
 }

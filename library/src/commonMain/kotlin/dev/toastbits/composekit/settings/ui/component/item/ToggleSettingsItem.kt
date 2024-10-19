@@ -47,7 +47,11 @@ class ToggleSettingsItem(
         val value_override: Boolean? = getValueOverride()
         var current_value: Boolean by state.observe()
 
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        Row(
+            modifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
             Column(
                 Modifier
                     .fillMaxWidth()

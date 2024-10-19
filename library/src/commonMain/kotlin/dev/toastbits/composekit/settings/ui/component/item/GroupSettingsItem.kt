@@ -20,7 +20,13 @@ class GroupSettingsItem(var title: StringResource?): SettingsItem() {
         modifier: Modifier
     ) {
         title?.also {
-            Text(stringResource(it), color = LocalApplicationTheme.current.vibrant_accent, fontSize = 20.sp, fontWeight = FontWeight.Light)
+            Text(
+                stringResource(it),
+                modifier,
+                color = LocalApplicationTheme.current.vibrant_accent,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Light
+            )
         }
     }
 }

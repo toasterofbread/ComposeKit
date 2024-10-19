@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import dev.toastbits.composekit.utils.composable.OnChangedEffect
+import kotlinx.serialization.json.Json
 
 @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
 abstract class PreferencesGroupImpl(
@@ -121,14 +122,16 @@ abstract class PreferencesGroupImpl(
     protected inline fun <reified T: Any> serialisableProperty(
         noinline getName: @Composable () -> String,
         noinline getDescription: @Composable () -> String?,
-        noinline getDefaultValue: () -> T
+        noinline getDefaultValue: () -> T,
+        json: Json? = null
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T>> {
         val defaultValueProvider: () -> T = getDefaultValue
         return PropertyDelegateProvider { _, property ->
             val property: PreferencesProperty<T> =
                 object : SerialisablePrefsProperty<T>(
                     key = property.name,
-                    serialiser = serializer<T>()
+                    serialiser = serializer<T>(),
+                    jsonOverride = json
                 ) {
                     @Composable
                     override fun getName(): String = getName()
@@ -147,14 +150,16 @@ abstract class PreferencesGroupImpl(
     protected inline fun <reified T: Any> nullableSerialisableProperty(
         noinline getName: @Composable () -> String,
         noinline getDescription: @Composable () -> String?,
-        noinline getDefaultValue: () -> T?
+        noinline getDefaultValue: () -> T?,
+        json: Json? = null
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T?>> {
         val defaultValueProvider: () -> T? = getDefaultValue
         return PropertyDelegateProvider { _, property ->
             val property: PreferencesProperty<T?> =
                 object : SerialisablePrefsProperty<T?>(
                     key = property.name,
-                    serialiser = serializer<T?>()
+                    serialiser = serializer<T?>(),
+                    jsonOverride = json
                 ) {
                     @Composable
                     override fun getName(): String = getName()
@@ -340,31 +345,35 @@ abstract class PreferencesGroupImpl(
 
     protected abstract inner class SerialisablePrefsProperty<T>(
         key: String,
-        val serialiser: KSerializer<T>
+        val serialiser: KSerializer<T>,
+        private val jsonOverride: Json?
     ): PrefsProperty<T>(key) {
+        private val json: Json
+            get() = jsonOverride ?: prefs.json
+
         override suspend fun get(): T =
-            prefs.getSerialisable(key, getDefaultValue(), serialiser)
+            prefs.getSerialisable(key, getDefaultValue(), serialiser, json)
 
         override fun set(value: T, editor: PlatformPreferences.Editor?) =
             (editor ?: prefs).edit {
-                putSerialisable(key, value, serialiser)
+                putSerialisable(key, value, serialiser, this@SerialisablePrefsProperty.json)
             }
 
         override fun set(data: JsonElement, editor: PlatformPreferences.Editor?) {
             val value: T
 
             if (data is JsonPrimitive) {
-                value = prefs.json.decodeFromString(serialiser, data.content)
+                value = json.decodeFromString(serialiser, data.content)
             }
             else {
-                value = prefs.json.decodeFromJsonElement(serialiser, data)
+                value = json.decodeFromJsonElement(serialiser, data)
             }
 
             set(value, editor)
         }
 
         override fun serialise(value: Any?): JsonElement =
-            prefs.json.encodeToJsonElement(serialiser, value as T)
+            json.encodeToJsonElement(serialiser, value as T)
 
         override fun toString(): String =
             "SerialisablePrefsProperty(key=$key)"

@@ -38,7 +38,8 @@ actual class PlatformPreferencesImpl(actual override val json: Json): PlatformPr
     actual override fun <T> getSerialisable(
         key: String,
         default_value: T,
-        serialiser: KSerializer<T>
+        serialiser: KSerializer<T>,
+        json: Json
     ): T = default_value
 
     actual override fun contains(key: String): Boolean = false
@@ -46,6 +47,8 @@ actual class PlatformPreferencesImpl(actual override val json: Json): PlatformPr
     actual override fun edit(action: PlatformPreferences.Editor.() -> Unit) {}
 
     actual inner class EditorImpl : PlatformPreferences.Editor {
+        actual override val json: Json get() = this@PlatformPreferencesImpl.json
+
         actual override fun putString(
             key: String,
             value: String
@@ -79,7 +82,8 @@ actual class PlatformPreferencesImpl(actual override val json: Json): PlatformPr
         actual override fun <T> putSerialisable(
             key: String,
             value: T,
-            serialiser: KSerializer<T>
+            serialiser: KSerializer<T>,
+            json: Json
         ): PlatformPreferences.Editor = this
 
         actual override fun remove(key: String): PlatformPreferences.Editor = this

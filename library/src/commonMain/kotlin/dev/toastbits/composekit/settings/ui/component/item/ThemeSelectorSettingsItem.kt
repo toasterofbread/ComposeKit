@@ -136,7 +136,7 @@ class ThemeSelectorSettingsItem(
         val coroutine_scope: CoroutineScope = rememberCoroutineScope()
         val theme_provider: ThemeSelectorThemeProvider = getThemeProvider()
 
-        Column {
+        Column(modifier) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)

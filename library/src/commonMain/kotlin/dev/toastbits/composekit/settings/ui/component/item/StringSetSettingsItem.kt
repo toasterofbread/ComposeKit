@@ -116,7 +116,7 @@ class StringSetSettingsItem(
             )
         }
 
-        Column {
+        Column(modifier) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(
                     Modifier

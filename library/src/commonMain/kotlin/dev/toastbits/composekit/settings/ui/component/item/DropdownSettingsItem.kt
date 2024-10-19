@@ -50,6 +50,7 @@ class DropdownSettingsItem(
         var current_value: Int by state.observe()
 
         FlowRow(
+            modifier,
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Column(

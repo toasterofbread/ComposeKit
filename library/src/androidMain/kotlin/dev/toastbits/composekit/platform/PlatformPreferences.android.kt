@@ -58,7 +58,7 @@ actual class PlatformPreferencesImpl private constructor(
         return prefs.getBoolean(key, false)
     }
 
-    actual override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>): T {
+    actual override fun <T> getSerialisable(key: String, default_value: T, serialiser: KSerializer<T>, json: Json): T {
         val data: String = prefs.getString(key, null) ?: return default_value
         try {
             return json.decodeFromString(serialiser, data)
@@ -86,6 +86,8 @@ actual class PlatformPreferencesImpl private constructor(
     }
 
     actual inner class EditorImpl(private val upstream: SharedPreferences.Editor): PlatformPreferences.Editor {
+        actual override val json: Json get() = this@PlatformPreferencesImpl.json
+
         actual override fun putString(key: String, value: String): PlatformPreferences.Editor {
             upstream.putString(key, value)
             return this
@@ -119,7 +121,7 @@ actual class PlatformPreferencesImpl private constructor(
             return this
         }
 
-        actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
+        actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>, json: Json): PlatformPreferences.Editor {
             upstream.putString(key, json.encodeToString(serialiser, value))
             return this
         }

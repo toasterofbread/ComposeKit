@@ -20,6 +20,8 @@ actual class PlatformPreferencesImpl private constructor(private val file: File,
     }
 
     actual inner class EditorImpl(private val data: MutableMap<String, Any>, private val changed: MutableSet<String>): PlatformPreferences.Editor {
+        actual override val json: Json get() = this@PlatformPreferencesImpl.json
+
         actual override fun putString(key: String, value: String): PlatformPreferences.Editor {
             data[key] = value
             changed.add(key)
@@ -59,7 +61,7 @@ actual class PlatformPreferencesImpl private constructor(private val file: File,
             return this
         }
 
-        actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>): PlatformPreferences.Editor {
+        actual override fun <T> putSerialisable(key: String, value: T, serialiser: KSerializer<T>, json: Json): PlatformPreferences.Editor {
             data[key] = json.encodeToJsonElement(serialiser, value)
             changed.add(key)
             return this

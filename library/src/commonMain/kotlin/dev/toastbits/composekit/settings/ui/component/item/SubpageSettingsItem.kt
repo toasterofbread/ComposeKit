@@ -33,7 +33,7 @@ class SubpageSettingsItem(
 
         Button(
             { navigator.pushScreen(target_page) },
-            Modifier.fillMaxWidth(),
+            modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = theme.vibrant_accent,
                 contentColor = theme.on_accent

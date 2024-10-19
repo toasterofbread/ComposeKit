@@ -95,13 +95,14 @@ class LargeToggleSettingsItem(
 
         AnimatedVisibility(
             prerequisite_value_value != false,
+            modifier,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
             Crossfade(state_value ?: false) { enabled ->
                 CompositionLocalProvider(LocalContentColor provides if (!enabled) theme.on_background else theme.on_accent) {
                     Column(
-                        modifier
+                        Modifier
                             .background(
                                 if (!enabled) theme.background else theme.vibrant_accent,
                                 shape
