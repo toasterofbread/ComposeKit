@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,8 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.platform.composable.ScrollabilityIndicatorColumn
 import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.composable.ScrollabilityIndicatorColumn
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.on_accent
@@ -45,7 +45,7 @@ class StringSetSettingsItem(
     val msg_item_already_added: StringResource,
     val msg_set_empty: StringResource,
     val single_line_content: Boolean = true,
-    val max_height: Dp = 300.dp,
+    val height: Dp = 300.dp,
     val itemToText: @Composable (String) -> String = { it },
     val textToItem: (String) -> String = { it },
     val getFieldModifier: @Composable () -> Modifier = { Modifier }
@@ -116,7 +116,7 @@ class StringSetSettingsItem(
             )
         }
 
-        Column(modifier) {
+        Column(modifier.height(height)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(
                     Modifier
@@ -146,7 +146,7 @@ class StringSetSettingsItem(
                 }
                 else {
                     val scroll_state = rememberLazyListState()
-                    ScrollabilityIndicatorColumn(scroll_state, Modifier.heightIn(max = max_height)) {
+                    ScrollabilityIndicatorColumn(scroll_state) {
                         LazyColumn(state = scroll_state) {
                             for (item in set) {
                                 item {
