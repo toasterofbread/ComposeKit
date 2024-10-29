@@ -24,8 +24,13 @@ data class WaveShape(
 
         path.addRect(Rect(0f, 0f, size.width, size.height / 2))
 
-        wavePath(path, size, 1, waves, width_multiplier) { offset }
-        wavePath(path, size, -1, waves, width_multiplier) { offset }
+        wavePath(
+            path = path,
+            size = size,
+            waves = waves,
+            width_multiplier = width_multiplier,
+            offset = offset
+        )
 
         if (invert) {
             path.transform(
@@ -45,51 +50,58 @@ inline fun DrawScope.drawWave(
     wave_size: Size = size,
     stroke_width: Float = 2f,
     width_multiplier: Float = 1f,
+    fill_direction: Int = 0,
     getWaveOffset: () -> Float,
-    getColour: () -> Color,
-    ) {
+    getColour: () -> Color
+) {
     val path: Path = Path()
     val colour: Color = getColour()
     val stroke: Stroke = Stroke(stroke_width)
 
-    // Above equilibrium
-    wavePath(path, wave_size, -1, waves, width_multiplier, getWaveOffset)
-    drawPath(path, colour, style = stroke)
-    path.reset()
-
-    // Below equilibrium
-    wavePath(path, wave_size, 1, waves, width_multiplier, getWaveOffset)
+    wavePath(
+        path = path,
+        size = wave_size,
+        waves = waves,
+        width_multiplier = width_multiplier,
+        offset = getWaveOffset(),
+        fill_direction = fill_direction
+    )
     drawPath(path, colour, style = stroke)
 }
 
-inline fun wavePath(
+fun wavePath(
     path: Path,
     size: Size,
-    direction: Int,
     waves: Int,
     width_multiplier: Float,
-    getOffset: () -> Float
+    offset: Float = 0f,
+    fill_direction: Int = 0
 ): Path {
     val y_offset: Float = size.height / 2
     val half_period: Float = size.width / waves
-    val offset_px: Float = getOffset().let { offset ->
-        (offset % (size.width)) - (if (offset > 0f) size.width else 0f)
+    val offset_px: Float = (offset % (size.width)) - (if (offset > 0f) size.width else 0f)
+
+    if (fill_direction != 0) {
+        path.moveTo(x = offset_px, y = if (fill_direction == 1) 0f else size.height)
+        path.lineTo(x = offset_px, y = y_offset)
     }
 
     path.moveTo(x = offset_px, y = y_offset)
 
     for (i in 0 until ceil((size.width * width_multiplier) / (half_period + 1)).toInt()) {
-        if ((i % 2 == 0) != (direction == 1)) {
-            path.relativeMoveTo(half_period, 0f)
-            continue
-        }
-
-        path.relativeQuadraticBezierTo(
-            dx1 = half_period / 2,
-            dy1 = size.height / 2 * direction,
-            dx2 = half_period,
-            dy2 = 0f,
+        for (direction in listOf(-1, 1)) {
+            path.relativeQuadraticTo(
+                dx1 = half_period / 2,
+                dy1 = size.height / 2 * direction,
+                dx2 = half_period,
+                dy2 = 0f
             )
+        }
+    }
+
+    if (fill_direction != 0) {
+        path.relativeLineTo(0f, if (fill_direction == 1) -size.height else size.height)
+        path.lineTo(x = offset_px, y = if (fill_direction == 1) 0f else size.height)
     }
 
     return path
