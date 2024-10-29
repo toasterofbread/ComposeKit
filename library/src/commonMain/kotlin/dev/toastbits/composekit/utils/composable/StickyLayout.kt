@@ -49,6 +49,28 @@ fun StickyLengthRowOrColumn(
 }
 
 @Composable
+fun WithStickySize(
+    key: Any? = Unit,
+    content: @Composable (Modifier, DpSize) -> Unit
+) {
+    val density: Density = LocalDensity.current
+    var largest_width: Dp by remember(key) { mutableStateOf(0.dp) }
+    var largest_height: Dp by remember(key) { mutableStateOf(0.dp) }
+
+    content(
+        Modifier
+            .onSizeChanged {
+                with(density) {
+                    largest_width = maxOf(largest_width, it.width.toDp())
+                    largest_height = maxOf(largest_height, it.height.toDp())
+                }
+            }
+            .widthIn(min = largest_width),
+        DpSize(largest_width, largest_height)
+    )
+}
+
+@Composable
 fun StickyWidthRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
@@ -56,21 +78,16 @@ fun StickyWidthRow(
     key: Any? = Unit,
     content: @Composable RowScope.() -> Unit
 ) {
-    val density: Density = LocalDensity.current
-    var largest_width: Dp by remember(key) { mutableStateOf(0.dp) }
-
-    Row(
-        modifier
-            .onSizeChanged {
-                largest_width = with(density) {
-                    maxOf(largest_width, it.width.toDp())
-                }
-            }
-            .widthIn(min = largest_width),
-        horizontalArrangement = horizontalArrangement,
-        verticalAlignment = verticalAlignment,
-        content = content
-    )
+    WithStickySize(key) { size_modifier, size ->
+        Row(
+            modifier
+                .then(size_modifier)
+                .widthIn(min = size.width),
+            horizontalArrangement = horizontalArrangement,
+            verticalAlignment = verticalAlignment,
+            content = content
+        )
+    }
 }
 
 @Composable
@@ -81,19 +98,14 @@ fun StickyHeightColumn(
     key: Any? = Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val density: Density = LocalDensity.current
-    var largest_height: Dp by remember(key) { mutableStateOf(0.dp) }
-
-    Column(
-        modifier
-            .onSizeChanged {
-                largest_height = with(density) {
-                    maxOf(largest_height, it.height.toDp())
-                }
-            }
-            .heightIn(min = largest_height),
-        verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment,
-        content = content
-    )
+    WithStickySize(key) { size_modifier, size ->
+        Column(
+            modifier
+                .then(size_modifier)
+                .heightIn(min = size.height),
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = horizontalAlignment,
+            content = content
+        )
+    }
 }
