@@ -30,9 +30,9 @@ import dev.toastbits.composekit.utils.common.toFloat
 
 @Composable
 fun TextOrIconButton(
-    modifier: Modifier = Modifier,
     text: String,
     icon: ImageVector,
+    modifier: Modifier = Modifier,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     border: BorderStroke? = null,
@@ -65,7 +65,7 @@ fun TextOrIconButton(
             modifier = Modifier.requiredSizeIn(minWidth = 40.dp, minHeight = 40.dp),
             contentPadding = ButtonDefaults.ContentPadding.thenIf(!show_text) { copy(start = 0.dp, end = 0.dp) }
         ) {
-            Box {
+            Box(contentAlignment = Alignment.Center) {
                 this@PlatformClickableButton.AnimatedVisibility(show_text) {
                     Text(text, softWrap = false)
                 }
