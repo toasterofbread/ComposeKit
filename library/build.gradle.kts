@@ -75,14 +75,14 @@ kotlin {
 
                 implementation("com.github.toasterofbread.catppuccin-kotlin:catppuccin-kotlin:cde14d00dd")
                 implementation("com.github.toasterofbread.compose-color-picker:compose-color-picker:19c9fb4736")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-                api("com.squareup.okio:okio:3.9.0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+                api("com.squareup.okio:okio:3.9.1")
             }
         }
 
         val androidMain by getting {
             dependencies {
-                api("androidx.activity:activity-compose:1.8.1")
+                api("androidx.activity:activity-compose:1.9.3")
 
                 implementation("com.anggrayudi:storage:1.5.5")
                 implementation("com.google.accompanist:accompanist-swiperefresh:0.21.2-beta")
@@ -100,7 +100,7 @@ kotlin {
 
         val wasmJsMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.2")
             }
         }
 
