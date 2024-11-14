@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonElement
 
 class CookiesPlatformPreferences(
     private val cookies: Cookies,
-    json: Json
+    json: Json = Json
 ): InMemoryPlatformPreferences(json) {
     override val data: MutableMap<String, JsonElement> =
         mutableMapOf<String, JsonElement>().also { map ->

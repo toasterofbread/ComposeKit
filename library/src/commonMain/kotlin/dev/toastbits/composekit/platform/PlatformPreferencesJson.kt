@@ -6,7 +6,10 @@ import kotlinx.serialization.json.Json
 import okio.buffer
 import okio.use
 
-open class PlatformPreferencesJson(private val file: PlatformFile, json: Json): InMemoryPlatformPreferences(json) {
+open class PlatformPreferencesJson(
+    private val file: PlatformFile,
+    json: Json = Json
+): InMemoryPlatformPreferences(json) {
     override val data: MutableMap<String, JsonElement> by lazy { loadData() }
 
     protected open fun loadData(): MutableMap<String, JsonElement> {
