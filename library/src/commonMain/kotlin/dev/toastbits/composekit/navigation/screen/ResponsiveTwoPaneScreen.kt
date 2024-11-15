@@ -16,12 +16,11 @@ import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContain
 
 abstract class ResponsiveTwoPaneScreen<T: Any>(
     private val initialStartPaneRatio: Float = 0.5f,
-    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsProvider.default()
+    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsProvider.default(),
+    protected open val alwaysShowEndPane: Boolean = false
 ): Screen {
     var isDisplayingBothPanes: Boolean = false
         private set
-
-    protected open val alwaysShowEndPane: Boolean = false
 
     @Composable
     protected abstract fun getCurrentData(): T?
