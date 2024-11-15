@@ -9,11 +9,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.content.NavigatorContent
 import dev.toastbits.composekit.navigation.screen.Screen
@@ -164,18 +159,6 @@ open class ExtendableNavigator(
         BackHandler(getNavigateBackwardCount() > 0) {
             navigateBackward()
         }
-    }
-
-    override fun handleKeyEvent(keyEvent: KeyEvent): Boolean {
-        if (keyEvent.type != KeyEventType.KeyUp) {
-            return false
-        }
-
-        when (keyEvent.key) {
-            Key.Escape -> navigateBackward()
-            else -> return false
-        }
-        return true
     }
 }
 

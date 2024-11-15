@@ -3,7 +3,6 @@ package dev.toastbits.composekit.navigation.navigator
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.KeyEvent
 import dev.toastbits.composekit.navigation.screen.Screen
 import kotlin.reflect.KClass
 
@@ -25,8 +24,6 @@ interface Navigator {
 
     fun peekRelative(offset: Int): Screen?
     fun getMostRecentOfOrNull(predicate: (Screen) -> Boolean): Screen?
-
-    fun handleKeyEvent(keyEvent: KeyEvent): Boolean
 
     fun addChild(navigator: Navigator)
     fun removeChild(navigator: Navigator)
