@@ -51,6 +51,8 @@ data class PreferencesTopScreen(
     private val currentScreen: Screen?
         get() = internalNavigator.currentScreen.takeUnless { it == Screen.EMPTY }
 
+    override var alwaysShowEndPane: Boolean = true
+
     @Composable
     override fun getCurrentData(): Screen? = currentScreen
 
@@ -72,12 +74,17 @@ data class PreferencesTopScreen(
 
         LaunchedEffect(Unit) {
             if (!firstLaunch) {
+                alwaysShowEndPane = false
                 return@LaunchedEffect
             }
             firstLaunch = false
 
             if (isDisplayingBothPanes && groups.isNotEmpty()) {
                 openGroup(groups.first())
+                alwaysShowEndPane = true
+            }
+            else {
+                alwaysShowEndPane = false
             }
         }
 

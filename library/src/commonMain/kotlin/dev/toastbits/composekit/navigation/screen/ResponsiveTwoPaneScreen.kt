@@ -21,6 +21,8 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
     var isDisplayingBothPanes: Boolean = false
         private set
 
+    protected open val alwaysShowEndPane: Boolean = false
+
     @Composable
     protected abstract fun getCurrentData(): T?
 
@@ -51,7 +53,7 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
                         endPaneContent = {
                             SecondaryPane(currentData, it, Modifier)
                         },
-                        showEndPane = currentData != null,
+                        showEndPane = alwaysShowEndPane || currentData != null,
                         initialStartPaneRatio = initialStartPaneRatio,
                         contentPadding = contentPadding,
                         modifier = Modifier.fillMaxSize(),
