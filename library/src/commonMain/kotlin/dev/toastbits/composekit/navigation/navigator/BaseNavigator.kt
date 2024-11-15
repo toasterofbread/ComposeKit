@@ -1,6 +1,5 @@
 package dev.toastbits.composekit.navigation.navigator
 
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -13,12 +12,8 @@ import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.content.NavigatorContent
 import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.composable.BackHandler
-import dev.toastbits.composekit.utils.composable.crossfade.SkippableCrossfade
 
-open class ExtendableNavigator(
-    initialScreen: Screen,
-    private val extensions: List<NavigatorExtension> = emptyList()
-): Navigator {
+open class BaseNavigator(initialScreen: Screen): Navigator {
     private val stack: MutableList<Screen> = mutableStateListOf(initialScreen)
 
     private var _currentScreenIndex: Int by mutableStateOf(0)
@@ -138,20 +133,7 @@ open class ExtendableNavigator(
         NavigatorContent(this, modifier) {
             CompositionLocalProvider(LocalNavigator provides this) {
                 render(it, contentPadding) { innerModifier, innerContentPadding ->
-                    BoxWithConstraints {
-                        val overrideCurrentScreen: Screen? = extensions.firstNotNullOfOrNull {
-                            it.rememberCurrentScreenOverride(this@ExtendableNavigator, this@BoxWithConstraints)
-                        }
-
-                        SkippableCrossfade(
-                            overrideCurrentScreen ?: currentScreen,
-                            shouldSkipTransition = { a, b ->
-                                extensions.any { it.shouldSkipScreenTransitionAnimation(a, b) }
-                            }
-                        ) { screen ->
-                            screen.Content(this@ExtendableNavigator, innerModifier, innerContentPadding)
-                        }
-                    }
+                    currentScreen.Content(this@BaseNavigator, innerModifier, innerContentPadding)
                 }
             }
         }

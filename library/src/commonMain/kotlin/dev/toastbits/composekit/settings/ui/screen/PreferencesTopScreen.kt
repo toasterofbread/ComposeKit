@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.CurrentScreen
-import dev.toastbits.composekit.navigation.navigator.ExtendableNavigator
+import dev.toastbits.composekit.navigation.navigator.BaseNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.navigation.navigator.replaceScreenUpTo
 import dev.toastbits.composekit.navigation.screen.ResponsiveTwoPaneScreen
@@ -41,8 +41,8 @@ data class PreferencesTopScreen(
     override val title: String
         @Composable get() = getTitle()
 
-    private val internalNavigator: ExtendableNavigator =
-        object : ExtendableNavigator(Screen.EMPTY) {
+    private val internalNavigator: BaseNavigator =
+        object : BaseNavigator(Screen.EMPTY) {
             override fun getNavigateBackwardCount(): Int =
                 if (isDisplayingBothPanes) (super.getNavigateBackwardCount() - 1).coerceAtLeast(0)
                 else super.getNavigateBackwardCount()
