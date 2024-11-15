@@ -21,7 +21,6 @@ import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.composekit.platform.preferences.PreferencesGroup
 import dev.toastbits.composekit.settings.ui.component.PreferencesGroupPreview
-import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
 import dev.toastbits.composekit.utils.composable.pauseableInfiniteRepeatableAnimation
 import dev.toastbits.composekit.utils.composable.wave.LocalWaveLineAreaState
@@ -44,8 +43,9 @@ data class PreferencesTopScreen(
 
     private val internalNavigator: ExtendableNavigator =
         object : ExtendableNavigator(Screen.EMPTY) {
-            override fun canNavigateBackward(): Boolean =
-                !isDisplayingBothPanes && super.canNavigateBackward()
+            override fun getNavigateBackwardCount(): Int =
+                if (isDisplayingBothPanes) (super.getNavigateBackwardCount() - 1).coerceAtLeast(0)
+                else super.getNavigateBackwardCount()
         }
 
     private val currentScreen: Screen?

@@ -1,15 +1,12 @@
 package dev.toastbits.composekit.navigation.navigator
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -17,9 +14,9 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.content.NavigatorContent
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.composable.BackHandler
 import dev.toastbits.composekit.utils.composable.crossfade.SkippableCrossfade
 
@@ -77,17 +74,22 @@ open class ExtendableNavigator(
         pushScreen(screen)
     }
 
-    override fun canNavigateForward(): Boolean =
-        currentScreenIndex + 1 < stack.size || currentChildNavigator?.canNavigateForward() == true
+    override fun getNavigateForwardCount(): Int =
+        (stack.size - currentScreenIndex + 1).coerceAtLeast(0) + (currentChildNavigator?.getNavigateForwardCount() ?: 0)
 
-    override fun canNavigateBackward(): Boolean =
-        currentScreenIndex > 0 || currentChildNavigator?.canNavigateBackward() == true
+    override fun getNavigateBackwardCount(): Int =
+        currentScreenIndex.coerceAtLeast(0) + (currentChildNavigator?.getNavigateBackwardCount() ?: 0)
 
     override fun navigateForward(by: Int) {
         require(by >= 0)
 
-        if (currentChildNavigator?.canNavigateForward() == true) {
-            currentChildNavigator?.navigateForward(by)
+        val childNavigationCount: Int = currentChildNavigator?.getNavigateForwardCount() ?: 0
+        if (childNavigationCount > 0) {
+            currentChildNavigator?.navigateForward(by.coerceAtMost(childNavigationCount))
+
+            if (childNavigationCount > by) {
+                currentScreenIndex += by - childNavigationCount
+            }
         }
         else {
             currentScreenIndex += by
@@ -97,8 +99,13 @@ open class ExtendableNavigator(
     override fun navigateBackward(by: Int) {
         require(by >= 0)
 
-        if (currentChildNavigator?.canNavigateBackward() == true) {
-            currentChildNavigator?.navigateBackward(by)
+        val childNavigationCount: Int = currentChildNavigator?.getNavigateBackwardCount() ?: 0
+        if (childNavigationCount > 0) {
+            currentChildNavigator?.navigateBackward(by.coerceAtMost(childNavigationCount))
+
+            if (childNavigationCount > by) {
+                currentScreenIndex -= by - childNavigationCount
+            }
         }
         else {
             currentScreenIndex -= by
@@ -154,7 +161,7 @@ open class ExtendableNavigator(
             }
         }
 
-        BackHandler(canNavigateBackward()) {
+        BackHandler(getNavigateBackwardCount() > 0) {
             navigateBackward()
         }
     }

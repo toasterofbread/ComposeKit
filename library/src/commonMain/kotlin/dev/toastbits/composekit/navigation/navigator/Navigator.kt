@@ -17,8 +17,8 @@ interface Navigator {
     fun replaceScreen(screen: Screen)
     fun replaceScreenUpTo(screen: Screen, isLastScreenToReplace: (Screen) -> Boolean)
 
-    fun canNavigateForward(): Boolean
-    fun canNavigateBackward(): Boolean
+    fun getNavigateForwardCount(): Int
+    fun getNavigateBackwardCount(): Int
 
     fun navigateForward(by: Int = 1)
     fun navigateBackward(by: Int = 1)
