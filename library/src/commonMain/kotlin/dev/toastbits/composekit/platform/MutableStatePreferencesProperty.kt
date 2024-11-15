@@ -2,6 +2,8 @@ package dev.toastbits.composekit.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import dev.toastbits.composekit.platform.preferences.PlatformPreferences
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import kotlinx.serialization.json.JsonElement
 
 class MutableStatePreferencesProperty<T>(

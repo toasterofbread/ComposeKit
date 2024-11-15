@@ -12,7 +12,7 @@ import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.settings.ui.on_accent
-import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
 import dev.toastbits.composekit.settings.ui.ThemeValues
 

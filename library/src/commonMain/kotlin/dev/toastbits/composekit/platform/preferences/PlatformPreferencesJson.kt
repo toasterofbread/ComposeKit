@@ -1,5 +1,7 @@
-package dev.toastbits.composekit.platform
+package dev.toastbits.composekit.platform.preferences
 
+import dev.toastbits.composekit.platform.InMemoryPlatformPreferences
+import dev.toastbits.composekit.platform.PlatformFile
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

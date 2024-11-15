@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.platform
+package dev.toastbits.composekit.platform.preferences
 
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty

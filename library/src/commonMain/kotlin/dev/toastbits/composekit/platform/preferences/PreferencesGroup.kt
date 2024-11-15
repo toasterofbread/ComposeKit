@@ -1,11 +1,11 @@
-package dev.toastbits.composekit.platform
+package dev.toastbits.composekit.platform.preferences
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 
 interface PreferencesGroup {
-    val group_key: String?
+    val groupKey: String?
     fun getAllProperties(): List<PreferencesProperty<*>>
 
     @Composable

@@ -12,12 +12,11 @@ import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.utils.composable.crossfade.SkippableCrossfade
 import dev.toastbits.composekit.utils.composable.pane.ResizableTwoPaneRow
-import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
 
 abstract class ResponsiveTwoPaneScreen<T: Any>(
     private val initialStartPaneRatio: Float = 0.5f,
-    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsData()
+    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsProvider.default()
 ): Screen {
     var isDisplayingBothPanes: Boolean = false
         private set

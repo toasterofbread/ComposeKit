@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.platform
+package dev.toastbits.composekit.platform.preferences
 
 import android.content.Context
 import android.content.SharedPreferences

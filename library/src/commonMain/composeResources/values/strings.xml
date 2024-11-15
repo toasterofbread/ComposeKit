@@ -1,0 +1,8 @@
+<resources>
+    <string name="prefs_group_interface_title">Interface</string>
+    <string name="prefs_group_interface_description">TODO</string>
+
+    <string name="pref_interface_animate_pane_resize_title">Smooth pane resize</string>
+    <string name="pref_interface_show_pane_resize_handles">Show pane resize handles</string>
+    <string name="pref_interface_show_pane_resize_handles_on_hover">Show pane resize handles on hover</string>
+</resources>

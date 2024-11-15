@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import dev.toastbits.composekit.platform.PlatformContext
-import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.preferences.PlatformPreferences
 import dev.toastbits.composekit.platform.vibrateShort
 import dev.toastbits.composekit.utils.common.thenIf
 import dev.toastbits.composekit.utils.composable.AlignableCrossfade

@@ -2,7 +2,7 @@ package dev.toastbits.composekit.settings.ui.component.item
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 
 class ComposableSettingsItem(
     val settings_properties: List<PreferencesProperty<*>> = emptyList(),

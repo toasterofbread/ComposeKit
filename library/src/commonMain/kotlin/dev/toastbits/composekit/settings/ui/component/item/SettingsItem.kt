@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import dev.toastbits.composekit.platform.Platform
-import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.utils.composable.LinkifyText
 

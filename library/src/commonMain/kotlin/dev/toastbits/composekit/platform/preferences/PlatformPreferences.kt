@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.platform
+package dev.toastbits.composekit.platform.preferences
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json

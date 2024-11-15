@@ -3,7 +3,7 @@ package dev.toastbits.composekit.settings.ui.component.item.mutablestate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import dev.toastbits.composekit.platform.MutableStatePreferencesProperty
-import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.component.item.TextFieldSettingsItem
 
 fun MutableStateTextFieldSettingsItem(

@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.CurrentScreen
 import dev.toastbits.composekit.navigation.navigator.ExtendableNavigator
-import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.navigation.navigator.replaceScreenUpTo
 import dev.toastbits.composekit.navigation.screen.ResponsiveTwoPaneScreen
-import dev.toastbits.composekit.platform.PreferencesGroup
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
+import dev.toastbits.composekit.platform.preferences.PreferencesGroup
 import dev.toastbits.composekit.settings.ui.component.PreferencesGroupPreview
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
@@ -31,7 +31,7 @@ import kotlin.math.roundToInt
 data class PreferencesTopScreen(
     private val groups: List<PreferencesGroup>,
     private val getTitle: @Composable () -> String,
-    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsData()
+    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsProvider.default()
 ): ResponsiveTwoPaneScreen<Screen>(
     initialStartPaneRatio = 0.4f,
     paneParams = paneParams

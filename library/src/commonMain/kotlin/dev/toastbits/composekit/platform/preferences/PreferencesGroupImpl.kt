@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.platform
+package dev.toastbits.composekit.platform.preferences
 
 import kotlin.properties.PropertyDelegateProvider
 import kotlinx.serialization.json.JsonPrimitive
@@ -30,7 +30,7 @@ import kotlinx.serialization.json.Json
 
 @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
 abstract class PreferencesGroupImpl(
-    override val group_key: String?,
+    override val groupKey: String?,
     val prefs: PlatformPreferences
 ): PreferencesGroup {
     protected open fun getUnregisteredProperties(): List<PreferencesProperty<*>> = emptyList()
@@ -182,10 +182,10 @@ abstract class PreferencesGroupImpl(
     }
 
     private fun formatPropertyKey(property_key: String): String {
-        if (group_key == null) {
+        if (groupKey == null) {
             return property_key
         }
-        return group_key + "_" + property_key
+        return groupKey + "_" + property_key
     }
 
     @Suppress("UNCHECKED_CAST")

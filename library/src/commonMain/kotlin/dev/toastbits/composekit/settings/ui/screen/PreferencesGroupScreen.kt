@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.navigator.Navigator
-import dev.toastbits.composekit.platform.PreferencesGroup
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
+import dev.toastbits.composekit.platform.preferences.PreferencesGroup
 import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 
 data class PreferencesGroupScreen(

@@ -24,13 +24,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,18 +44,18 @@ import com.github.krottv.compose.sliders.DefaultThumb
 import com.github.krottv.compose.sliders.DefaultTrack
 import com.github.krottv.compose.sliders.ListenOnPressed
 import com.github.krottv.compose.sliders.SliderValueHorizontal
-import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.platform.Platform
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.vibrant_accent
+import dev.toastbits.composekit.utils.common.CustomStringResource
 import dev.toastbits.composekit.utils.common.getContrasted
 import dev.toastbits.composekit.utils.common.roundTo
-import dev.toastbits.composekit.utils.common.CustomStringResource
 import dev.toastbits.composekit.utils.composable.MeasureUnconstrainedView
-import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class SliderSettingsItem(
     val state: PreferencesProperty<out Number>,
