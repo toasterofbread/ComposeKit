@@ -10,12 +10,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -95,8 +89,11 @@ inline fun Modifier.thenIf(condition: Boolean, action: Modifier.() -> Modifier):
 inline fun Modifier.thenIf(condition: Boolean, elseAction: Modifier.() -> Modifier, action: Modifier.() -> Modifier): Modifier = if (condition) action() else elseAction()
 inline fun <T> T.thenIf(condition: Boolean, action: T.() -> T): T = if (condition) action() else this
 
-inline fun <T: Any> Modifier.thenWith(value: T?, nullAction: Modifier.() -> Modifier = { this }, action: Modifier.(T) -> Modifier): Modifier =
+inline fun <A: Any> Modifier.thenWith(value: A?, nullAction: Modifier.() -> Modifier = { this }, action: Modifier.(A) -> Modifier): Modifier =
 	if (value != null) action(value) else nullAction()
+
+inline fun <A: Any, B: Any> Modifier.thenWith(valueA: A?, valueB: B?, nullAction: Modifier.() -> Modifier = { this }, action: Modifier.(A, B) -> Modifier): Modifier =
+	if (valueA != null && valueB != null) action(valueA, valueB) else nullAction()
 
 fun <T> MutableList<T>.addUnique(item: T): Boolean {
 	if (!contains(item)) {
