@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.utils.common.copy
 

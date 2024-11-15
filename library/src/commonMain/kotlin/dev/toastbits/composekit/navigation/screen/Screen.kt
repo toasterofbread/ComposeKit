@@ -1,4 +1,4 @@
-package dev.toastbits.composekit.navigation
+package dev.toastbits.composekit.navigation.screen
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable

@@ -89,7 +89,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import dev.toastbits.composekit.library.generated.resources.*
-import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.platform.LocalContext

@@ -4,8 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
-import dev.toastbits.composekit.navigation.Screen
-import dev.toastbits.composekit.platform.composable.BackHandler
+import dev.toastbits.composekit.navigation.screen.Screen
 import kotlin.reflect.KClass
 
 interface Navigator {
@@ -16,6 +15,7 @@ interface Navigator {
 
     fun pushScreen(screen: Screen, skipIfSameClass: Boolean = false)
     fun replaceScreen(screen: Screen)
+    fun replaceScreenUpTo(screen: Screen, isLastScreenToReplace: (Screen) -> Boolean)
 
     fun canNavigateForward(): Boolean
     fun canNavigateBackward(): Boolean
@@ -27,6 +27,9 @@ interface Navigator {
     fun getMostRecentOfOrNull(predicate: (Screen) -> Boolean): Screen?
 
     fun handleKeyEvent(keyEvent: KeyEvent): Boolean
+
+    fun addChild(navigator: Navigator)
+    fun removeChild(navigator: Navigator)
 }
 
 @Composable
@@ -34,8 +37,8 @@ fun Navigator.CurrentScreen(modifier: Modifier, contentPadding: PaddingValues) {
     CurrentScreen(modifier, contentPadding) { innerModifier, innerContentPadding, content ->
         content(innerModifier, innerContentPadding)
     }
+}
 
-    BackHandler(canNavigateBackward()) {
-        navigateBackward()
-    }
+fun Navigator.replaceScreenUpTo(screen: Screen, lastScreenToReplace: KClass<out Screen>) {
+    replaceScreenUpTo(screen) { lastScreenToReplace.isInstance(it) }
 }

@@ -17,15 +17,17 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.content.NavigatorContent
+import dev.toastbits.composekit.platform.composable.BackHandler
 
 class ExtendableNavigator(
     initialScreen: Screen,
-    private val extensions: List<NavigatorExtension> = listOf(SplitPreferencesNavigatorExtension)
+    private val extensions: List<NavigatorExtension> = emptyList()
 ): Navigator {
     private val stack: MutableList<Screen> = mutableStateListOf(initialScreen)
+
     private var _currentScreenIndex: Int by mutableStateOf(0)
     private var currentScreenIndex: Int
         get() = _currentScreenIndex
@@ -39,6 +41,9 @@ class ExtendableNavigator(
                 stack[oldIndex].onClosed()
             }
         }
+
+    private val childNavigators: MutableList<Navigator> = mutableListOf()
+    private val currentChildNavigator: Navigator? get() = childNavigators.lastOrNull()
 
     override val currentScreen: Screen
         get() = stack[currentScreenIndex]
@@ -58,18 +63,43 @@ class ExtendableNavigator(
         stack.add(screen)
     }
 
-    override fun canNavigateForward(): Boolean = currentScreenIndex + 1 < stack.size
+    override fun replaceScreenUpTo(screen: Screen, isLastScreenToReplace: (Screen) -> Boolean) {
+        for (i in currentScreenIndex downTo 0) {
+            if (i == 0 || isLastScreenToReplace(stack[i])) {
+                stack.add(screen)
+                currentScreenIndex = i
+                stack.removeAllButFirst(i, 1)
+                return
+            }
+        }
+    }
 
-    override fun canNavigateBackward(): Boolean =  currentScreenIndex > 0
+    override fun canNavigateForward(): Boolean =
+        currentScreenIndex + 1 < stack.size || currentChildNavigator?.canNavigateForward() == true
+
+    override fun canNavigateBackward(): Boolean =
+        currentScreenIndex > 0 || currentChildNavigator?.canNavigateBackward() == true
 
     override fun navigateForward(by: Int) {
         require(by >= 0)
-        currentScreenIndex += by
+
+        if (currentChildNavigator?.canNavigateForward() == true) {
+            currentChildNavigator?.navigateForward(by)
+        }
+        else {
+            currentScreenIndex += by
+        }
     }
 
     override fun navigateBackward(by: Int) {
         require(by >= 0)
-        currentScreenIndex -= by
+
+        if (currentChildNavigator?.canNavigateBackward() == true) {
+            currentChildNavigator?.navigateBackward(by)
+        }
+        else {
+            currentScreenIndex -= by
+        }
     }
 
     override fun peekRelative(offset: Int): Screen? =
@@ -82,6 +112,16 @@ class ExtendableNavigator(
             }
         }
         return null
+    }
+
+    override fun addChild(navigator: Navigator) {
+        require(navigator != this) { "Cannot add navigator as child of itself" }
+        childNavigators.add(navigator)
+    }
+
+    override fun removeChild(navigator: Navigator) {
+        require(navigator != this) { "Cannot add navigator as child of itself" }
+        childNavigators.remove(navigator)
     }
 
     @Composable
@@ -138,6 +178,10 @@ class ExtendableNavigator(
                 }
             }
         }
+
+        BackHandler(canNavigateBackward()) {
+            navigateBackward()
+        }
     }
 
     override fun handleKeyEvent(keyEvent: KeyEvent): Boolean {
@@ -153,8 +197,8 @@ class ExtendableNavigator(
     }
 }
 
-private fun MutableList<*>.removeAllButFirst(n: Int) {
-    for (i in 0 until size - n) {
-        removeLast()
+private fun MutableList<*>.removeAllButFirst(n: Int, keepLast: Int = 0) {
+    for (i in 0 until size - n - keepLast) {
+        removeAt(size - 1 - keepLast)
     }
 }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -29,7 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
 import dev.toastbits.composekit.settings.ui.component.item.GroupSettingsItem
 import dev.toastbits.composekit.settings.ui.component.item.SettingsItem

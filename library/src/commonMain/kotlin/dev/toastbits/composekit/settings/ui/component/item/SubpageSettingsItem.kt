@@ -7,7 +7,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.settings.ui.vibrant_accent

@@ -2,7 +2,7 @@ package dev.toastbits.composekit.navigation.navigator
 
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
-import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.screen.Screen
 
 interface NavigatorExtension {
     @Composable
