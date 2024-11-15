@@ -10,10 +10,11 @@ import androidx.compose.ui.unit.Dp
 import kotlin.time.Duration
 
 interface ResizablePaneContainerParams: ResizablePaneContainerParamsProvider {
-    val dragHandleWidth: Dp
+    val dragHandleSize: Dp
     val dragHandlePadding: Dp
-    val hoverDragHandleWidth: Dp
+    val hoverDragHandleSize: Dp
     val hoverDragHandlePadding: Dp
+    val hoverable: Boolean
     val handleHighlightSize: Dp
     val handleHighlightShape: Shape
     val minPaneWidth: Dp

@@ -9,10 +9,11 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 data class ResizablePaneContainerParamsData(
-    override val dragHandleWidth: Dp = 12.dp,
+    override val dragHandleSize: Dp = 12.dp,
     override val dragHandlePadding: Dp = 12.dp,
-    override val hoverDragHandleWidth: Dp = 12.dp,
+    override val hoverDragHandleSize: Dp = 12.dp,
     override val hoverDragHandlePadding: Dp = 12.dp,
+    override val hoverable: Boolean = true,
     override val handleHighlightSize: Dp = 50.dp,
     override val handleHighlightShape: Shape = RoundedCornerShape(10.dp),
     override val minPaneWidth: Dp = 50.dp,

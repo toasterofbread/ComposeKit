@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -68,7 +69,7 @@ fun ResizableTwoPaneRow(
     BoxWithConstraints(modifier) {
         val dragHandleHovering: Boolean =
             hoveringOverDragHandle || draggingTimeout.isRunning
-        val dragHandleWidth: Dp by animateDpAsState(if (dragHandleHovering) params.hoverDragHandleWidth else params.dragHandleWidth)
+        val dragHandleWidth: Dp by animateDpAsState(if (dragHandleHovering) params.hoverDragHandleSize else params.dragHandleSize)
         val dragHandlePadding: Dp by animateDpAsState(if (dragHandleHovering) params.hoverDragHandlePadding else params.dragHandlePadding)
 
         val totalHandleWidth: Dp = dragHandleWidth + dragHandlePadding + dragHandlePadding
@@ -116,7 +117,7 @@ fun ResizableTwoPaneRow(
                             Modifier
                                 .fillMaxHeight()
                                 .width(totalHandleWidth)
-                                .hoverable(interactionSource)
+                                .hoverable(interactionSource, enabled = params.hoverable)
                                 .padding(horizontal = dragHandlePadding)
                                 .background(theme.card, RoundedCornerShape(10.dp)),
                             state = rememberDraggableState {

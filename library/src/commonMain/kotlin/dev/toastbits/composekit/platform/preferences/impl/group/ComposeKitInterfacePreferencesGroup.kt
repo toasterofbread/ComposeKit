@@ -11,7 +11,6 @@ import dev.toastbits.composekit.utils.common.thenIf
 import dev.toastbits.composekit.utils.common.toFloat
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParams
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
-import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
 
 interface ComposeKitInterfacePreferencesGroup: PreferencesGroup {
     val SHOW_PANE_RESIZE_HANDLES: PreferencesProperty<Boolean>
@@ -30,15 +29,16 @@ fun ComposeKitInterfacePreferencesGroup.getResizablePaneContainerParams(
     val dragHandleWidth: Float by animateFloatAsState(showPaneResizeHandles.toFloat())
 
     return ResizablePaneContainerParamsData(
-        dragHandleWidth = default.dragHandleWidth * dragHandleWidth,
+        dragHandleSize = default.dragHandleSize * dragHandleWidth,
         dragHandlePadding =
-            (default.dragHandlePadding * dragHandleWidth).thenIf(showPaneResizeHandlesOnHover) { coerceAtLeast(10.dp) },
-        hoverDragHandleWidth =
-            if (showPaneResizeHandles || showPaneResizeHandlesOnHover) default.dragHandleWidth
-            else default.dragHandleWidth * dragHandleWidth,
+            (default.dragHandlePadding * dragHandleWidth).coerceAtLeast(10.dp),
+        hoverDragHandleSize =
+            if (showPaneResizeHandles || showPaneResizeHandlesOnHover) default.dragHandleSize
+            else default.dragHandleSize * dragHandleWidth,
         hoverDragHandlePadding =
             if (showPaneResizeHandles || showPaneResizeHandlesOnHover) default.dragHandlePadding
             else default.dragHandlePadding * dragHandleWidth,
+        hoverable = showPaneResizeHandlesOnHover,
         resizeAnimationSpec =
             if (animatePaneResize) ResizablePaneContainerParams.DEFAULT_RESIZE_ANIMATION_SPEC
             else null
