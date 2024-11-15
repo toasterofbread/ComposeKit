@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
@@ -20,7 +21,6 @@ import dev.toastbits.composekit.navigation.screen.ResponsiveTwoPaneScreen
 import dev.toastbits.composekit.platform.PreferencesGroup
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.composekit.settings.ui.component.PreferencesGroupPreview
-import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParams
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
 import dev.toastbits.composekit.utils.composable.pauseableInfiniteRepeatableAnimation
@@ -37,16 +37,25 @@ data class PreferencesTopScreen(
     paneParams = paneParams
 ) {
     private var waveMillis: Int = 0
+    private var firstLaunch: Boolean = true
 
     override val title: String
         @Composable get() = getTitle()
 
     private val internalNavigator: ExtendableNavigator =
-        ExtendableNavigator(Screen.EMPTY)
+        object : ExtendableNavigator(Screen.EMPTY) {
+            override fun canNavigateBackward(): Boolean =
+                !isDisplayingBothPanes && super.canNavigateBackward()
+        }
+
+    private val currentScreen: Screen?
+        get() = internalNavigator.currentScreen.takeUnless { it == Screen.EMPTY }
 
     @Composable
-    override fun getCurrentData(): Screen? =
-        internalNavigator.currentScreen.takeUnless { it == Screen.EMPTY }
+    override fun getCurrentData(): Screen? = currentScreen
+
+    override fun shouldSkipFormFactorTransition(from: Boolean, to: Boolean): Boolean =
+        currentScreen == null
 
     @Composable
     override fun PrimaryPane(data: Screen?, contentPadding: PaddingValues, modifier: Modifier) {
@@ -60,6 +69,17 @@ data class PreferencesTopScreen(
             )
 
         waveMillis = (waveState.value * wavePeriod).roundToInt()
+
+        LaunchedEffect(Unit) {
+            if (!firstLaunch) {
+                return@LaunchedEffect
+            }
+            firstLaunch = false
+
+            if (isDisplayingBothPanes && groups.isNotEmpty()) {
+                openGroup(groups.first())
+            }
+        }
 
         CompositionLocalProvider(LocalWaveLineAreaState provides waveState) {
             ScrollBarLazyColumn(
@@ -82,13 +102,17 @@ data class PreferencesTopScreen(
                                     return@clickable
                                 }
                                 else {
-                                    internalNavigator.replaceScreenUpTo(PreferencesGroupScreen(group), PreferencesGroupScreen::class)
+                                    openGroup(group)
                                 }
                             }
                     )
                 }
             }
         }
+    }
+
+    private fun openGroup(group: PreferencesGroup) {
+        internalNavigator.replaceScreenUpTo(PreferencesGroupScreen(group), PreferencesGroupScreen::class)
     }
 
     @Composable

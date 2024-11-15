@@ -21,8 +21,9 @@ import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.content.NavigatorContent
 import dev.toastbits.composekit.platform.composable.BackHandler
+import dev.toastbits.composekit.utils.composable.crossfade.SkippableCrossfade
 
-class ExtendableNavigator(
+open class ExtendableNavigator(
     initialScreen: Screen,
     private val extensions: List<NavigatorExtension> = emptyList()
 ): Navigator {
@@ -65,13 +66,15 @@ class ExtendableNavigator(
 
     override fun replaceScreenUpTo(screen: Screen, isLastScreenToReplace: (Screen) -> Boolean) {
         for (i in currentScreenIndex downTo 0) {
-            if (i == 0 || isLastScreenToReplace(stack[i])) {
+            if (isLastScreenToReplace(stack[i])) {
                 stack.add(screen)
                 currentScreenIndex = i
                 stack.removeAllButFirst(i, 1)
                 return
             }
         }
+
+        pushScreen(screen)
     }
 
     override fun canNavigateForward(): Boolean =
@@ -122,34 +125,6 @@ class ExtendableNavigator(
     override fun removeChild(navigator: Navigator) {
         require(navigator != this) { "Cannot add navigator as child of itself" }
         childNavigators.remove(navigator)
-    }
-
-    @Composable
-    fun <T> SkippableCrossfade(
-        state: T,
-        shouldSkipTransition: (T, T) -> Boolean,
-        modifier: Modifier = Modifier,
-        content: @Composable (T) -> Unit
-    ) {
-        var crossfadeState: T by remember { mutableStateOf(state) }
-        var currentState: T by remember { mutableStateOf(state) }
-        var useCurrentState: Boolean by remember { mutableStateOf(false) }
-
-        LaunchedEffect(state) {
-            if (shouldSkipTransition(currentState, state)) {
-                currentState = state
-                useCurrentState = true
-            }
-            else {
-                currentState = state
-                crossfadeState = state
-                useCurrentState = false
-            }
-        }
-
-        Crossfade(crossfadeState, modifier) { s ->
-            content(if (useCurrentState) currentState else s)
-        }
     }
 
     @Composable

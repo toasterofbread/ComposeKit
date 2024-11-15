@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.composekit.utils.composable.crossfade.SkippableCrossfade
 import dev.toastbits.composekit.utils.composable.pane.ResizableTwoPaneRow
-import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParams
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
 
@@ -19,6 +19,9 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
     private val initialStartPaneRatio: Float = 0.5f,
     private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsData()
 ): Screen {
+    var isDisplayingBothPanes: Boolean = false
+        private set
+
     @Composable
     protected abstract fun getCurrentData(): T?
 
@@ -27,12 +30,20 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
         return availableGroupsWidth >= DEFAULT_PRIMARY_PANE_MIN_WIDTH
     }
 
+    protected open fun shouldSkipFormFactorTransition(from: Boolean, to: Boolean): Boolean = false
+
     @Composable
     final override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
         val currentData: T? = getCurrentData()
 
         BoxWithConstraints(modifier) {
-            Crossfade(shouldDisplayBothPanes(), Modifier.fillMaxSize()) { displayBothPanes ->
+            isDisplayingBothPanes = shouldDisplayBothPanes()
+
+            SkippableCrossfade(
+                isDisplayingBothPanes,
+                shouldSkipTransition = ::shouldSkipFormFactorTransition,
+                modifier = Modifier.fillMaxSize()
+            ) { displayBothPanes ->
                 if (displayBothPanes) {
                     ResizableTwoPaneRow(
                         startPaneContent = {
@@ -49,7 +60,10 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
                     )
                 }
                 else {
-                    Crossfade(currentData, Modifier.fillMaxSize()) { data ->
+                    Crossfade(
+                        currentData,
+                        modifier = Modifier.fillMaxSize()
+                    ) { data ->
                         if (data == null) {
                             PrimaryPane(null, contentPadding, Modifier.fillMaxSize())
                         }
