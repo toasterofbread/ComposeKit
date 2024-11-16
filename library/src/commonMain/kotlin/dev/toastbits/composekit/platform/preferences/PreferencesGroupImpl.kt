@@ -1,32 +1,32 @@
 package dev.toastbits.composekit.platform.preferences
 
-import kotlin.properties.PropertyDelegateProvider
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.longOrNull
-import kotlinx.serialization.json.floatOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.int
-import kotlinx.serialization.serializer
-import kotlinx.serialization.KSerializer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import dev.toastbits.composekit.utils.composable.OnChangedEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
-import dev.toastbits.composekit.utils.composable.OnChangedEffect
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.floatOrNull
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
+import kotlinx.serialization.serializer
+import kotlin.properties.PropertyDelegateProvider
 
 @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
 abstract class PreferencesGroupImpl(
@@ -54,7 +54,7 @@ abstract class PreferencesGroupImpl(
                     @Composable
                     override fun getDescription(): String? = getDescription()
 
-                    override suspend fun getDefaultValue(): T = defaultValueProvider()
+                    override fun getDefaultValue(): T = defaultValueProvider()
                     @Composable
                     override fun getDefaultValueComposable(): T = defaultValueProvider()
                     override fun isHidden(): Boolean = isHidden()
@@ -67,7 +67,7 @@ abstract class PreferencesGroupImpl(
     protected inline fun <reified T: Any> resourceDefaultValueProperty(
         noinline getName: @Composable () -> String,
         noinline getDescription: @Composable () -> String?,
-        noinline getDefaultValueSuspending: suspend () -> T,
+        noinline getDefaultValueSuspending: () -> T,
         noinline getDefaultValueComposable: @Composable () -> T,
         noinline isHidden: () -> Boolean = { false }
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T>> {
@@ -81,7 +81,7 @@ abstract class PreferencesGroupImpl(
                     @Composable
                     override fun getDescription(): String? = getDescription()
 
-                    override suspend fun getDefaultValue(): T = getDefaultValueSuspending()
+                    override fun getDefaultValue(): T = getDefaultValueSuspending()
                     @Composable
                     override fun getDefaultValueComposable(): T = getDefaultValueComposable()
                     override fun isHidden(): Boolean = isHidden()
@@ -109,7 +109,7 @@ abstract class PreferencesGroupImpl(
                     @Composable
                     override fun getDescription(): String? = getDescription()
 
-                    override suspend fun getDefaultValue(): T = defaultValueProvider()
+                    override fun getDefaultValue(): T = defaultValueProvider()
                     @Composable
                     override fun getDefaultValueComposable(): T = defaultValueProvider()
                     override fun isHidden(): Boolean = isHidden()
@@ -123,6 +123,7 @@ abstract class PreferencesGroupImpl(
         noinline getName: @Composable () -> String,
         noinline getDescription: @Composable () -> String?,
         noinline getDefaultValue: () -> T,
+        noinline isHidden: () -> Boolean = { false },
         json: Json? = null
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T>> {
         val defaultValueProvider: () -> T = getDefaultValue
@@ -138,9 +139,10 @@ abstract class PreferencesGroupImpl(
                     @Composable
                     override fun getDescription(): String? = getDescription()
 
-                    override suspend fun getDefaultValue(): T = defaultValueProvider()
+                    override fun getDefaultValue(): T = defaultValueProvider()
                     @Composable
                     override fun getDefaultValueComposable(): T = defaultValueProvider()
+                    override fun isHidden(): Boolean = isHidden()
                 }
             onPropertyAdded(property)
             return@PropertyDelegateProvider property
@@ -151,6 +153,7 @@ abstract class PreferencesGroupImpl(
         noinline getName: @Composable () -> String,
         noinline getDescription: @Composable () -> String?,
         noinline getDefaultValue: () -> T?,
+        noinline isHidden: () -> Boolean = { false },
         json: Json? = null
     ): PropertyDelegateProvider<Any?, PreferencesProperty<T?>> {
         val defaultValueProvider: () -> T? = getDefaultValue
@@ -166,9 +169,10 @@ abstract class PreferencesGroupImpl(
                     @Composable
                     override fun getDescription(): String? = getDescription()
 
-                    override suspend fun getDefaultValue(): T? = defaultValueProvider()
+                    override fun getDefaultValue(): T? = defaultValueProvider()
                     @Composable
                     override fun getDefaultValueComposable(): T? = defaultValueProvider()
+                    override fun isHidden(): Boolean = isHidden()
                 }
             onPropertyAdded(property)
             return@PropertyDelegateProvider property
@@ -192,7 +196,7 @@ abstract class PreferencesGroupImpl(
     protected abstract inner class PrefsProperty<T>(key: String): PreferencesProperty<T> {
         override val key: String = formatPropertyKey(key)
 
-        override suspend fun get(): T =
+        override fun get(): T =
             when (val default_value: T = getDefaultValue()) {
                 is Boolean -> prefs.getBoolean(key, default_value)
                 is Float -> prefs.getFloat(key, default_value)
@@ -325,7 +329,7 @@ abstract class PreferencesGroupImpl(
         key: String,
         val entries: List<T>
     ): PrefsProperty<T>(key) {
-        override suspend fun get(): T =
+        override fun get(): T =
             entries[prefs.getInt(key, getDefaultValue().ordinal)!!]
 
         override fun set(value: T, editor: PlatformPreferences.Editor?) =
@@ -351,7 +355,7 @@ abstract class PreferencesGroupImpl(
         private val json: Json
             get() = jsonOverride ?: prefs.json
 
-        override suspend fun get(): T =
+        override fun get(): T =
             prefs.getSerialisable(key, getDefaultValue(), serialiser, json)
 
         override fun set(value: T, editor: PlatformPreferences.Editor?) =

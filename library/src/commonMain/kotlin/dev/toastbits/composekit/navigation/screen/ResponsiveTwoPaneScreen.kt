@@ -7,15 +7,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.utils.composable.crossfade.SkippableCrossfade
 import dev.toastbits.composekit.utils.composable.pane.ResizableTwoPaneRow
+import dev.toastbits.composekit.utils.composable.pane.model.InitialPaneRatioSource
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
 
 abstract class ResponsiveTwoPaneScreen<T: Any>(
-    private val initialStartPaneRatio: Float = 0.5f,
+    private val initialStartPaneRatioSource: InitialPaneRatioSource = InitialPaneRatioSource.Ratio(0.5f),
     private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsProvider.default(),
     protected open val alwaysShowEndPane: Boolean = false
 ): Screen {
@@ -25,12 +25,11 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
     @Composable
     protected abstract fun getCurrentData(): T?
 
-    protected open fun BoxWithConstraintsScope.shouldDisplayBothPanes(): Boolean {
-        val availableGroupsWidth: Dp = maxWidth * (1f - initialStartPaneRatio)
-        return availableGroupsWidth >= DEFAULT_PRIMARY_PANE_MIN_WIDTH
-    }
+    protected open fun BoxWithConstraintsScope.shouldDisplayBothPanes(): Boolean =
+        (maxWidth / 2f) >= 300.dp
 
-    protected open fun shouldSkipFormFactorTransition(from: Boolean, to: Boolean): Boolean = false
+    protected open fun shouldSkipFormFactorTransition(from: Boolean, to: Boolean): Boolean =
+        false
 
     @Composable
     final override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
@@ -53,7 +52,7 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
                             SecondaryPane(currentData, it, Modifier)
                         },
                         showEndPane = alwaysShowEndPane || currentData != null,
-                        initialStartPaneRatio = initialStartPaneRatio,
+                        initialStartPaneRatioSource = initialStartPaneRatioSource,
                         contentPadding = contentPadding,
                         modifier = Modifier.fillMaxSize(),
                         params = paneParams()
@@ -81,8 +80,4 @@ abstract class ResponsiveTwoPaneScreen<T: Any>(
 
     @Composable
     protected abstract fun SecondaryPane(data: T?, contentPadding: PaddingValues, modifier: Modifier)
-
-    companion object {
-        val DEFAULT_PRIMARY_PANE_MIN_WIDTH: Dp = 300.dp
-    }
 }

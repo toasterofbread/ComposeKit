@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,10 @@ internal fun PaneResizeDragHandle(
 
     val highlightOpacity: Float by animateFloatAsState(if (hovering || dragging) 1f else 0.25f)
 
+    LaunchedEffect(dragging) {
+        onDraggingChanged(dragging)
+    }
+
     Box(
         modifier
             .draggable(
@@ -63,10 +68,8 @@ internal fun PaneResizeDragHandle(
                     state.dispatchRawDelta(it)
                     coroutineScope.launchSingle {
                         dragging = true
-                        onDraggingChanged(true)
                         delay(dragTimeout)
                         dragging = false
-                        onDraggingChanged(false)
                     }
                 }
             )

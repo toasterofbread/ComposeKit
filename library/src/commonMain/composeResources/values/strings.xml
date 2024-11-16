@@ -3,6 +3,10 @@
     <string name="prefs_group_interface_description">TODO</string>
 
     <string name="pref_interface_animate_pane_resize_title">Smooth pane resize</string>
-    <string name="pref_interface_show_pane_resize_handles">Show pane resize handles</string>
-    <string name="pref_interface_show_pane_resize_handles_on_hover">Show pane resize handles on hover</string>
+    <string name="pref_interface_show_pane_resize_handles_title">Show pane resize handles</string>
+    <string name="pref_interface_show_pane_resize_handles_on_hover_title">Show pane resize handles on hover</string>
+    <string name="pref_interface_remember_initial_pane_ratios_title">Remember pane sizes</string>
+    <string name="pref_interface_initial_pane_ratio_remember_mode_title">Pane size remember mode</string>
+    <string name="pref_interface_initial_pane_ratio_remember_mode_option_ratio">By proportion</string>
+    <string name="pref_interface_initial_pane_ratio_remember_mode_option_size_dp">By size (dp)</string>
 </resources>

@@ -7,8 +7,8 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.preferences.PreferencesGroup
 import dev.toastbits.composekit.platform.preferences.PreferencesProperty
-import dev.toastbits.composekit.utils.common.thenIf
 import dev.toastbits.composekit.utils.common.toFloat
+import dev.toastbits.composekit.utils.composable.pane.model.InitialPaneRatioSource
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParams
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
 
@@ -16,6 +16,10 @@ interface ComposeKitInterfacePreferencesGroup: PreferencesGroup {
     val SHOW_PANE_RESIZE_HANDLES: PreferencesProperty<Boolean>
     val SHOW_PANE_RESIZE_HANDLES_ON_HOVER: PreferencesProperty<Boolean>
     val ANIMATE_PANE_RESIZE: PreferencesProperty<Boolean>
+
+    val REMEMBER_INITIAL_PANE_RATIOS: PreferencesProperty<Boolean>
+    val REMEMBERED_INITIAL_PANE_RATIOS: PreferencesProperty<Map<String, InitialPaneRatioSource>>
+    val INITIAL_PANE_RATIO_REMEMBER_MODE: PreferencesProperty<InitialPaneRatioSource.Remembered.RememberMode>
 }
 
 @Composable

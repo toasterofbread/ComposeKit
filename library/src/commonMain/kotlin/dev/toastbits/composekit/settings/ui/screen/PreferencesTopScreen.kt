@@ -21,6 +21,7 @@ import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.composekit.platform.preferences.PreferencesGroup
 import dev.toastbits.composekit.settings.ui.component.PreferencesGroupPreview
+import dev.toastbits.composekit.utils.composable.pane.model.InitialPaneRatioSource
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsProvider
 import dev.toastbits.composekit.utils.composable.pauseableInfiniteRepeatableAnimation
 import dev.toastbits.composekit.utils.composable.wave.LocalWaveLineAreaState
@@ -30,9 +31,10 @@ import kotlin.math.roundToInt
 data class PreferencesTopScreen(
     private val groups: List<PreferencesGroup>,
     private val getTitle: @Composable () -> String,
-    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsProvider.default()
+    private val paneParams: ResizablePaneContainerParamsProvider = ResizablePaneContainerParamsProvider.default(),
+    private val initialStartPaneRatioSource: InitialPaneRatioSource = InitialPaneRatioSource.Ratio(0.4f)
 ): ResponsiveTwoPaneScreen<Screen>(
-    initialStartPaneRatio = 0.4f,
+    initialStartPaneRatioSource = initialStartPaneRatioSource,
     paneParams = paneParams
 ) {
     private var waveMillis: Int = 0

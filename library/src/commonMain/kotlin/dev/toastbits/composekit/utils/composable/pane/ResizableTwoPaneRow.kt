@@ -32,9 +32,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.platform.preferences.impl.ComposeKitSettings
+import dev.toastbits.composekit.platform.preferences.impl.LocalComposeKitSettings
 import dev.toastbits.composekit.settings.ui.ThemeValues
 import dev.toastbits.composekit.settings.ui.vibrant_accent
 import dev.toastbits.composekit.utils.common.copy
+import dev.toastbits.composekit.utils.composable.pane.model.InitialPaneRatioSource
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParams
 import dev.toastbits.composekit.utils.composable.pane.model.ResizablePaneContainerParamsData
 import dev.toastbits.composekit.utils.composable.pane.model.resizeAnimationSpecOrDefault
@@ -46,13 +49,12 @@ fun ResizableTwoPaneRow(
     modifier: Modifier = Modifier,
     showEndPane: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(),
-    initialStartPaneRatio: Float = 0.5f,
+    initialStartPaneRatioSource: InitialPaneRatioSource = InitialPaneRatioSource.Ratio(0.5f),
     params: ResizablePaneContainerParams = ResizablePaneContainerParamsData()
 ) {
     val density: Density = LocalDensity.current
     val theme: ThemeValues = LocalApplicationTheme.current
-
-    var startPaneRatio: Float by remember { mutableFloatStateOf(initialStartPaneRatio) }
+    val settings: ComposeKitSettings? = LocalComposeKitSettings.current
 
     val interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
     val hoveringOverDragHandle: Boolean by interactionSource.collectIsHoveredAsState()
@@ -65,6 +67,8 @@ fun ResizableTwoPaneRow(
 
         val totalHandleWidth: Dp = dragHandleWidth + dragHandlePadding + dragHandlePadding
         val availableWidth: Dp = maxWidth - totalHandleWidth
+
+        var startPaneRatio: Float by remember { mutableFloatStateOf(initialStartPaneRatioSource.getInitialPaneRatio(settings, availableWidth)) }
 
         Row(Modifier.matchParentSize()) {
             var animating: Boolean by remember { mutableStateOf(false) }
@@ -114,6 +118,10 @@ fun ResizableTwoPaneRow(
                             },
                             onDraggingChanged = {
                                 dragging = it
+
+                                if (settings != null) {
+                                    initialStartPaneRatioSource.update(settings, startPaneRatio, availableWidth)
+                                }
                             },
                             highlightColour = theme.vibrant_accent,
                             modifier = Modifier
