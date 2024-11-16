@@ -10,11 +10,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.tokens.IconButtonTokens
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -26,6 +25,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import dev.toastbits.composekit.utils.common.thenIf
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ShapedIconButton(
     onClick: () -> Unit,
@@ -37,16 +37,16 @@ fun ShapedIconButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     indication: Indication? = ripple(
         bounded = false,
-        radius = IconButtonTokens.StateLayerSize / 2
+        radius = IconButtonDefaults.smallContainerSize().height / 2
     ),
     onLongClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     Box(
         modifier = modifier
-            .height(IconButtonTokens.StateLayerSize)
+            .height(IconButtonDefaults.smallContainerSize().height)
             .thenIf(applyWidth) {
-                width(IconButtonTokens.StateLayerSize)
+                width(IconButtonDefaults.smallContainerSize().width)
             }
             .background(color = colours.containerColor(enabled), shape = shape)
             .combinedClickable(
