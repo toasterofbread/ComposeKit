@@ -48,6 +48,9 @@ data class PreferencesTopScreen(
             override fun getNavigateBackwardCount(): Int =
                 if (isDisplayingBothPanes) (super.getNavigateBackwardCount() - 1).coerceAtLeast(0)
                 else super.getNavigateBackwardCount()
+
+            override val overridesParentScreen: Boolean
+                get() = !isDisplayingBothPanes
         }
 
     private val currentScreen: Screen?

@@ -11,6 +11,8 @@ interface Navigator {
     fun CurrentScreen(modifier: Modifier, contentPadding: PaddingValues, render: @Composable (Modifier, PaddingValues, @Composable (Modifier, PaddingValues) -> Unit) -> Unit)
 
     val currentScreen: Screen
+    val currentTitle: String? @Composable get
+    val overridesParentScreen: Boolean get() = false
 
     fun pushScreen(screen: Screen, skipIfSameClass: Boolean = false)
     fun replaceScreen(screen: Screen)

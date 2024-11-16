@@ -30,14 +30,23 @@ open class BaseNavigator(initialScreen: Screen): Navigator {
             }
         }
 
-    private val childNavigators: MutableList<Navigator> = mutableListOf()
+    private val childNavigators: MutableList<Navigator> = mutableStateListOf()
     private val currentChildNavigator: Navigator? get() = childNavigators.lastOrNull()
 
-    override val currentScreen: Screen
+    private val ownCurrentScreen: Screen
         get() = stack[currentScreenIndex]
 
+    override val currentScreen: Screen
+        get() = currentChildNavigator?.takeIf { it.overridesParentScreen }?.currentScreen ?: ownCurrentScreen
+
+    override val currentTitle: String?
+        @Composable
+        get() =
+            currentChildNavigator?.takeIf { it.overridesParentScreen }?.currentTitle
+            ?: (currentScreenIndex downTo 0).firstNotNullOfOrNull { stack[it].title }
+
     override fun pushScreen(screen: Screen, skipIfSameClass: Boolean) {
-        if (skipIfSameClass && screen::class == currentScreen::class) {
+        if (skipIfSameClass && screen::class == ownCurrentScreen::class) {
             return
         }
 
@@ -133,7 +142,7 @@ open class BaseNavigator(initialScreen: Screen): Navigator {
         NavigatorContent(this, modifier) {
             CompositionLocalProvider(LocalNavigator provides this) {
                 render(it, contentPadding) { innerModifier, innerContentPadding ->
-                    currentScreen.Content(this@BaseNavigator, innerModifier, innerContentPadding)
+                    ownCurrentScreen.Content(this@BaseNavigator, innerModifier, innerContentPadding)
                 }
             }
         }
